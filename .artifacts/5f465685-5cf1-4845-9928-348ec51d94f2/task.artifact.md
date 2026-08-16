@@ -1,0 +1,60 @@
+# CampusConnect Implementation Tasks
+
+- `[x]` **Phase 1: Infrastructure & Dependencies**
+    - `[x]` Refactor package name from `com.example.act1` to `com.example.campusconnect`
+    - `[x]` Update `libs.versions.toml` with Room, Navigation, ZXing, and Coil
+    - `[x]` Configure `app/build.gradle.kts` (plugins, dependencies, viewBinding)
+    - `[x]` Sync Gradle
+- `[x]` **Phase 2: Database & Models**
+    - `[x]` Create Room Entities (User, Event, RSVP, etc.)
+    - `[x]` Create DAOs for all entities
+    - `[x]` Implement `AppDatabase.kt`
+- `[x]` **Phase 3: Authentication & Splash**
+    - `[x]` Implement Splash Screen
+    - `[x]` Build Login UI & Logic
+    - `[x]` Build Register UI & Logic
+- `[x]` **Phase 4: Navigation & Home**
+    - `[x]` Setup Navigation Graph
+    - `[x]` Implement `MainActivity` with Bottom Navigation
+    - `[x]` Create `HomeFragment` and Event Feed Adapter
+    - `[x]` Implement `StudyGroupsFragment`
+    - `[x]` Implement `CalendarFragment`
+- `[x]` **Phase 5: Core Functional Features**
+    - `[x]` Event/Group Detail Screen
+    - `[x]` RSVP & Waitlist Logic
+    - `[x]` Create Event/Group Screen
+    - `[x]` Calendar & My Events Screens
+- `[x]` **Phase 6: Advanced Features**
+    - `[x]` QR Ticket Generation & Scanning
+    - `[x]` In-app Group Chat (Room-backed)
+    - `[x]` Live Polls
+    - `[x]` Gamification (Streaks & Badges)
+- `[x]` **Phase 7: UI/UX & Polish**
+    - `[x]` Marketplace / Notice Board
+    - `[x]` Dark Mode & Offline Caching
+    - `[x]` Final Animations & Validation
+- `[x]` **Phase 8: Navigation Enhancements**
+    - `[x]` Add Toolbar with Back Button to all child activities
+    - `[x]` Configure Navigation UI for Up buttons
+    - `[x]` Add Scroll Up and Scroll Down buttons to all pages
+- `[x]` **Phase 10: Aesthetic & Branding**
+    - `[x]` Create Custom Vector Logo (`ic_campus_logo.xml`)
+    - `[x]` Define Modern Color Palette in `colors.xml`
+    - `[x]` Update Themes and Component Styles (Cards, Buttons)
+    - `[x]` Redesign Splash & Login with Branding
+    - `[x]` Polish Home Feed & Item Layouts
+    - `[x]` Reposition Scroll Buttons to Floating Side Strip
+- `[x]` **Phase 11: Social Features (Avatars)**
+    - `[x]` Implement Profile Avatar Support (Data Model & UI)
+    - `[x]` Add Circular `ShapeableImageView` to Profile
+    - `[x]` Integrate **Coil** for Image Loading
+    - `[x]` Update Seed Data with Demo Avatars
+- `[x]` **Phase 12: Cartoon Avatar Gallery**
+    - `[x]` Create `AvatarPickerActivity` with Grid Gallery
+    - `[x]` Implement Cartoon Character Selection Logic
+    - `[x]` Connect Picker to Profile screen
+    - `[x]` Persist Selection in Database
+- `[x]` **Phase 9: Innovation Features (Next-Gen)**
+    - `[x]` Implement Campus Karma (Reputation System)
+    - `[x]` Implement Skill Swap Economy in Marketplace
+    - `[x]` Implement Spontaneous "Flash" Sessions

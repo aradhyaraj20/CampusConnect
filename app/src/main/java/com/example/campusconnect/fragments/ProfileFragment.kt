@@ -1,0 +1,135 @@
+package com.example.campusconnect.fragments
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import coil.decode.SvgDecoder
+import coil.load
+import com.example.campusconnect.activities.AvatarPickerActivity
+import com.example.campusconnect.activities.BadgesActivity
+import com.example.campusconnect.activities.MarketplaceActivity
+import com.example.campusconnect.activities.QrTicketActivity
+import com.example.campusconnect.activities.SettingsActivity
+import com.example.campusconnect.adapters.EventAdapter
+import com.example.campusconnect.database.AppDatabase
+import com.example.campusconnect.databinding.FragmentProfileBinding
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
+class ProfileFragment : Fragment() {
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var adapter: EventAdapter
+    private var currentUserId: Int = -1
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val prefs = requireContext().getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
+        currentUserId = prefs.getInt("user_id", -1)
+        val userName = prefs.getString("user_name", "User")
+        val userEmail = prefs.getString("user_email", "email@example.com")
+
+        binding.userName.text = userName
+        binding.userEmail.text = userEmail
+
+        lifecycleScope.launch {
+            AppDatabase.getDatabase(requireContext()).userDao().getUserByIdFlow(currentUserId).collectLatest { user ->
+                user?.let {
+                    binding.userKarma.text = "Karma: ${it.karma_points}"
+                    
+                    if (it.avatar_uri != null) {
+                        binding.profileImage.load(it.avatar_uri) {
+                            crossfade(true)
+                            placeholder(com.example.campusconnect.R.drawable.ic_user_placeholder)
+                            error(com.example.campusconnect.R.drawable.ic_user_placeholder)
+                        }
+                    } else {
+                        binding.profileImage.setImageResource(com.example.campusconnect.R.drawable.ic_user_placeholder)
+                    }
+                }
+            }
+        }
+
+        adapter = EventAdapter(emptyList()) { event ->
+            // Open QR ticket for this event
+            lifecycleScope.launch {
+                val rsvp = AppDatabase.getDatabase(requireContext()).rsvpDao().getUserRSVPForEvent(currentUserId, event.id)
+                rsvp?.let {
+                    val intent = Intent(requireContext(), QrTicketActivity::class.java)
+                    intent.putExtra("RSVP_ID", it.id)
+                    startActivity(intent)
+                }
+            }
+        }
+
+        binding.myEventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.myEventsRecyclerView.adapter = adapter
+
+        binding.scrollUpFab.setOnClickListener {
+            binding.myEventsRecyclerView.smoothScrollToPosition(0)
+        }
+
+        binding.scrollDownFab.setOnClickListener {
+            val count = adapter.itemCount
+            if (count > 0) {
+                binding.myEventsRecyclerView.smoothScrollToPosition(count - 1)
+            }
+        }
+
+        binding.myBadgesButton.setOnClickListener {
+            startActivity(Intent(requireContext(), BadgesActivity::class.java))
+        }
+
+        binding.marketplaceButton.setOnClickListener {
+            startActivity(Intent(requireContext(), MarketplaceActivity::class.java))
+        }
+
+        binding.settingsButton.setOnClickListener {
+            startActivity(Intent(requireContext(), SettingsActivity::class.java))
+        }
+
+        binding.profileImage.setOnClickListener {
+            startActivity(Intent(requireContext(), AvatarPickerActivity::class.java))
+        }
+
+        binding.editAvatarIcon.setOnClickListener {
+            startActivity(Intent(requireContext(), AvatarPickerActivity::class.java))
+        }
+
+        loadJoinedEvents()
+    }
+
+    private fun loadJoinedEvents() {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(requireContext())
+            // Simple query to get events joined by user
+            db.eventDao().getAllEvents().collectLatest { events ->
+                // Filter events that have an RSVP from this user
+                val joinedEvents = events.filter { e ->
+                    db.rsvpDao().getUserRSVPForEvent(currentUserId, e.id) != null
+                }
+                adapter.updateEvents(joinedEvents)
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
