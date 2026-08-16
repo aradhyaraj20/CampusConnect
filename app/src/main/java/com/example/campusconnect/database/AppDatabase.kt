@@ -24,7 +24,7 @@ import com.example.campusconnect.models.*
         Setting::class,
         KarmaTransaction::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

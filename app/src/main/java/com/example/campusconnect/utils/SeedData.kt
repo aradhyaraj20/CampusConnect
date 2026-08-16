@@ -128,21 +128,34 @@ object SeedData {
                         creator_id = 2
                     ),
                     Event(
-                        title = "Need Math Tutor NOW",
-                        description = "Solving calculus derivatives in library room 4",
+                        title = "Android Help for Coffee",
+                        description = "I can help with Android Studio setup",
                         type = "event",
-                        category = "Academic",
-                        image_uri = "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800",
-                        date = "Today",
-                        time = "Live",
-                        location = "Library Room 4",
+                        category = "Skill Swap",
+                        image_uri = "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800",
+                        date = "Aug 16, 2026",
+                        time = "10:00",
+                        location = "Library Cafe",
                         map_lat = null,
                         map_lng = null,
-                        max_attendees = 2,
+                        max_attendees = 1,
                         is_user_created = false,
-                        creator_id = 2,
-                        is_flash = true,
-                        expiry_time = System.currentTimeMillis() + 1800000 // 30 mins from now
+                        creator_id = 1
+                    ),
+                    Event(
+                        title = "Winter Gala 2025",
+                        description = "A night of elegance and dance from last winter.",
+                        type = "event",
+                        category = "Social",
+                        image_uri = "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800",
+                        date = "Dec 15, 2025",
+                        time = "20:00",
+                        location = "Grand Ballroom",
+                        map_lat = null,
+                        map_lng = null,
+                        max_attendees = 500,
+                        is_user_created = false,
+                        creator_id = 2
                     )
                 )
                 events.forEach { event ->
@@ -161,6 +174,23 @@ object SeedData {
                             com.example.campusconnect.models.PollOption(poll_id = pollId, option_text = "Mobile Development", vote_count = 30),
                             com.example.campusconnect.models.PollOption(poll_id = pollId, option_text = "AI/ML", vote_count = 25)
                         ))
+                    }
+
+                    // Seed memories for past event
+                    if (event.title == "Winter Gala 2025") {
+                        val photos = listOf(
+                            "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800",
+                            "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800",
+                            "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800"
+                        )
+                        photos.forEach { uri ->
+                            db.eventDao().addRecapPhoto(com.example.campusconnect.models.RecapPhoto(
+                                event_id = eventId,
+                                user_id = 1,
+                                image_uri = uri,
+                                posted_at = "2025-12-16"
+                            ))
+                        }
                     }
                 }
                 
@@ -207,6 +237,15 @@ object SeedData {
                             posted_at = "2026-08-16",
                             is_swap = true,
                             exchange_with = "1 cup of Latte"
+                        ),
+                        com.example.campusconnect.models.MarketplaceItem(
+                            title = "Lost Blue Backpack",
+                            description = "Contains library books and a calculator. Lost near C block.",
+                            category = "Lost & Found",
+                            price = 50.0, // This will be treated as Karma Bounty
+                            image_uri = "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800",
+                            poster_id = 1,
+                            posted_at = "2026-08-16"
                         )
                     )
                     items.forEach { marketplaceDao.insertItem(it) }

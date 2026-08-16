@@ -1,35 +1,34 @@
-# Aesthetic Visuals & Expanded Content - Walkthrough
+# CampusConnect "Ultimate community" - Walkthrough
 
-I have successfully replaced all placeholder "green grid" areas with high-quality, aesthetic event images and expanded the campus community with new events.
+I have implemented the third major wave of innovation features, turning CampusConnect into a self-sustaining and prestige-driven campus ecosystem.
 
-## Key Visual Enhancements
+## New Community Innovations
 
-### 1. High-Quality Event Imagery
-- **Real Photos**: Replaced the placeholder green blocks with vibrant, high-resolution images from Unsplash, curated to match campus life (Coding, Basketball, Jazz, Yoga, etc.).
-- **Dynamic Loading**: Integrated the **Coil** library into the event and flash adapters for smooth, high-performance image rendering with crossfade effects.
+### 1. Event "Memories" Wall 📸
+- **Visual Legacy**: Past events now have a "View Event Memories" button in their details.
+- **Crowdsourced Gallery**: Attendees can view and add photos to a visual archive of past campus life.
+- **Implementation**: Uses a `StaggeredGridLayout` for a modern, social-media-style photo masonry.
 
-### 2. Aesthetic Card Redesign
-- **Full Bleed Images**: Updated the event cards to feature larger, 180dp full-width headers that make the feed feel more immersive.
-- **20dp Rounded Corners**: Increased corner radius for a softer, more modern "iOS/Material 3" feel.
-- **Refined Spacing**: Improved typography and padding for better text legibility over diverse backgrounds.
+### 2. Campus "Legend" Leaderboard 🏆
+- **Hall of Fame**: Added a prominent banner at the top of the **Study Groups** screen.
+- **Top 5 prestige**: Displays the top 5 most helpful students on campus based on their Karma points.
+- **Circular Branded Avatars**: Shows the rank and avatar of each "Legend" to encourage healthy competition and community service.
 
-### 3. Expanded Event Library
-Added 4 new high-engagement events to the **Seed Data**:
-- **Basketball Finals**: Sports category with large arena visuals.
-- **Late Night Jazz**: Social category for evening vibes.
-- **UI/UX Workshop**: Academic group focusing on design.
-- **Outdoor Yoga**: Wellness event with garden imagery.
+### 3. Lost & Found "Karma Bounty" 🎒
+- **Incentivized Help**: Added a new category to the Marketplace for lost items.
+- **Reputation Reward**: Instead of money, users can offer **Karma Points** as a bounty for returning items.
+- **UI Integration**: These items are visually distinct with a yellow "Karma Bounty" tag.
 
-## Technical Improvements
-- **Database Refresh**: Incremented the Room database version to v4 with a destructive migration to ensure all users see the new beautiful content immediately.
-- **Reactive Adapters**: Both `EventAdapter` and `FlashEventAdapter` are now fully optimized for remote URL loading with built-in placeholder/error states.
+## Technical Details
+- **Database v5**: Upgraded the local storage to support recap photos and advanced karma queries.
+- **High-Performance Image Loading**: All community photos and leaderboard avatars are handled via the Coil reactive engine.
+- **Seeded Communities**: Pre-populated the app with a "Winter Gala 2025" past event (with memories) and a "Lost Blue Backpack" bounty item to demonstrate the loop immediately.
 
 ## How to Verify
-1.  **Launch** the app (new data will seed automatically).
-2.  **Scroll** the Home feed to see the new high-quality event cards.
-3.  **Observe** the "Live Now" banner at the top, which now features its own mini-visuals.
-4.  **Click** into any event to see the details populated with these new aesthetic images.
+1.  **Check Legends**: Go to the "Groups" tab. You will see the "Campus Legends" banner with ranked users.
+2.  **View Memories**: Find "Winter Gala 2025" in the event feed (or through search). Click it and select **View Event Memories** to see the photo gallery.
+3.  **Find Bounties**: Open the **Marketplace** (from Profile) and look for the "Lost Blue Backpack" to see the new Karma Bounty styling.
 
 ---
-> [!TIP]
-> Make sure your device is connected to the internet so the app can fetch these new high-quality event photos from Unsplash for the first time!
+> [!NOTE]
+> CampusConnect has evolved from a simple event app into a full-scale **Campus Social Network** with prestige, history, and a unique knowledge economy.

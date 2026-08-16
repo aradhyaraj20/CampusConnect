@@ -21,6 +21,9 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE id = :id")
     suspend fun getUserById(id: Int): User?
 
+    @Query("SELECT * FROM users ORDER BY karma_points DESC LIMIT :limit")
+    fun getTopUsers(limit: Int): Flow<List<User>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User)
 
