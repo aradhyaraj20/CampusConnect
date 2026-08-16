@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.activities.EventDetailActivity
 import com.example.campusconnect.adapters.EventAdapter
+import com.example.campusconnect.adapters.LegendAdapter
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentStudyGroupsBinding
 import kotlinx.coroutines.flow.collectLatest
@@ -19,6 +20,7 @@ class StudyGroupsFragment : Fragment() {
     private var _binding: FragmentStudyGroupsBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: EventAdapter
+    private lateinit var legendAdapter: LegendAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +39,10 @@ class StudyGroupsFragment : Fragment() {
             startActivity(intent)
         }
 
+        legendAdapter = LegendAdapter(emptyList())
+        binding.legendsRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.legendsRecyclerView.adapter = legendAdapter
+
         binding.groupsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.groupsRecyclerView.adapter = adapter
 
@@ -48,6 +54,15 @@ class StudyGroupsFragment : Fragment() {
             val count = adapter.itemCount
             if (count > 0) {
                 binding.groupsRecyclerView.smoothScrollToPosition(count - 1)
+            }
+        }
+
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(requireContext())
+            
+            // Load Legends
+            db.userDao().getTopUsers(5).collectLatest { users ->
+                legendAdapter.updateLegends(users)
             }
         }
 

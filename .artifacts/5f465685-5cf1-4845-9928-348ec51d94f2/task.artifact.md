@@ -44,6 +44,11 @@
     - `[x]` Redesign Splash & Login with Branding
     - `[x]` Polish Home Feed & Item Layouts
     - `[x]` Reposition Scroll Buttons to Floating Side Strip
+- `[x]` **Phase 11: Ultimate Community Features**
+    - `[x]` Implement Event "Memories" Wall (Activity & Adapter)
+    - `[x]` Create Campus "Legend" Leaderboard (DAO & UI)
+    - `[x]` Add "Karma Bounty" logic to Marketplace
+    - `[x]` Seed data with past events and contributor points
 - `[x]` **Phase 11: Social Features (Avatars)**
     - `[x]` Implement Profile Avatar Support (Data Model & UI)
     - `[x]` Add Circular `ShapeableImageView` to Profile

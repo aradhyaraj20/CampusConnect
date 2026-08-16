@@ -59,6 +59,12 @@ class EventDetailActivity : AppCompatActivity() {
             handleVouch()
         }
 
+        binding.memoriesButton.setOnClickListener {
+            val intent = Intent(this, EventRecapActivity::class.java)
+            intent.putExtra("EVENT_ID", eventId)
+            startActivity(intent)
+        }
+
         binding.scrollUpFab.setOnClickListener {
             binding.nestedScrollView.fullScroll(android.view.View.FOCUS_UP)
         }

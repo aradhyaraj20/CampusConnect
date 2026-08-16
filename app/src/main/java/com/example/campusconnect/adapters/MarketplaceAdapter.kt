@@ -3,6 +3,7 @@ package com.example.campusconnect.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.campusconnect.R
 import com.example.campusconnect.databinding.ItemMarketplaceBinding
 import com.example.campusconnect.models.MarketplaceItem
 
@@ -25,6 +26,9 @@ class MarketplaceAdapter(
         if (item.is_swap) {
             holder.binding.itemPrice.text = "Trade for: ${item.exchange_with}"
             holder.binding.itemPrice.setTextColor(holder.itemView.context.getColor(android.R.color.holo_orange_dark))
+        } else if (item.category == "Lost & Found") {
+            holder.binding.itemPrice.text = "Karma Bounty: ${item.price.toInt()} pts"
+            holder.binding.itemPrice.setTextColor(holder.itemView.context.getColor(R.color.tertiary))
         } else {
             holder.binding.itemPrice.text = "₹${item.price}"
             holder.binding.itemPrice.setTextColor(holder.itemView.context.getColor(com.google.android.material.R.color.design_default_color_primary))
