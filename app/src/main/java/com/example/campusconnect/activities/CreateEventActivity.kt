@@ -12,13 +12,15 @@ import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
+import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityCreateEventBinding
+import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.models.Event
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.launch
 
 /**
  * Handles both creating a new event and, when EXTRA_EVENT_ID is passed, doing
@@ -45,6 +47,7 @@ class CreateEventActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RoleGuard.enforce(this, AccessPolicy::canCreateEvents)
         binding = ActivityCreateEventBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.root.applyImeAndSystemBarInsets()

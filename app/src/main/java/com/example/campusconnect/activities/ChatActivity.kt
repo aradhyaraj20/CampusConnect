@@ -1,19 +1,23 @@
 package com.example.campusconnect.activities
 
-import android.content.Context
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.campusconnect.R
 import com.example.campusconnect.adapters.MessageAdapter
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityChatBinding
 import com.example.campusconnect.models.Message
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import com.example.campusconnect.utils.AuthorizationManager
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatBinding
@@ -29,10 +33,9 @@ class ChatActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Chat"
+        supportActionBar?.title = getString(R.string.chat_title)
 
-        val prefs = getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        currentUserId = prefs.getInt("user_id", -1)
+        currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
         eventId = intent.getIntExtra("EVENT_ID", -1)
         if (eventId == -1) {
@@ -56,9 +59,16 @@ class ChatActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            AppDatabase.getDatabase(this@ChatActivity).messageDao().getMessagesForEvent(eventId).collectLatest { messages ->
+            val db = AppDatabase.getDatabase(this@ChatActivity)
+            if (!AuthorizationManager.canOpenEventSpace(db, currentUserId, eventId)) {
+                Toast.makeText(this@ChatActivity, R.string.event_space_locked, Toast.LENGTH_LONG).show()
+                finish()
+                return@launch
+            }
+            db.messageDao().getMessagesForEvent(eventId).collectLatest { messages ->
                 adapter.updateMessages(messages)
-                binding.chatRecyclerView.scrollToPosition(messages.size - 1)
+                binding.chatEmptyText.visibility = if (messages.isEmpty()) View.VISIBLE else View.GONE
+                if (messages.isNotEmpty()) binding.chatRecyclerView.scrollToPosition(messages.size - 1)
             }
         }
 

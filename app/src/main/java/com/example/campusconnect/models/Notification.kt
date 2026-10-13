@@ -1,9 +1,13 @@
 package com.example.campusconnect.models
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "notifications")
+@Entity(
+    tableName = "notifications",
+    indices = [Index(value = ["user_id", "timestamp"])]
+)
 data class Notification(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val user_id: Int,

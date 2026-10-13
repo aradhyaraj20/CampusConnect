@@ -12,11 +12,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AIInteractionAdapter
-import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
+import com.example.campusconnect.core.security.RoleGuard
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityAiAssistantBinding
 import com.example.campusconnect.databinding.BottomSheetAiPreviewBinding
+import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.models.Event
 import com.example.campusconnect.repository.AIRepository
 import com.example.campusconnect.repository.EventRepository
@@ -58,11 +60,17 @@ class AIAssistantActivity : AppCompatActivity() {
 
         val session = SessionManager.getInstance(this)
         currentUserId = session.getCurrentUserId()
-        if (mode == AIMode.CREATE && session.getCurrentUserRole() !in listOf("ORGANIZER", "ADMIN")) {
+        if (mode == AIMode.CREATE && !AccessPolicy.canCreateEvents(session.getCurrentUserRole())) {
             Toast.makeText(this, "Organizer access required", Toast.LENGTH_SHORT).show(); finish(); return
         }
-        if (mode == AIMode.ADMIN && session.getCurrentUserRole() != "ADMIN") {
+        if (mode == AIMode.ADMIN && !AccessPolicy.canAccessAdmin(session.getCurrentUserRole())) {
             Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show(); finish(); return
+        }
+
+        when (mode) {
+            AIMode.CREATE -> RoleGuard.enforce(this, AccessPolicy::canCreateEvents)
+            AIMode.ADMIN -> RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
+            AIMode.STUDENT -> Unit
         }
 
         val db = AppDatabase.getDatabase(this)

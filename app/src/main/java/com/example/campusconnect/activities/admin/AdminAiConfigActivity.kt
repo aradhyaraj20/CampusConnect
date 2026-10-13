@@ -8,10 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.R
 import com.example.campusconnect.core.ai.AIConfig
+import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.data.remote.GeminiAIDataSource
 import com.example.campusconnect.databinding.ActivityAdminAiConfigBinding
 import com.example.campusconnect.domain.model.Role
+import com.example.campusconnect.domain.security.AccessPolicy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,6 +30,7 @@ class AdminAiConfigActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivityAdminAiConfigBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -36,7 +39,7 @@ class AdminAiConfigActivity : AppCompatActivity() {
         supportActionBar?.title = getString(R.string.ai_configuration)
 
         // Enforced at the destination, not just by hiding the entry point (spec section 3).
-        if (SessionManager.getInstance(this).getCurrentUserRole() != Role.ADMIN.name) {
+        if (!AccessPolicy.canAccessAdmin(SessionManager.getInstance(this).getCurrentUserRole())) {
             Toast.makeText(this, R.string.admin_access_required, Toast.LENGTH_SHORT).show()
             finish()
             return

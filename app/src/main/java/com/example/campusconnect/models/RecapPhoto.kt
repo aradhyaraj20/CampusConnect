@@ -1,9 +1,13 @@
 package com.example.campusconnect.models
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "recap_photos")
+@Entity(
+    tableName = "recap_photos",
+    indices = [Index(value = ["event_id"])]
+)
 data class RecapPhoto(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val event_id: Int,

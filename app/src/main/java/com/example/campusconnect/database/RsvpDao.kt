@@ -37,8 +37,9 @@ interface RsvpDao {
     @Query("SELECT * FROM rsvps WHERE event_id = :eventId AND status = 'waitlisted' ORDER BY id ASC LIMIT 1")
     suspend fun getEarliestWaitlistedUser(eventId: Int): RSVP?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRSVP(rsvp: RSVP)
+    /** Returns -1 when the user already has an RSVP for this event. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertRSVP(rsvp: RSVP): Long
 
     @Update
     suspend fun updateRsvp(rsvp: RSVP)

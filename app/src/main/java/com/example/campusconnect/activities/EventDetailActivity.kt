@@ -19,6 +19,8 @@ import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AttendeeAdapter
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
+import com.example.campusconnect.domain.security.AccessPolicy
+import com.example.campusconnect.models.Notification
 import com.example.campusconnect.databinding.ActivityEventDetailBinding
 import com.example.campusconnect.utils.AttendeeCsv
 import com.example.campusconnect.utils.ReminderManager
@@ -50,11 +52,10 @@ class EventDetailActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.event_details_title)
 
-        val prefs = getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        currentUserId = prefs.getInt("user_id", -1)
+        currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
         eventId = intent.getIntExtra("EVENT_ID", -1)
-        if (eventId == -1) {
+        if (eventId == -1 || currentUserId <= 0) {
             finish()
             return
         }
@@ -91,11 +92,12 @@ class EventDetailActivity : AppCompatActivity() {
         }
 
         binding.rsvpButton.setOnClickListener {
-            if (viewModel.uiState.value.isGoing) {
+            val state = viewModel.uiState.value
+            if (state.isGoing || state.isWaitlisted) {
                 MaterialAlertDialogBuilder(this)
-                    .setTitle("Leave this event?")
-                    .setMessage("If the event is full, the next waitlisted student will get your seat.")
-                    .setPositiveButton("Leave") { _, _ -> viewModel.cancelRsvp() }
+                    .setTitle(if (state.isGoing) R.string.leave_event_title else R.string.leave_waitlist_title)
+                    .apply { if (state.isGoing) setMessage(R.string.leave_event_message) }
+                    .setPositiveButton(R.string.leave_action) { _, _ -> viewModel.cancelRsvp() }
                     .setNegativeButton(R.string.cancel, null)
                     .show()
             } else {
@@ -128,6 +130,7 @@ class EventDetailActivity : AppCompatActivity() {
         menu.findItem(R.id.menu_edit)?.isVisible = canEdit
         menu.findItem(R.id.menu_email)?.isVisible = canEdit
         menu.findItem(R.id.menu_export_csv)?.isVisible = canEdit
+        menu.findItem(R.id.menu_scan_tickets)?.isVisible = canEdit
         menu.findItem(R.id.menu_delete)?.isVisible = canEdit
         return super.onPrepareOptionsMenu(menu)
     }
@@ -158,15 +161,19 @@ class EventDetailActivity : AppCompatActivity() {
                 emailAttendees()
                 true
             }
+            R.id.menu_scan_tickets -> {
+                startActivity(Intent(this, QrScanActivity::class.java).putExtra(QrScanActivity.EXTRA_EVENT_ID, eventId))
+                true
+            }
             R.id.menu_export_csv -> {
                 exportAttendeesCsv()
                 true
             }
             R.id.menu_delete -> {
                 MaterialAlertDialogBuilder(this)
-                    .setTitle("Delete this event?")
-                    .setMessage("This permanently removes the event and cannot be undone. Attendees will no longer see it.")
-                    .setPositiveButton("Delete") { _, _ -> deleteEvent() }
+                    .setTitle(R.string.delete_event_title)
+                    .setMessage(R.string.delete_event_message)
+                    .setPositiveButton(R.string.delete_action) { _, _ -> deleteEvent() }
                     .setNegativeButton(R.string.cancel, null)
                     .show()
                 true
@@ -232,6 +239,8 @@ class EventDetailActivity : AppCompatActivity() {
                             is EventDetailUiEvent.ShowAiDialog -> {
                                 showAiDescriptionDialog(event.suggestedDescription)
                             }
+
+                            EventDetailUiEvent.Close -> finish()
                         }
                     }
                 }
@@ -262,11 +271,35 @@ class EventDetailActivity : AppCompatActivity() {
             .show()
     }
 
+    /**
+     * Re-checks permission against the database (the hidden menu item is not enough),
+     * tells attendees, cancels their reminders and removes every row tied to the event.
+     */
     private fun deleteEvent() {
         lifecycleScope.launch {
-            val event = viewModel.uiState.value.event ?: return@launch
-            AppDatabase.getDatabase(this@EventDetailActivity).eventDao().deleteEvent(event)
-            Toast.makeText(this@EventDetailActivity, "Event deleted", Toast.LENGTH_SHORT).show()
+            val db = AppDatabase.getDatabase(this@EventDetailActivity)
+            val event = db.eventDao().getEventById(eventId) ?: return@launch finish()
+            val role = db.userDao().getUserById(currentUserId)?.role
+            if (event.creator_id != currentUserId && !AccessPolicy.canAccessAdmin(role)) {
+                Toast.makeText(this@EventDetailActivity, R.string.not_allowed, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            val attendees = db.rsvpDao().getAttendeesForEvent(eventId).first()
+            ReminderManager.cancelReminders(this@EventDetailActivity, eventId)
+            db.deleteEventCascade(eventId)
+            val now = System.currentTimeMillis()
+            attendees.filter { it.id != currentUserId }.forEach { user ->
+                db.notificationDao().insertNotification(
+                    Notification(
+                        user_id = user.id,
+                        title = getString(R.string.event_deleted_notice_title),
+                        message = getString(R.string.event_deleted_notice_message, event.title),
+                        timestamp = now,
+                        type = "event_update"
+                    )
+                )
+            }
+            Toast.makeText(this@EventDetailActivity, R.string.event_deleted, Toast.LENGTH_SHORT).show()
             finish()
         }
     }
@@ -314,6 +347,7 @@ class EventDetailActivity : AppCompatActivity() {
             }
             try {
                 val dir = java.io.File(cacheDir, "exports").apply { mkdirs() }
+                dir.listFiles()?.forEach { it.delete() } // don't leave older attendee lists lying around
                 val safeName = event.title.replace(Regex("[^A-Za-z0-9]+"), "_").trim('_').ifEmpty { "event" }
                 val file = java.io.File(dir, "attendees_${safeName}_${event.id}.csv")
                 file.writeText(AttendeeCsv.build(attendees), Charsets.UTF_8)

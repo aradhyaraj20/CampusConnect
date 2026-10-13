@@ -9,7 +9,7 @@ interface NotificationDao {
     @Query("SELECT * FROM notifications WHERE user_id = :userId ORDER BY timestamp DESC")
     fun getNotificationsForUser(userId: Int): Flow<List<Notification>>
 
-    @Query("SELECT COUNT(*) FROM notifications WHERE user_id = :userId")
+    @Query("SELECT COUNT(*) FROM notifications WHERE user_id = :userId AND is_read = 0")
     suspend fun getNotificationCount(userId: Int): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

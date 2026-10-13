@@ -10,9 +10,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AdminUserAdapter
+import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityAdminUsersBinding
+import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.domain.usecase.ModerateReportUseCase
 import com.example.campusconnect.worker.AccountCleanupWorker
 import kotlinx.coroutines.launch
@@ -38,13 +40,14 @@ class AdminUsersActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivityAdminUsersBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.user_management)
 
-        if (SessionManager.getInstance(this).getCurrentUserRole() != "ADMIN") {
+        if (!AccessPolicy.canAccessAdmin(SessionManager.getInstance(this).getCurrentUserRole())) {
             Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show(); finish(); return
         }
 

@@ -5,7 +5,7 @@ import com.example.campusconnect.models.User
 /** Builds the attendee export an organizer can open in Excel/Sheets. Pure, so it is unit-tested. */
 object AttendeeCsv {
     private const val HEADER = "Name,Email,Course"
-    private val FORMULA_PREFIXES = setOf('=', '+', '-', '@')
+    private val FORMULA_PREFIXES = setOf('=', '+', '-', '@', '\t', '\r')
 
     fun build(attendees: List<User>): String =
         (listOf(HEADER) + attendees.map { row(it) }).joinToString("\r\n", postfix = "\r\n")

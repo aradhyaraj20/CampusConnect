@@ -35,7 +35,7 @@ import com.example.campusconnect.models.*
         Report::class,
         Ad::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -69,6 +69,15 @@ abstract class AppDatabase : RoomDatabase() {
         d.deleteSearchHistory(userId); d.deleteAiInteractions(userId); d.deleteAttendance(userId)
         d.deleteSkillListings(userId); d.deleteReports(userId)
         userDao().deleteUserById(userId)
+    }
+
+    /** Deletes an event and everything hanging off it (no foreign keys, so done by hand). */
+    suspend fun deleteEventCascade(eventId: Int) = withTransaction {
+        val d = userDataDao()
+        d.deleteVotesForEvent(eventId); d.deleteOptionsForEvent(eventId); d.deletePollsForEvent(eventId)
+        d.deleteRsvpsForEvent(eventId); d.deleteMessagesForEvent(eventId); d.deleteRecapsForEvent(eventId)
+        d.deleteAttendanceForEvent(eventId); d.deleteNotificationsForEvent(eventId)
+        d.deleteEventById(eventId)
     }
 
     companion object {
@@ -184,6 +193,38 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // Removes duplicate RSVPs / poll votes / check-ins, then enforces uniqueness and
+        // adds indices for the columns every screen filters on.
+        val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Keep one RSVP per (user, event), preferring the "going" row.
+                db.execSQL(
+                    "DELETE FROM rsvps WHERE id NOT IN (SELECT COALESCE(MIN(CASE WHEN status = 'going' THEN id END), MIN(id)) " +
+                        "FROM rsvps GROUP BY user_id, event_id)"
+                )
+                // Take duplicate votes back out of the option totals before deleting them.
+                db.execSQL(
+                    "UPDATE poll_options SET vote_count = MAX(0, vote_count - (SELECT COUNT(*) FROM poll_votes v " +
+                        "WHERE v.option_id = poll_options.id AND v.id NOT IN (SELECT MIN(id) FROM poll_votes GROUP BY poll_id, user_id)))"
+                )
+                db.execSQL("DELETE FROM poll_votes WHERE id NOT IN (SELECT MIN(id) FROM poll_votes GROUP BY poll_id, user_id)")
+                db.execSQL("DELETE FROM attendance WHERE id NOT IN (SELECT MIN(id) FROM attendance GROUP BY eventId, userId)")
+
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_rsvps_user_id_event_id` ON `rsvps` (`user_id`, `event_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_rsvps_event_id_status` ON `rsvps` (`event_id`, `status`)")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_poll_votes_poll_id_user_id` ON `poll_votes` (`poll_id`, `user_id`)")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_attendance_eventId_userId` ON `attendance` (`eventId`, `userId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_events_creator_id` ON `events` (`creator_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_events_date_timestamp` ON `events` (`date_timestamp`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_messages_event_id_sent_at` ON `messages` (`event_id`, `sent_at`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_notifications_user_id_timestamp` ON `notifications` (`user_id`, `timestamp`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_polls_event_id` ON `polls` (`event_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_poll_options_poll_id` ON `poll_options` (`poll_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_recap_photos_event_id` ON `recap_photos` (`event_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ai_interactions_user_id_mode_timestamp` ON `ai_interactions` (`user_id`, `mode`, `timestamp`)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -193,7 +234,7 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                     .addMigrations(
                         MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14,
-                        MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17
+                        MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18
                     )
                     .fallbackToDestructiveMigrationOnDowngrade()
                     .build()

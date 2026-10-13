@@ -8,9 +8,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.ReportAdapter
+import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivitySimpleListBinding
+import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.domain.usecase.ModerateReportUseCase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -19,12 +21,13 @@ class AdminModerationActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySimpleListBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivitySimpleListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.moderation)
-        if (SessionManager.getInstance(this).getCurrentUserRole() != "ADMIN") {
+        if (!AccessPolicy.canAccessAdmin(SessionManager.getInstance(this).getCurrentUserRole())) {
             Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show(); finish(); return
         }
         val db = AppDatabase.getDatabase(this)

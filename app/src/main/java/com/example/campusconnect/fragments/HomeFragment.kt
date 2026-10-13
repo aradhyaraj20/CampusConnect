@@ -338,10 +338,12 @@ class HomeFragment : Fragment() {
                 } else {
                     binding.adBannerImage.visibility = View.GONE
                 }
-                val clickTarget: View.OnClickListener? = ad.link_url?.takeIf { it.isNotBlank() }?.let { url ->
+                val safeUri = ad.link_url?.let { android.net.Uri.parse(it.trim()) }
+                    ?.takeIf { it.scheme.equals("https", ignoreCase = true) && !it.host.isNullOrBlank() }
+                val clickTarget: View.OnClickListener? = safeUri?.let { uri ->
                     View.OnClickListener {
                         try {
-                            startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+                            startActivity(Intent(Intent.ACTION_VIEW, uri).addCategory(Intent.CATEGORY_BROWSABLE))
                         } catch (_: Exception) { /* no browser available */ }
                     }
                 }

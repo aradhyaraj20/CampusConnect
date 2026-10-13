@@ -15,6 +15,10 @@ import com.example.campusconnect.models.RSVP
 import com.example.campusconnect.models.User
 import com.example.campusconnect.domain.event.RsvpDecision
 import com.example.campusconnect.domain.event.RsvpPolicy
+import com.example.campusconnect.domain.event.JoinBlock
+import com.example.campusconnect.domain.security.AccessPolicy
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import com.example.campusconnect.repository.AIRepository
 import com.example.campusconnect.utils.AuthorizationManager
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,8 +41,10 @@ data class EventDetailUiState(
     val rsvpButtonTextRes: Int = R.string.rsvp_join,
     val isRsvpEnabled: Boolean = true,
     val isGoing: Boolean = false,
+    val isWaitlisted: Boolean = false,
     val isEditVisible: Boolean = false,
-    val hasAccess: Boolean = true,
+    // Closed until the RSVP check proves otherwise, so chat/polls can't be opened early.
+    val hasAccess: Boolean = false,
     val isLoading: Boolean = true,
     val isAiGenerating: Boolean = false,
     val attendeeCount: Int = 0,
@@ -49,6 +55,7 @@ data class EventDetailUiState(
 sealed interface EventDetailUiEvent {
     data class ShowToastRes(val messageRes: Int, val formatArgs: String? = null) : EventDetailUiEvent
     data class ShowAiDialog(val suggestedDescription: String) : EventDetailUiEvent
+    object Close : EventDetailUiEvent
 }
 
 class EventDetailViewModel(
@@ -65,6 +72,8 @@ class EventDetailViewModel(
     val uiState: StateFlow<EventDetailUiState> = _uiState.asStateFlow()
 
     private val _uiEvent = MutableSharedFlow<EventDetailUiEvent>()
+    // Serialises join taps so a double tap can't read the seat count twice.
+    private val rsvpMutex = Mutex()
     val uiEvent: SharedFlow<EventDetailUiEvent> = _uiEvent.asSharedFlow()
 
     init {
@@ -79,11 +88,13 @@ class EventDetailViewModel(
             val event = eventDao.getEventById(eventId)
             if (event == null) {
                 _uiState.value = _uiState.value.copy(isLoading = false)
+                _uiEvent.emit(EventDetailUiEvent.ShowToastRes(R.string.event_not_found))
+                _uiEvent.emit(EventDetailUiEvent.Close)
                 return@launch
             }
 
             val currentUser = userDao.getUserById(currentUserId)
-            val isCreator = (event.creator_id == currentUserId) || currentUser?.role == "ADMIN"
+            val isCreator = (event.creator_id == currentUserId) || AccessPolicy.canAccessAdmin(currentUser?.role)
 
             _uiState.value = _uiState.value.copy(
                 event = event,
@@ -98,32 +109,46 @@ class EventDetailViewModel(
         }
     }
 
+    private fun joinBlockFor(event: Event): JoinBlock? = RsvpPolicy.joinBlock(
+        status = event.status,
+        eventStartMillis = event.date_timestamp,
+        registrationDeadline = event.registration_deadline,
+        isRecurring = event.date.startsWith("Every", ignoreCase = true),
+        nowMillis = System.currentTimeMillis()
+    )
+
+    private fun blockTextRes(block: JoinBlock): Int = when (block) {
+        JoinBlock.CANCELLED -> R.string.rsvp_blocked_cancelled
+        JoinBlock.ENDED -> R.string.rsvp_blocked_ended
+        JoinBlock.DEADLINE_PASSED -> R.string.rsvp_blocked_deadline
+    }
+
     private suspend fun updateRsvpAndAccessState(event: Event) {
         val rsvp = rsvpDao.getUserRSVPForEvent(currentUserId, eventId)
         val attendeeCount = rsvpDao.getAttendeeCount(eventId)
-        val maxAttendees = event.max_attendees ?: 0
-        val isFull = maxAttendees > 0 && attendeeCount >= maxAttendees
+        val isFull = RsvpPolicy.isFull(attendeeCount, event.max_attendees)
+        val hasAccess = AuthorizationManager.canAccessRestrictedContent(currentUserId, event, rsvpDao) ||
+            _uiState.value.isEditVisible
+        val block = joinBlockFor(event)
 
-        if (rsvp != null && rsvp.status == "going") {
-            _uiState.value = _uiState.value.copy(
+        _uiState.value = when {
+            rsvp?.status == "going" -> _uiState.value.copy(
                 rsvpButtonTextRes = R.string.leave_event,
-                isRsvpEnabled = true,
-                isGoing = true,
-                hasAccess = true,
-                isLoading = false
+                isRsvpEnabled = true, isGoing = true, isWaitlisted = false
             )
-        } else {
-            val rsvpTextRes = if (isFull) R.string.join_waitlist else R.string.rsvp_join
-            val hasAccess = AuthorizationManager.canAccessRestrictedContent(currentUserId, event, rsvpDao)
-
-            _uiState.value = _uiState.value.copy(
-                rsvpButtonTextRes = rsvpTextRes,
-                isRsvpEnabled = true,
-                isGoing = false,
-                hasAccess = hasAccess,
-                isLoading = false
+            rsvp?.status == "waitlisted" -> _uiState.value.copy(
+                rsvpButtonTextRes = R.string.leave_waitlist,
+                isRsvpEnabled = true, isGoing = false, isWaitlisted = true
             )
-        }
+            block != null -> _uiState.value.copy(
+                rsvpButtonTextRes = blockTextRes(block),
+                isRsvpEnabled = false, isGoing = false, isWaitlisted = false
+            )
+            else -> _uiState.value.copy(
+                rsvpButtonTextRes = if (isFull) R.string.join_waitlist else R.string.rsvp_join,
+                isRsvpEnabled = true, isGoing = false, isWaitlisted = false
+            )
+        }.copy(hasAccess = hasAccess, isLoading = false)
     }
 
     private fun observeAttendees(event: Event) {
@@ -144,8 +169,24 @@ class EventDetailViewModel(
     }
 
     fun handleRSVP() {
+        if (currentUserId <= 0) return
         viewModelScope.launch {
-            val event = _uiState.value.event ?: eventDao.getEventById(eventId) ?: return@launch
+            rsvpMutex.withLock { joinLocked() }
+        }
+    }
+
+    private suspend fun joinLocked() {
+        run {
+            val event = eventDao.getEventById(eventId) ?: return
+            if (rsvpDao.getUserRSVPForEvent(currentUserId, eventId) != null) {
+                updateRsvpAndAccessState(event)
+                return
+            }
+            joinBlockFor(event)?.let { block ->
+                _uiEvent.emit(EventDetailUiEvent.ShowToastRes(blockTextRes(block)))
+                updateRsvpAndAccessState(event)
+                return
+            }
             val count = rsvpDao.getAttendeeCount(eventId)
             val decision = RsvpPolicy.decideJoin(count, event.max_attendees)
             val status = RsvpPolicy.statusLabel(decision)
@@ -155,12 +196,12 @@ class EventDetailViewModel(
                 event_id = eventId,
                 status = status,
                 checked_in = false,
-                joined_at = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                joined_at = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
             )
 
-            rsvpDao.insertRSVP(rsvp)
-            _uiEvent.emit(EventDetailUiEvent.ShowToastRes(R.string.rsvp_successful, status))
-
+            if (rsvpDao.insertRSVP(rsvp) != -1L) {
+                _uiEvent.emit(EventDetailUiEvent.ShowToastRes(R.string.rsvp_successful, status))
+            }
             updateRsvpAndAccessState(event)
         }
     }
@@ -272,6 +313,7 @@ class EventDetailViewModel(
     fun updateEventDescription(newDescription: String) {
         viewModelScope.launch {
             val currentEvent = _uiState.value.event ?: return@launch
+            if (!_uiState.value.isEditVisible) return@launch
             val updatedEvent = currentEvent.copy(description = newDescription)
 
             eventDao.insertEvent(updatedEvent)

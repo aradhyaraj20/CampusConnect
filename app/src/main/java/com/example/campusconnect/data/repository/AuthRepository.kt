@@ -150,6 +150,9 @@ class AuthRepository(
             sessionManager.clearSession()
             return null
         }
+        // Staying logged in counts as activity: AccountCleanupWorker must not purge
+        // a student who opens the app daily but never re-types their password.
+        userDao.updateLastLogin(user.id, System.currentTimeMillis())
         sessionManager.saveUserSession(user.id, user.name, user.email, user.role)
         return user.role
     }

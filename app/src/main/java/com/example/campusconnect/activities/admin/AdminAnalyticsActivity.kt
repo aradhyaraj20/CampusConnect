@@ -9,9 +9,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.R
 import com.example.campusconnect.activities.AIAssistantActivity
+import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivitySimpleListBinding
+import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.viewmodel.admin.AdminDashboardViewModel
 import com.example.campusconnect.viewmodel.admin.AdminDashboardViewModelFactory
 import kotlinx.coroutines.launch
@@ -20,12 +22,13 @@ class AdminAnalyticsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySimpleListBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivitySimpleListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.analytics)
-        if (SessionManager.getInstance(this).getCurrentUserRole() != "ADMIN") {
+        if (!AccessPolicy.canAccessAdmin(SessionManager.getInstance(this).getCurrentUserRole())) {
             Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show(); finish(); return
         }
         binding.aiAssistButton.visibility = View.VISIBLE

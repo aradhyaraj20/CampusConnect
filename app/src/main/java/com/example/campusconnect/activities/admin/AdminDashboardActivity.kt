@@ -8,10 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.R
+import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityAdminDashboardBinding
 import com.example.campusconnect.databinding.ItemStatCardBinding
+import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.viewmodel.admin.AdminDashboardViewModel
 import com.example.campusconnect.viewmodel.admin.AdminDashboardViewModelFactory
 import com.example.campusconnect.viewmodel.admin.CategoryStat
@@ -24,6 +26,7 @@ class AdminDashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivityAdminDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -33,7 +36,7 @@ class AdminDashboardActivity : AppCompatActivity() {
 
         // Guard the destination itself, not just the entry button - hiding a button
         // is not sufficient security (spec section 3).
-        if (sessionManager.getCurrentUserRole() != "ADMIN") {
+        if (!AccessPolicy.canAccessAdmin(sessionManager.getCurrentUserRole())) {
             Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show()
             finish()
             return

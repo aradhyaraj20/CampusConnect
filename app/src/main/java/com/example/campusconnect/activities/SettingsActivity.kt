@@ -180,9 +180,11 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun attemptPasswordChange(b: DialogChangePasswordBinding, dialog: AlertDialog) {
-        val current = b.currentPasswordInput.text?.toString().orEmpty()
-        val new = b.newPasswordInput.text?.toString().orEmpty()
-        val confirm = b.confirmPasswordInput.text?.toString().orEmpty()
+        // Trimmed exactly like LoginActivity does, or a password with a trailing space
+        // could be saved here and then never match at login.
+        val current = b.currentPasswordInput.text?.toString().orEmpty().trim()
+        val new = b.newPasswordInput.text?.toString().orEmpty().trim()
+        val confirm = b.confirmPasswordInput.text?.toString().orEmpty().trim()
 
         b.currentPasswordLayout.error = null
         b.newPasswordLayout.error = null
@@ -217,10 +219,17 @@ class SettingsActivity : AppCompatActivity() {
             }
             // Verify the current password before allowing a change - otherwise anyone
             // with a borrowed unlocked phone could take over the account.
+            // Shares the login lockout, so the current password can't be brute-forced here.
+            if (session.lockoutRemainingMs(user.email) > 0) {
+                b.currentPasswordLayout.error = getString(R.string.pwd_err_locked)
+                return@launch
+            }
             if (!CryptoUtils.verifyPassword(current, user.password_hash)) {
+                session.recordFailedLogin(user.email)
                 b.currentPasswordLayout.error = getString(R.string.pwd_err_current_wrong)
                 return@launch
             }
+            session.clearFailedLogins(user.email)
 
             withContext(Dispatchers.IO) {
                 dao.updatePassword(userId, CryptoUtils.hashPassword(new))

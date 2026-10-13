@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.tabs.TabLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.activities.AIAssistantActivity
@@ -13,14 +12,17 @@ import com.example.campusconnect.activities.EditProfileActivity
 import com.example.campusconnect.activities.EventDetailActivity
 import com.example.campusconnect.activities.NotificationsActivity
 import com.example.campusconnect.adapters.EventAdapter
+import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityOrganizerDashboardBinding
 import com.example.campusconnect.databinding.ItemStatCardBinding
+import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.models.Event
 import com.example.campusconnect.viewmodel.organizer.OrganizerDashboardUiState
 import com.example.campusconnect.viewmodel.organizer.OrganizerDashboardViewModel
 import com.example.campusconnect.viewmodel.organizer.OrganizerDashboardViewModelFactory
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
 class OrganizerDashboardActivity : AppCompatActivity() {
@@ -32,6 +34,7 @@ class OrganizerDashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RoleGuard.enforce(this, AccessPolicy::canAccessOrganizerDashboard)
         binding = ActivityOrganizerDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -42,7 +45,7 @@ class OrganizerDashboardActivity : AppCompatActivity() {
 
         // Guard the destination itself, not just the entry button - hiding a button
         // is not sufficient security (spec section 3).
-        if (sessionManager.getCurrentUserRole() !in listOf("ORGANIZER", "ADMIN")) {
+        if (!AccessPolicy.canAccessOrganizerDashboard(sessionManager.getCurrentUserRole())) {
             Toast.makeText(this, "Organizer access required", Toast.LENGTH_SHORT).show()
             finish()
             return

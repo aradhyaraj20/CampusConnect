@@ -14,9 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AdAdapter
+import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityAdminAdsBinding
+import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.models.Ad
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.collectLatest
@@ -52,13 +54,14 @@ class AdminAdsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivityAdminAdsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.manage_ads)
 
-        if (SessionManager.getInstance(this).getCurrentUserRole() != "ADMIN") {
+        if (!AccessPolicy.canAccessAdmin(SessionManager.getInstance(this).getCurrentUserRole())) {
             Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show(); finish(); return
         }
 
@@ -105,8 +108,13 @@ class AdminAdsActivity : AppCompatActivity() {
                 val title = titleInput.text.toString().trim()
                 val message = messageInput.text.toString().trim()
                 val link = linkInput.text.toString().trim().ifEmpty { null }
+                val linkOk = link == null || android.net.Uri.parse(link).let {
+                    it.scheme.equals("https", ignoreCase = true) && !it.host.isNullOrBlank()
+                }
                 if (title.isEmpty() || message.isEmpty()) {
-                    Toast.makeText(this, "Title and message are required", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.ad_err_required, Toast.LENGTH_SHORT).show()
+                } else if (!linkOk) {
+                    Toast.makeText(this, R.string.ad_err_https, Toast.LENGTH_LONG).show()
                 } else {
                     val adminId = SessionManager.getInstance(this).getCurrentUserId()
                     lifecycleScope.launch {

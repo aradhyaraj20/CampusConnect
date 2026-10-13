@@ -13,9 +13,14 @@ import org.json.JSONObject
 
 object QrCodeGenerator {
 
-    fun generateSignedTicketPayload(rsvpId: Int, eventId: Int, userId: Int): String {
+    private const val DAY_MS = 24 * 3600 * 1000L
+
+    /**
+     * Tickets expire the day after the event. Recurring or undated events fall back to 7 days.
+     */
+    fun generateSignedTicketPayload(rsvpId: Int, eventId: Int, userId: Int, eventStartMillis: Long = 0L): String {
         val issuedAt = System.currentTimeMillis()
-        val expiry = issuedAt + (7 * 24 * 3600 * 1000L) // 7 days valid
+        val expiry = if (eventStartMillis > issuedAt) eventStartMillis + DAY_MS else issuedAt + 7 * DAY_MS
         val ticketId = TicketCrypto.ticketId(rsvpId, eventId, userId)
         val signature = TicketCrypto.sign(ticketId, eventId, userId, issuedAt, expiry)
 

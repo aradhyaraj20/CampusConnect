@@ -5,11 +5,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.withTransaction
+import com.example.campusconnect.R
 import com.example.campusconnect.adapters.PollOptionAdapter
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityPollBinding
 import com.example.campusconnect.models.PollVote
+import com.example.campusconnect.utils.AuthorizationManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -26,7 +29,7 @@ class PollActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Polls"
+        supportActionBar?.title = getString(R.string.polls_title)
 
         currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
@@ -65,28 +68,43 @@ class PollActivity : AppCompatActivity() {
     private fun loadPoll() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(this@PollActivity)
+            if (!AuthorizationManager.canOpenEventSpace(db, currentUserId, eventId)) {
+                Toast.makeText(this@PollActivity, R.string.event_space_locked, Toast.LENGTH_LONG).show()
+                finish()
+                return@launch
+            }
             db.pollDao().getPollsForEvent(eventId).collectLatest { polls ->
-                if (polls.isNotEmpty()) {
-                    val poll = polls[0]
-                    binding.pollQuestion.text = poll.question
-                    
-                    db.pollDao().getOptionsForPoll(poll.id).collectLatest { options ->
-                        adapter.updateOptions(options)
-                        val totalVotes = options.sumOf { it.vote_count }
-                        binding.pollStats.text = "$totalVotes votes · Ends at ${poll.ends_at}"
-                    }
+                val poll = polls.firstOrNull()
+                if (poll == null) {
+                    binding.pollQuestion.setText(R.string.no_polls_yet)
+                    binding.pollStats.text = ""
+                    adapter.updateOptions(emptyList())
+                    return@collectLatest
+                }
+                binding.pollQuestion.text = poll.question
+                db.pollDao().getOptionsForPoll(poll.id).collectLatest { options ->
+                    adapter.updateOptions(options)
+                    val totalVotes = options.sumOf { it.vote_count }
+                    binding.pollStats.text = resources.getQuantityString(R.plurals.poll_votes, totalVotes, totalVotes, poll.ends_at)
                 }
             }
         }
     }
 
+    /** One vote per user per poll, enforced by a unique index; repeat taps are ignored. */
     private fun handleVote(optionId: Int, pollId: Int) {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(this@PollActivity)
-            // In a real app, check if already voted
-            db.pollDao().vote(PollVote(poll_id = pollId, option_id = optionId, user_id = currentUserId))
-            db.pollDao().incrementVoteCount(optionId)
-            Toast.makeText(this@PollActivity, "Vote recorded!", Toast.LENGTH_SHORT).show()
+            val inserted = db.withTransaction {
+                val id = db.pollDao().vote(PollVote(poll_id = pollId, option_id = optionId, user_id = currentUserId))
+                if (id != -1L) db.pollDao().incrementVoteCount(optionId)
+                id != -1L
+            }
+            Toast.makeText(
+                this@PollActivity,
+                if (inserted) R.string.vote_recorded else R.string.vote_already_cast,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

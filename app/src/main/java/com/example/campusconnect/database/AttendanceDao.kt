@@ -23,6 +23,6 @@ interface AttendanceDao {
     @Query("SELECT COUNT(*) FROM attendance WHERE eventId IN (SELECT id FROM events WHERE creator_id = :creatorId)")
     suspend fun getAttendanceCountForOrganizer(creatorId: Int): Int
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun recordAttendance(attendance: Attendance)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun recordAttendance(attendance: Attendance): Long
 }

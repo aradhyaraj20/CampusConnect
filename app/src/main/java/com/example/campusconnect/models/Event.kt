@@ -1,9 +1,13 @@
 package com.example.campusconnect.models
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "events")
+@Entity(
+    tableName = "events",
+    indices = [Index(value = ["creator_id"]), Index(value = ["date_timestamp"])]
+)
 data class Event(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,

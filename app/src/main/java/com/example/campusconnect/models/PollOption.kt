@@ -1,9 +1,13 @@
 package com.example.campusconnect.models
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "poll_options")
+@Entity(
+    tableName = "poll_options",
+    indices = [Index(value = ["poll_id"])]
+)
 data class PollOption(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val poll_id: Int,

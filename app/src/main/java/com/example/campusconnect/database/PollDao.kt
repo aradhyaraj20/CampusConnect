@@ -20,8 +20,12 @@ interface PollDao {
     @Query("SELECT * FROM poll_options WHERE poll_id = :pollId")
     fun getOptionsForPoll(pollId: Int): Flow<List<PollOption>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun vote(vote: PollVote)
+    /** Returns -1 when this user already voted in the poll. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun vote(vote: PollVote): Long
+
+    @Query("SELECT option_id FROM poll_votes WHERE poll_id = :pollId AND user_id = :userId LIMIT 1")
+    suspend fun getUserVote(pollId: Int, userId: Int): Int?
 
     @Query("UPDATE poll_options SET vote_count = vote_count + 1 WHERE id = :optionId")
     suspend fun incrementVoteCount(optionId: Int): Int

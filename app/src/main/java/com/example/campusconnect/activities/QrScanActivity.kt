@@ -2,11 +2,14 @@ package com.example.campusconnect.activities
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.campusconnect.R
 import com.example.campusconnect.core.security.SessionManager
-import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.database.AppDatabase
+import com.example.campusconnect.domain.security.AccessPolicy
+import com.example.campusconnect.domain.security.TicketCrypto
 import com.example.campusconnect.models.Attendance
 import com.example.campusconnect.utils.QrCodeGenerator
 import com.example.campusconnect.utils.TicketVerificationResult
@@ -15,11 +18,19 @@ import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.launch
 
+/**
+ * Organizer/admin ticket scanner. Every scan is checked against the database, not just
+ * the signature: the scanner must own the event (or be an admin), the event must still
+ * be active, and the attendee must still hold a "going" RSVP matching the ticket.
+ * When opened from an event (EXTRA_EVENT_ID), tickets for other events are rejected.
+ */
 class QrScanActivity : AppCompatActivity() {
+
+    private var expectedEventId: Int = -1
+    private var scannerUserId: Int = -1
 
     private val barcodeLauncher = registerForActivityResult(ScanContract()) { result: ScanIntentResult ->
         if (result.contents == null) {
-            Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
             finish()
         } else {
             handleScanResult(result.contents)
@@ -28,97 +39,79 @@ class QrScanActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        expectedEventId = intent.getIntExtra(EXTRA_EVENT_ID, -1)
+        scannerUserId = SessionManager.getInstance(this).getCurrentUserId()
 
-        val role = SessionManager.getInstance(this).getCurrentUserRole()
-        if (!AccessPolicy.canScanAttendance(role)) {
-            Toast.makeText(this, "Organizer access required to scan attendance", Toast.LENGTH_LONG).show()
-            finish()
-            return
+        lifecycleScope.launch {
+            // Role comes from the database, not the cached session value.
+            val role = AppDatabase.getDatabase(this@QrScanActivity).userDao().getUserById(scannerUserId)?.role
+            if (!AccessPolicy.canScanAttendance(role)) {
+                finishWith(R.string.scan_requires_organizer)
+                return@launch
+            }
+            val options = ScanOptions()
+            options.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+            options.setPrompt(getString(R.string.scan_prompt))
+            options.setBeepEnabled(true)
+            options.setBarcodeImageEnabled(true)
+            barcodeLauncher.launch(options)
         }
-        
-        val options = ScanOptions()
-        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-        options.setPrompt("Point at attendee's QR code")
-        options.setBeepEnabled(true)
-        options.setBarcodeImageEnabled(true)
-        barcodeLauncher.launch(options)
     }
 
     private fun handleScanResult(contents: String) {
-        val currentScannerUserId = SessionManager.getInstance(this).getCurrentUserId()
-
-        // 1. Try Signed Payload Verification
-        val verification = QrCodeGenerator.verifyTicketPayload(contents)
-        if (verification is TicketVerificationResult.Valid) {
-            processCheckIn(
-                ticketId = verification.ticketId,
-                eventId = verification.eventId,
-                userId = verification.userId,
-                scannerUserId = currentScannerUserId
-            )
-            return
-        }
-
-        // 2. Fallback to Legacy Raw Prefix
-        if (contents.startsWith("CAMPUS_CONNECT_RSVP_")) {
-            val rsvpId = contents.removePrefix("CAMPUS_CONNECT_RSVP_").toIntOrNull()
-            if (rsvpId != null) {
-                lifecycleScope.launch {
-                    val db = AppDatabase.getDatabase(this@QrScanActivity)
-                    val rsvp = db.rsvpDao().getRsvpById(rsvpId)
-                    if (rsvp != null) {
-                        processCheckIn(
-                            ticketId = "TICK_${rsvp.id}_${rsvp.event_id}_${rsvp.user_id}",
-                            eventId = rsvp.event_id,
-                            userId = rsvp.user_id,
-                            scannerUserId = currentScannerUserId
-                        )
-                    } else {
-                        Toast.makeText(this@QrScanActivity, "Invalid Ticket ID", Toast.LENGTH_LONG).show()
-                        finish()
-                    }
-                }
-                return
+        when (val verification = QrCodeGenerator.verifyTicketPayload(contents)) {
+            is TicketVerificationResult.Valid -> processCheckIn(verification.ticketId, verification.eventId, verification.userId)
+            is TicketVerificationResult.Invalid -> {
+                Toast.makeText(this, verification.reason, Toast.LENGTH_LONG).show()
+                finish()
             }
         }
-
-        // 3. Invalid QR Ticket
-        val reason = (verification as? TicketVerificationResult.Invalid)?.reason ?: "Invalid QR Code"
-        Toast.makeText(this, reason, Toast.LENGTH_LONG).show()
-        finish()
     }
 
-    private fun processCheckIn(ticketId: String, eventId: Int, userId: Int, scannerUserId: Int) {
+    private fun processCheckIn(ticketId: String, eventId: Int, userId: Int) {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(this@QrScanActivity)
 
-            // Check if already checked in
-            val existingAttendance = db.attendanceDao().getAttendanceForUser(eventId, userId)
-            if (existingAttendance != null) {
-                Toast.makeText(this@QrScanActivity, "Attendee ALREADY Checked In!", Toast.LENGTH_LONG).show()
-                finish()
-                return@launch
+            if (expectedEventId != -1 && eventId != expectedEventId) {
+                finishWith(R.string.scan_wrong_event); return@launch
             }
-
-            // Record attendance
-            val attendance = Attendance(
-                eventId = eventId,
-                userId = userId,
-                ticketId = ticketId,
-                checkInTime = System.currentTimeMillis(),
-                checkedInBy = scannerUserId,
-                status = "CHECKED_IN"
-            )
-            db.attendanceDao().recordAttendance(attendance)
-
-            // Update RSVP checked_in state
+            val event = db.eventDao().getEventById(eventId)
+            if (event == null || !event.status.equals("active", ignoreCase = true)) {
+                finishWith(R.string.scan_event_inactive); return@launch
+            }
+            val scannerRole = db.userDao().getUserById(scannerUserId)?.role
+            if (event.creator_id != scannerUserId && !AccessPolicy.canAccessAdmin(scannerRole)) {
+                finishWith(R.string.scan_not_your_event); return@launch
+            }
             val rsvp = db.rsvpDao().getUserRSVPForEvent(userId, eventId)
-            if (rsvp != null) {
-                db.rsvpDao().updateRsvp(rsvp.copy(checked_in = true))
+            if (rsvp == null || rsvp.status != "going" || TicketCrypto.ticketId(rsvp.id, eventId, userId) != ticketId) {
+                finishWith(R.string.scan_no_valid_rsvp); return@launch
             }
 
-            Toast.makeText(this@QrScanActivity, "Check-in Successful! 🎉", Toast.LENGTH_LONG).show()
-            finish()
+            val inserted = db.attendanceDao().recordAttendance(
+                Attendance(
+                    eventId = eventId,
+                    userId = userId,
+                    ticketId = ticketId,
+                    checkInTime = System.currentTimeMillis(),
+                    checkedInBy = scannerUserId,
+                    status = "CHECKED_IN"
+                )
+            )
+            if (inserted == -1L) {
+                finishWith(R.string.scan_already_checked_in); return@launch
+            }
+            db.rsvpDao().updateRsvp(rsvp.copy(checked_in = true))
+            finishWith(R.string.scan_success)
         }
+    }
+
+    private fun finishWith(@StringRes message: Int) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        finish()
+    }
+
+    companion object {
+        const val EXTRA_EVENT_ID = "EVENT_ID"
     }
 }

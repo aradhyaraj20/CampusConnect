@@ -30,6 +30,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/menu_scan_tickets"
+        android:title="@string/scan_tickets"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_export_csv"
         android:title="@string/export_attendees_csv"
         android:visible="false"
