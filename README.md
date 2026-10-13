@@ -51,8 +51,6 @@ If the key is empty or Gemini is down, the app uses the local parser / database 
 ./gradlew connectedDebugAndroidTest   # Room migration test (needs emulator/device)
 ```
 
-CI (`.github/workflows/ci.yml`) runs the build and unit tests on every push.
-
 ## Docs
 
 - [Demo script](docs/DEMO_SCRIPT.md)
