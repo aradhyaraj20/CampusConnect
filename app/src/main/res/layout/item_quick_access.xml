@@ -19,34 +19,38 @@
         android:padding="12dp">
 
         <FrameLayout
-            android:id="@+id/qaIconChip"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:background="@drawable/bg_qa_icon_chip">
+            android:layout_width="match_parent"
+            android:layout_height="42dp">
 
-            <ImageView
-                android:id="@+id/qaIcon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_gravity="center"
-                android:importantForAccessibility="no"
-                app:tint="@color/white" />
+            <FrameLayout
+                android:id="@+id/qaIconChip"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/bg_qa_icon_chip">
+
+                <ImageView
+                    android:id="@+id/qaIcon"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    app:tint="@color/white" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/qaNewBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:background="@drawable/bg_new_badge"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="@string/qa_new"
+                android:textColor="@color/white"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
         </FrameLayout>
-
-        <TextView
-            android:id="@+id/qaNewBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="-32dp"
-            android:background="@drawable/bg_new_badge"
-            android:paddingHorizontal="6dp"
-            android:paddingVertical="2dp"
-            android:text="@string/qa_new"
-            android:textColor="@color/white"
-            android:textSize="9sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
 
         <TextView
             android:id="@+id/qaTitle"

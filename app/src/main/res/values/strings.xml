@@ -260,4 +260,19 @@
     <string name="mk_posted">Listing posted</string>
     <string name="mk_empty_title">Nothing listed yet</string>
     <string name="mk_empty_sub">Be the first \u2014 tap + to list a book, gadget or anything you want to swap.</string>
+    <string name="ai_empty_title_student">Ask about campus events</string>
+    <string name="ai_empty_subtitle_student">Search events, check your RSVPs or find something to join.</string>
+    <string name="ai_empty_title_create">Describe your event</string>
+    <string name="ai_empty_subtitle_create">Tell me the title, date, time and place and I will prepare a preview.</string>
+    <string name="ai_empty_title_admin">Campus analytics</string>
+    <string name="ai_empty_subtitle_admin">Ask about users, events, RSVPs and reports.</string>
+    <string name="ai_chip_student_week">What is happening this week?</string>
+    <string name="ai_chip_student_rsvps">Show my RSVPs</string>
+    <string name="ai_chip_student_next">What is my next event?</string>
+    <string name="ai_chip_student_coding">Any coding events?</string>
+    <string name="ai_chip_create_hackathon">Hackathon next Friday at 6pm in Lab 2</string>
+    <string name="ai_chip_create_workshop">Workshop tomorrow 3pm in Seminar Hall</string>
+    <string name="ai_chip_admin_users">How many users do we have?</string>
+    <string name="ai_chip_admin_top">Which events have the most RSVPs?</string>
+    <string name="ai_chip_admin_reports">Any pending reports?</string>
 </resources>

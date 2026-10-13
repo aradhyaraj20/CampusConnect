@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AIInteractionAdapter
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
@@ -24,6 +25,7 @@ import com.example.campusconnect.viewmodel.AIMode
 import com.example.campusconnect.viewmodel.AIUiState
 import com.example.campusconnect.viewmodel.AIViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -83,13 +85,42 @@ class AIAssistantActivity : AppCompatActivity() {
                 binding.promptEditText.text?.clear()
             }
         }
+        setupEmptyState()
         observeViewModel()
+    }
+
+    /** Greeting + tappable example questions shown while the thread is empty. */
+    private fun setupEmptyState() {
+        val (title, subtitle, suggestions) = when (mode) {
+            AIMode.STUDENT -> Triple(
+                R.string.ai_empty_title_student, R.string.ai_empty_subtitle_student,
+                listOf(R.string.ai_chip_student_week, R.string.ai_chip_student_rsvps,
+                    R.string.ai_chip_student_next, R.string.ai_chip_student_coding)
+            )
+            AIMode.CREATE -> Triple(
+                R.string.ai_empty_title_create, R.string.ai_empty_subtitle_create,
+                listOf(R.string.ai_chip_create_hackathon, R.string.ai_chip_create_workshop)
+            )
+            AIMode.ADMIN -> Triple(
+                R.string.ai_empty_title_admin, R.string.ai_empty_subtitle_admin,
+                listOf(R.string.ai_chip_admin_users, R.string.ai_chip_admin_top, R.string.ai_chip_admin_reports)
+            )
+        }
+        binding.emptyTitle.setText(title)
+        binding.emptySubtitle.setText(subtitle)
+        suggestions.forEach { res ->
+            binding.suggestionChips.addView(Chip(this).apply {
+                setText(res)
+                setOnClickListener { viewModel.processPrompt(getString(res)) }
+            })
+        }
     }
 
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.chatHistory.collectLatest { history ->
                 adapter.updateHistory(history)
+                binding.emptyState.visibility = if (history.isEmpty()) View.VISIBLE else View.GONE
                 if (history.isNotEmpty()) binding.chatRecyclerView.smoothScrollToPosition(history.size - 1)
             }
         }
