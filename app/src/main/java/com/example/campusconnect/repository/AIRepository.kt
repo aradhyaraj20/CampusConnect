@@ -6,6 +6,7 @@ import com.example.campusconnect.data.remote.EventDraftExtraction
 import com.example.campusconnect.data.remote.GeminiAIDataSource
 import com.example.campusconnect.data.remote.LocalEventParser
 import com.example.campusconnect.database.EventDao
+import com.example.campusconnect.domain.event.EventTime
 import com.example.campusconnect.database.ReportDao
 import com.example.campusconnect.database.RsvpDao
 import com.example.campusconnect.database.UserDao
@@ -87,7 +88,7 @@ class AIRepository(
         max_attendees = extracted.capacity,
         is_user_created = true,
         creator_id = 0,
-        date_timestamp = extracted.dateTimestamp,
+        date_timestamp = EventTime.combine(extracted.dateTimestamp, extracted.time),
         eligibility = extracted.eligibility,
         tags = extracted.tags,
         status = "active"

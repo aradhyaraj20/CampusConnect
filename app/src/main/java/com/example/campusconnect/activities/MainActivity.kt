@@ -3,24 +3,27 @@ package com.example.campusconnect.activities
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.R
+import com.example.campusconnect.core.common.NotificationPermission
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityMainBinding
 import com.example.campusconnect.utils.SeedData
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+    private val notificationPermission = NotificationPermission(this)
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        notificationPermission.request()
         setSupportActionBar(binding.toolbar)
 
         val db = AppDatabase.getDatabase(this)

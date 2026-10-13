@@ -1,6 +1,5 @@
 package com.example.campusconnect.fragments
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,6 +17,7 @@ import com.example.campusconnect.activities.MarketplaceActivity
 import com.example.campusconnect.activities.QrTicketActivity
 import com.example.campusconnect.activities.SettingsActivity
 import com.example.campusconnect.adapters.EventAdapter
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentProfileBinding
 import com.google.android.material.chip.Chip
@@ -41,15 +41,15 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val prefs = requireContext().getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        currentUserId = prefs.getInt("user_id", -1)
-        val userName = prefs.getString("user_name", "User")
-        val userEmail = prefs.getString("user_email", "email@example.com")
+        val session = SessionManager.getInstance(requireContext())
+        currentUserId = session.getCurrentUserId()
+        val userName = session.getCurrentUserName()
+        val userEmail = session.getCurrentUserEmail()
 
         binding.userName.text = userName
         binding.userEmail.text = userEmail
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             AppDatabase.getDatabase(requireContext()).userDao().getUserByIdFlow(currentUserId).collectLatest { user ->
                 user?.let {
                     binding.userKarma.text = "Karma: ${it.karma_points}"
@@ -80,7 +80,7 @@ class ProfileFragment : Fragment() {
 
         adapter = EventAdapter(emptyList()) { event ->
             // Open QR ticket for this event
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 val rsvp = AppDatabase.getDatabase(requireContext()).rsvpDao().getUserRSVPForEvent(currentUserId, event.id)
                 rsvp?.let {
                     val intent = Intent(requireContext(), QrTicketActivity::class.java)
@@ -132,15 +132,11 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadJoinedEvents() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
-            // Simple query to get events joined by user
-            db.eventDao().getAllEvents().collectLatest { events ->
-                // Filter events that have an RSVP from this user
-                val joinedEvents = events.filter { e ->
-                    db.rsvpDao().getUserRSVPForEvent(currentUserId, e.id) != null
-                }
+            db.eventDao().getJoinedEvents(currentUserId).collectLatest { joinedEvents ->
                 adapter.updateEvents(joinedEvents)
+                binding.joinedEmptyText.visibility = if (joinedEvents.isEmpty()) View.VISIBLE else View.GONE
             }
         }
     }

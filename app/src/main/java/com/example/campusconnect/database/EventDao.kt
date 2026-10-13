@@ -11,6 +11,13 @@ interface EventDao {
     @Query("SELECT * FROM events")
     fun getAllEvents(): Flow<List<Event>>
 
+    /** Events the user holds a seat or waitlist spot for, soonest first. Re-emits on RSVP changes too. */
+    @Query(
+        "SELECT events.* FROM events INNER JOIN rsvps ON rsvps.event_id = events.id " +
+            "WHERE rsvps.user_id = :userId AND rsvps.status IN ('going', 'waitlisted') ORDER BY events.date_timestamp ASC"
+    )
+    fun getJoinedEvents(userId: Int): Flow<List<Event>>
+
     @Query("SELECT * FROM events WHERE id = :id")
     suspend fun getEventById(id: Int): Event?
 

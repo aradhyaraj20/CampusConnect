@@ -17,11 +17,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AttendeeAdapter
+import com.example.campusconnect.core.common.NotificationPermission
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
+import com.example.campusconnect.databinding.ActivityEventDetailBinding
 import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.models.Notification
-import com.example.campusconnect.databinding.ActivityEventDetailBinding
 import com.example.campusconnect.utils.AttendeeCsv
 import com.example.campusconnect.utils.ReminderManager
 import com.example.campusconnect.viewmodel.EventDetailUiEvent
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class EventDetailActivity : AppCompatActivity() {
+    private val notificationPermission = NotificationPermission(this)
 
     private lateinit var binding: ActivityEventDetailBinding
     private lateinit var attendeeAdapter: AttendeeAdapter
@@ -367,6 +369,7 @@ class EventDetailActivity : AppCompatActivity() {
 
     private fun scheduleSmartReminders() {
         val currentEvent = viewModel.uiState.value.event ?: return
+        notificationPermission.request()
         ReminderManager.scheduleReminders(this, currentEvent)
         Toast.makeText(this, getString(R.string.reminders_set), Toast.LENGTH_LONG).show()
     }

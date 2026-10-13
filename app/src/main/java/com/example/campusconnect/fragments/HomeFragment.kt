@@ -1,6 +1,5 @@
 package com.example.campusconnect.fragments
 
-import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -31,6 +30,7 @@ import com.example.campusconnect.adapters.EventAdapter
 import com.example.campusconnect.adapters.FlashEventAdapter
 import com.example.campusconnect.adapters.RecommendationAdapter
 import com.example.campusconnect.core.network.AppConnectivity
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentHomeBinding
 import com.example.campusconnect.models.Event
@@ -72,9 +72,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val prefs = requireContext().getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        val currentUserId = prefs.getInt("user_id", -1)
-        val role = prefs.getString("user_role", "STUDENT") ?: "STUDENT"
+        val session = SessionManager.getInstance(requireContext())
+        val currentUserId = session.getCurrentUserId()
+        val role = session.getCurrentUserRole()
 
         loadAdBanner()
         setupEventLists()
@@ -85,7 +85,7 @@ class HomeFragment : Fragment() {
             binding.offlineBannerInclude.offlineBanner.visibility = View.VISIBLE
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
             db.userDao().getUserByIdFlow(currentUserId).collectLatest { user ->
                 userInterests = user?.interests
@@ -98,7 +98,7 @@ class HomeFragment : Fragment() {
             }
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             AppDatabase.getDatabase(requireContext()).eventDao().getAllEvents().collectLatest { events ->
                 allEvents = events
                 binding.homeSkeletonInclude.homeSkeleton.visibility = View.GONE
@@ -159,7 +159,7 @@ class HomeFragment : Fragment() {
 
     private fun refreshNotificationBadge(currentUserId: Int) {
         if (currentUserId <= 0) return
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val count = runCatching {
                 AppDatabase.getDatabase(requireContext()).notificationDao().getNotificationCount(currentUserId)
             }.getOrDefault(0)
@@ -322,7 +322,7 @@ class HomeFragment : Fragment() {
      * as a dismissible banner. Purely admin-authored content - no ad network.
      */
     private fun loadAdBanner() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             AppDatabase.getDatabase(requireContext()).adDao().getActiveAd().collectLatest { ad ->
                 if (_binding == null) return@collectLatest
                 if (ad == null || ad.id == dismissedAdId) {
@@ -359,10 +359,9 @@ class HomeFragment : Fragment() {
     private fun updateRecommendations() {
         val interests = userInterests?.split(",")?.map { it.trim().lowercase() }?.toMutableList() ?: mutableListOf()
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
-            val prefs = requireContext().getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-            val currentUserId = prefs.getInt("user_id", -1)
+            val currentUserId = SessionManager.getInstance(requireContext()).getCurrentUserId()
 
             db.userDao().getRecentSearch(currentUserId).first().forEach {
                 interests.add(it.query.lowercase())

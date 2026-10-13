@@ -1,6 +1,5 @@
 package com.example.campusconnect.activities
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -13,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.adapters.SearchResultAdapter
 import com.example.campusconnect.core.network.AppConnectivity
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivitySearchBinding
 import com.example.campusconnect.repository.SearchRepository
@@ -37,8 +37,7 @@ class SearchActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val prefs = getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        currentUserId = prefs.getInt("user_id", -1)
+        currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
         val db = AppDatabase.getDatabase(this)
         val searchRepo = SearchRepository(db.eventDao(), db.userDao(), db.rsvpDao())

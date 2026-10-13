@@ -3,6 +3,7 @@ package com.example.campusconnect.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.campusconnect.database.AIInteractionDao
+import com.example.campusconnect.domain.event.EventTime
 import com.example.campusconnect.models.AIInteraction
 import com.example.campusconnect.models.Event
 import com.example.campusconnect.repository.AIEventResponse
@@ -116,7 +117,7 @@ class AIViewModel(
 
     private fun mergeDraft(newEvent: Event) {
         val current = draftEvent
-        draftEvent = if (current == null) newEvent else current.copy(
+        val merged = if (current == null) newEvent else current.copy(
             title = newEvent.title.ifBlank { current.title },
             date = newEvent.date.ifBlank { current.date },
             date_timestamp = if (newEvent.date_timestamp > 0) newEvent.date_timestamp else current.date_timestamp,
@@ -128,6 +129,9 @@ class AIViewModel(
             tags = newEvent.tags ?: current.tags,
             description = if (newEvent.description.isNotBlank()) newEvent.description else current.description
         )
+        // Date and time often arrive in different messages; reminders and "upcoming"
+        // filters need the real start, so fold the time into the timestamp every merge.
+        draftEvent = merged.copy(date_timestamp = EventTime.combine(merged.date_timestamp, merged.time))
     }
 
     fun confirmEvent(ignoreConflict: Boolean = false) {

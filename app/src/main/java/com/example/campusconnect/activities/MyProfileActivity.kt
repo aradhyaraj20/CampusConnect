@@ -1,6 +1,5 @@
 package com.example.campusconnect.activities
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
@@ -11,8 +10,8 @@ import com.example.campusconnect.R
 import com.example.campusconnect.activities.admin.AdminAdsActivity
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
-import com.google.android.material.chip.Chip
 import com.example.campusconnect.databinding.ActivityMyProfileBinding
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -89,9 +88,9 @@ class MyProfileActivity : AppCompatActivity() {
     }
 
     private fun loadProfile() {
-        val prefs = getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        binding.userName.text = prefs.getString("user_name", "User")
-        binding.userEmail.text = prefs.getString("user_email", "email@example.com")
+        val session = SessionManager.getInstance(this)
+        binding.userName.text = session.getCurrentUserName()
+        binding.userEmail.text = session.getCurrentUserEmail()
 
         lifecycleScope.launch {
             AppDatabase.getDatabase(this@MyProfileActivity).userDao().getUserByIdFlow(currentUserId)

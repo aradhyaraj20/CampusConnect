@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.activities.EventDetailActivity
 import com.example.campusconnect.adapters.EventAdapter
 import com.example.campusconnect.adapters.LegendAdapter
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentStudyGroupsBinding
 import kotlinx.coroutines.flow.collectLatest
@@ -57,10 +58,9 @@ class StudyGroupsFragment : Fragment() {
             }
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
-            val prefs = requireContext().getSharedPreferences("campus_connect_prefs", android.content.Context.MODE_PRIVATE)
-            val currentUserId = prefs.getInt("user_id", -1)
+            val currentUserId = SessionManager.getInstance(requireContext()).getCurrentUserId()
             val currentUser = if (currentUserId != -1) db.userDao().getUserById(currentUserId) else null
 
             // Karma competition ("Legends") is scoped to classmates/batchmates on
@@ -80,7 +80,7 @@ class StudyGroupsFragment : Fragment() {
             }
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             AppDatabase.getDatabase(requireContext()).eventDao().getAllEvents().collectLatest { events ->
                 val studyGroups = events.filter { it.type == "study_group" }
                 adapter.updateEvents(studyGroups)

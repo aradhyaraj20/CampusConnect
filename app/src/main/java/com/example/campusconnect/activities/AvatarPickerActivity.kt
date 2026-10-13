@@ -1,12 +1,12 @@
 package com.example.campusconnect.activities
 
-import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.campusconnect.adapters.AvatarAdapter
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityAvatarPickerBinding
 import kotlinx.coroutines.launch
@@ -24,8 +24,7 @@ class AvatarPickerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Choose Your Avatar"
 
-        val prefs = getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        currentUserId = prefs.getInt("user_id", -1)
+        currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
         val avatarSeeds = listOf(
             "Felix", "Aneka", "Buddy", "Max", "Jack", "Spooky", 

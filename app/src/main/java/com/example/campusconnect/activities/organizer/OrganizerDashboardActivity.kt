@@ -12,6 +12,7 @@ import com.example.campusconnect.activities.EditProfileActivity
 import com.example.campusconnect.activities.EventDetailActivity
 import com.example.campusconnect.activities.NotificationsActivity
 import com.example.campusconnect.adapters.EventAdapter
+import com.example.campusconnect.core.common.NotificationPermission
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
@@ -26,6 +27,7 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
 class OrganizerDashboardActivity : AppCompatActivity() {
+    private val notificationPermission = NotificationPermission(this)
 
     private lateinit var binding: ActivityOrganizerDashboardBinding
     private lateinit var viewModel: OrganizerDashboardViewModel
@@ -37,6 +39,7 @@ class OrganizerDashboardActivity : AppCompatActivity() {
         RoleGuard.enforce(this, AccessPolicy::canAccessOrganizerDashboard)
         binding = ActivityOrganizerDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        notificationPermission.request()
         setSupportActionBar(binding.toolbar)
 
         val db = AppDatabase.getDatabase(this)

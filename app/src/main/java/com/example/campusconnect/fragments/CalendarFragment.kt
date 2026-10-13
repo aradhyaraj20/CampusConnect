@@ -70,7 +70,7 @@ class CalendarFragment : Fragment() {
     }
 
     private fun loadAllEvents() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             AppDatabase.getDatabase(requireContext()).eventDao().getAllEvents().collectLatest { events ->
                 allEvents = events
                 setupCalendarMarkers(events)

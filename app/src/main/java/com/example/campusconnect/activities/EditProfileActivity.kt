@@ -1,11 +1,11 @@
 package com.example.campusconnect.activities
 
-import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityEditProfileBinding
 import kotlinx.coroutines.launch
@@ -24,8 +24,7 @@ class EditProfileActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Edit Profile"
 
-        val prefs = getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        currentUserId = prefs.getInt("user_id", -1)
+        currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
         loadCurrentData()
 

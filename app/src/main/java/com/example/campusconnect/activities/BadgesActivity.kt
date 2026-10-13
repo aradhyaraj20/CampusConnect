@@ -1,11 +1,11 @@
 package com.example.campusconnect.activities
 
-import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.campusconnect.adapters.BadgeAdapter
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityBadgesBinding
 import kotlinx.coroutines.flow.collectLatest
@@ -25,8 +25,7 @@ class BadgesActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "My Badges"
 
-        val prefs = getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        currentUserId = prefs.getInt("user_id", -1)
+        currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
         adapter = BadgeAdapter(emptyList())
         binding.badgesRecyclerView.layoutManager = GridLayoutManager(this, 2)

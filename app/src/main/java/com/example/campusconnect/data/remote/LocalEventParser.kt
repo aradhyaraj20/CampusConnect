@@ -12,7 +12,7 @@ object LocalEventParser {
     private val IST = TimeZone.getTimeZone("Asia/Kolkata")
 
     fun extract(prompt: String, pendingField: String?): EventDraftExtraction {
-        val lower = prompt.lowercase(Locale.getDefault()).trim()
+        val lower = prompt.lowercase(Locale.ROOT).trim()
         val date = extractDate(lower)
         return EventDraftExtraction(
             title = extractTitle(prompt, pendingField),
@@ -102,12 +102,12 @@ object LocalEventParser {
     }
 
     private fun format(calendar: Calendar): Pair<String, Long> {
-        val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+        val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.US)
         sdf.timeZone = IST
         return Pair(sdf.format(calendar.time), calendar.timeInMillis)
     }
 
-    private fun monthIndex(month: String?): Int = when (month?.lowercase(Locale.getDefault())) {
+    private fun monthIndex(month: String?): Int = when (month?.lowercase(Locale.ROOT)) {
         "january" -> Calendar.JANUARY; "february" -> Calendar.FEBRUARY; "march" -> Calendar.MARCH
         "april" -> Calendar.APRIL; "may" -> Calendar.MAY; "june" -> Calendar.JUNE
         "july" -> Calendar.JULY; "august" -> Calendar.AUGUST; "september" -> Calendar.SEPTEMBER
@@ -121,17 +121,17 @@ object LocalEventParser {
         if (m1.find()) {
             var hour = m1.group(1)?.toIntOrNull() ?: return null
             val min = m1.group(2) ?: "00"
-            val amPm = m1.group(3)?.lowercase(Locale.getDefault()).orEmpty()
+            val amPm = m1.group(3)?.lowercase(Locale.ROOT).orEmpty()
             if (amPm.startsWith("p") && hour < 12) hour += 12
             if (amPm.startsWith("a") && hour == 12) hour = 0
-            if (hour in 0..23) return String.format(Locale.getDefault(), "%02d:%s", hour, min)
+            if (hour in 0..23) return String.format(Locale.US, "%02d:%s", hour, min)
         }
         val twentyFour = Pattern.compile("\\bat\\s+(\\d{1,2}):(\\d{2})\\b", Pattern.CASE_INSENSITIVE)
         val m2 = twentyFour.matcher(prompt)
         if (m2.find()) {
             val hour = m2.group(1)?.toIntOrNull() ?: return null
             val min = m2.group(2) ?: "00"
-            if (hour in 0..23) return String.format(Locale.getDefault(), "%02d:%s", hour, min)
+            if (hour in 0..23) return String.format(Locale.US, "%02d:%s", hour, min)
         }
         return null
     }

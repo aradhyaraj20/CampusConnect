@@ -1,6 +1,5 @@
 package com.example.campusconnect.activities
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -9,8 +8,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.adapters.NotificationAdapter
 import com.example.campusconnect.core.network.AppConnectivity
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityNotificationsBinding
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -28,8 +29,7 @@ class NotificationsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Notifications"
 
-        val prefs = getSharedPreferences("campus_connect_prefs", Context.MODE_PRIVATE)
-        currentUserId = prefs.getInt("user_id", -1)
+        currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
         val db = AppDatabase.getDatabase(this)
 
@@ -62,6 +62,14 @@ class NotificationsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Seen means read: clears the Home badge when the user leaves this screen.
+        val db = AppDatabase.getDatabase(this)
+        val userId = currentUserId
+        lifecycleScope.launch(NonCancellable) { db.notificationDao().markAllRead(userId) }
     }
 
     override fun onSupportNavigateUp(): Boolean {
