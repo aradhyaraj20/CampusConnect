@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+private const val MAX_CONTEXT_TURNS = 6
+
 enum class AIMode { STUDENT, CREATE, ADMIN }
 
 class AIViewModel(
@@ -36,20 +38,20 @@ class AIViewModel(
 
     init {
         viewModelScope.launch {
-            interactionDao.getHistory(userId).collectLatest { _chatHistory.value = it }
+            interactionDao.getHistory(userId, mode.name).collectLatest { _chatHistory.value = it }
         }
     }
 
     fun processPrompt(prompt: String) {
         viewModelScope.launch {
             interactionDao.insert(
-                AIInteraction(user_id = userId, prompt = prompt, response = "", timestamp = System.currentTimeMillis(), is_user_message = true)
+                AIInteraction(user_id = userId, prompt = prompt, response = "", timestamp = System.currentTimeMillis(), is_user_message = true, mode = mode.name)
             )
             _uiState.value = AIUiState.Loading
             when (mode) {
                 AIMode.CREATE -> handleCreate(prompt)
                 AIMode.STUDENT -> {
-                    val answer = runCatching { aiRepository.answerStudentQuery(prompt, userId) }
+                    val answer = runCatching { aiRepository.answerStudentQuery(prompt, userId, recentConversation(prompt)) }
                         .getOrElse { "AI is temporarily unavailable. You can continue using regular search." }
                     reply(answer)
                     _uiState.value = AIUiState.Idle
@@ -62,6 +64,14 @@ class AIViewModel(
                 }
             }
         }
+    }
+
+    /** Last few turns before this prompt, so follow-ups like "what about tomorrow?" make sense. */
+    private fun recentConversation(currentPrompt: String): List<Pair<Boolean, String>> {
+        val turns = _chatHistory.value.map { it.is_user_message to if (it.is_user_message) it.prompt else it.response }
+            .filter { it.second.isNotBlank() }
+        val withoutCurrent = if (turns.lastOrNull() == (true to currentPrompt)) turns.dropLast(1) else turns
+        return withoutCurrent.takeLast(MAX_CONTEXT_TURNS)
     }
 
     private suspend fun handleCreate(prompt: String) {
@@ -130,7 +140,7 @@ class AIViewModel(
         viewModelScope.launch {
             _uiState.value = AIUiState.Loading
             val id = eventRepository.insertEvent(event.copy(creator_id = userId, status = "active"))
-            interactionDao.clearHistory(userId)
+            interactionDao.clearHistory(userId, mode.name)
             _uiState.value = AIUiState.Success("Event '${event.title}' created!", id.toInt())
             draftEvent = null
             pendingMissingField = null
@@ -147,7 +157,7 @@ class AIViewModel(
 
     private suspend fun reply(text: String) {
         interactionDao.insert(
-            AIInteraction(user_id = userId, prompt = "", response = text, timestamp = System.currentTimeMillis(), is_user_message = false)
+            AIInteraction(user_id = userId, prompt = "", response = text, timestamp = System.currentTimeMillis(), is_user_message = false, mode = mode.name)
         )
     }
 }

@@ -51,7 +51,7 @@ class GeminiAIDataSource(
         val key = apiKeyProvider()
         if (key.isBlank()) throw IllegalStateException("Gemini API key missing")
         val model = modelProvider().ifBlank { AIConfig.DEFAULT_MODEL }
-        val endpoint = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$key"
+        val endpoint = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent"
         val body = JSONObject()
             .put("contents", JSONArray().put(JSONObject().put("parts", JSONArray().put(JSONObject().put("text", prompt)))))
             .put("generationConfig", JSONObject().put("temperature", 0.2).put("maxOutputTokens", 1024))
@@ -61,6 +61,7 @@ class GeminiAIDataSource(
             readTimeout = 20_000
             doOutput = true
             setRequestProperty("Content-Type", "application/json")
+            setRequestProperty("x-goog-api-key", key)
         }
         try {
             OutputStreamWriter(conn.outputStream).use { it.write(body.toString()) }

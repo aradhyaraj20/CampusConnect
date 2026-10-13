@@ -1,5 +1,6 @@
 package com.example.campusconnect.models
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -10,5 +11,7 @@ data class AIInteraction(
     val prompt: String,
     val response: String,
     val timestamp: Long,
-    val is_user_message: Boolean
+    val is_user_message: Boolean,
+    // Which assistant this message belongs to (STUDENT / CREATE / ADMIN) so threads never mix.
+    @ColumnInfo(defaultValue = "STUDENT") val mode: String = "STUDENT"
 )

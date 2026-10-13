@@ -35,7 +35,7 @@ import com.example.campusconnect.models.*
         Report::class,
         Ad::class
     ],
-    version = 16,
+    version = 17,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -177,6 +177,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // Keeps Ask AI, Create Event and Analytics chats in separate threads.
+        val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `ai_interactions` ADD COLUMN `mode` TEXT NOT NULL DEFAULT 'STUDENT'")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -186,7 +193,7 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                     .addMigrations(
                         MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14,
-                        MIGRATION_14_15, MIGRATION_15_16
+                        MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17
                     )
                     .fallbackToDestructiveMigrationOnDowngrade()
                     .build()

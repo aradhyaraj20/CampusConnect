@@ -6,12 +6,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AIInteractionDao {
-    @Query("SELECT * FROM ai_interactions WHERE user_id = :userId ORDER BY timestamp ASC")
-    fun getHistory(userId: Int): Flow<List<AIInteraction>>
+    @Query("SELECT * FROM ai_interactions WHERE user_id = :userId AND mode = :mode ORDER BY timestamp ASC")
+    fun getHistory(userId: Int, mode: String): Flow<List<AIInteraction>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(interaction: AIInteraction)
 
-    @Query("DELETE FROM ai_interactions WHERE user_id = :userId")
-    suspend fun clearHistory(userId: Int): Int
+    @Query("DELETE FROM ai_interactions WHERE user_id = :userId AND mode = :mode")
+    suspend fun clearHistory(userId: Int, mode: String): Int
 }

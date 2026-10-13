@@ -196,19 +196,32 @@ class AIRepository(
         }
     }
 
-    suspend fun answerStudentQuery(query: String, userId: Int): String = withContext(Dispatchers.IO) {
+    suspend fun answerStudentQuery(
+        query: String,
+        userId: Int,
+        history: List<Pair<Boolean, String>> = emptyList()
+    ): String = withContext(Dispatchers.IO) {
         val facts = buildStudentFacts(query, userId)
         if (AIConfig.isConfigured) {
             val phrased = runCatching {
                 remote.answerWithFacts(
-                    "You are CampusConnect student assistant. Answer only from the facts. Never invent events.",
+                    "You are CampusConnect student assistant. Answer only from the facts. Never invent events. " +
+                        "Use the recent conversation only to understand follow-up questions.",
                     query,
-                    facts
+                    withConversation(facts, history)
                 )
             }.getOrNull()
             if (!phrased.isNullOrBlank()) return@withContext phrased
         }
         facts
+    }
+
+    private fun withConversation(facts: String, history: List<Pair<Boolean, String>>): String {
+        if (history.isEmpty()) return facts
+        val transcript = history.joinToString("\n") { (isUser, text) ->
+            (if (isUser) "Student: " else "Assistant: ") + text.take(400)
+        }
+        return "Recent conversation:\n$transcript\n\nFacts for the latest question:\n$facts"
     }
 
     private suspend fun buildStudentFacts(query: String, userId: Int): String {
@@ -227,7 +240,9 @@ class AIRepository(
                 "• ${it.title} — ${it.date} ${it.time} @ ${it.location}"
             }
         }
-        var matches = events
+        // Unless the student asks about the past, only suggest events that haven't happened yet.
+        val asksAboutPast = listOf("past", "last ", "previous", "recap", "yesterday").any { lower.contains(it) }
+        var matches = if (asksAboutPast || parsed.dateWindow != null) events else events.filter { it.date_timestamp >= startOfTodayMillis() }
         parsed.dateWindow?.let { w -> matches = matches.filter { it.date_timestamp in w.startMillis..w.endMillis } }
         parsed.eligibilityHint?.let { hint ->
             matches = matches.filter { it.eligibility.isNullOrBlank() || it.eligibility.contains(hint, true) }
@@ -245,6 +260,11 @@ class AIRepository(
             "• ${it.title} — ${it.date} ${it.time} @ ${it.location}"
         }
     }
+
+    private fun startOfTodayMillis(): Long = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
 
     /**
      * Admin analytics assistant (spec section 18).
@@ -366,7 +386,7 @@ class AIRepository(
         // about, to keep the prompt small and the answer focused.
         if (lower.contains("attend") || lower.contains("turnout") || lower.contains("check")) {
             sb.appendLine()
-            sb.appendLine("ATTENDANCE VS REGISTRATION")
+            sb.appendLine("REGISTRATIONS PER EVENT (RSVP counts; QR check-in data is not included)")
             ranked.take(10).forEach { (e, going) ->
                 sb.appendLine("- ${e.title}: $going registered")
             }

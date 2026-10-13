@@ -22,8 +22,25 @@ class MigrationTest {
 
     @Test
     fun currentSchemaCreatesAndValidates() {
-        helper.createDatabase("test-db", 16).close()
-        helper.runMigrationsAndValidate("test-db", 16, true).close()
+        helper.createDatabase("test-db", 17).close()
+        helper.runMigrationsAndValidate("test-db", 17, true).close()
+    }
+
+    @Test
+    fun migrate16To17_keepsChatRowsAsStudentMode() {
+        helper.createDatabase("test-db-16", 16).apply {
+            execSQL(
+                "INSERT INTO ai_interactions (user_id, prompt, response, timestamp, is_user_message) " +
+                    "VALUES (1, 'hi', '', 1, 1)"
+            )
+            close()
+        }
+        val db = helper.runMigrationsAndValidate("test-db-16", 17, true, AppDatabase.MIGRATION_16_17)
+        db.query("SELECT mode FROM ai_interactions").use {
+            it.moveToFirst()
+            org.junit.Assert.assertEquals("STUDENT", it.getString(0))
+        }
+        db.close()
     }
 
     // Template for the next migration:

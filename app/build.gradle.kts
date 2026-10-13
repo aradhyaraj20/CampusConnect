@@ -117,6 +117,8 @@ dependencies {
     implementation(libs.coil.svg)
 
     implementation(libs.androidx.work.runtime.ktx)
+    // Pinned so Room 2.8's migration test helper (androidTest) finds a compatible serialization runtime.
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
 
 
     implementation(libs.materialCalendarView)

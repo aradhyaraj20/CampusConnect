@@ -12,8 +12,6 @@
     <string name="upcoming_events">Upcoming Events</string>
     <string name="view_calendar">View Calendar</string>
     <string name="qa_new">NEW</string>
-    <string name="cd_menu">Open menu</string>
-    <string name="cd_profile_avatar">Your profile</string>
 
     <!-- Quick Access tile labels -->
     <string name="qa_profile">Profile</string>
@@ -50,37 +48,17 @@
     <string name="full_name">Full Name</string>
     <string name="already_have_account">Already have an account? Login</string>
     <string name="register">Register</string>
-    <string name="search_events">Search events...</string>
     <string name="study_groups">Study Groups</string>
-    <string name="calendar">Calendar</string>
-    <string name="profile">Profile</string>
     <string name="home">Home</string>
-    <string name="groups">Groups</string>
-    <string name="my_joined_events">My Joined Events</string>
-    <string name="my_badges">My Badges</string>
-    <string name="campus_marketplace">Campus Marketplace</string>
     <string name="settings">Settings</string>
     <string name="logout">Logout</string>
-    <string name="dark_mode">Dark Mode</string>
-    <string name="offline_mode">Offline Mode (Cache)</string>
-    <string name="appearance">Appearance</string>
-    <string name="preferences">Preferences</string>
     <string name="about">About</string>
-    <string name="rsvp_going">Going</string>
     <string name="rsvp_join">Join</string>
     <string name="join_waitlist">Join Waitlist</string>
-    <string name="you_are_going">You are going</string>
     <string name="leave_event">Leave</string>
-    <string name="view_on_map">View on Map</string>
-    <string name="publish_event">Publish Event</string>
-    <string name="create_new_event">Create New Event</string>
     <string name="max_attendees_optional">Max Attendees (optional)</string>
-    <string name="flash_session_hint">Flash Session (Expires in 1 hour)</string>
-    <string name="live_now_flash">Live Now (Flash Sessions)</string>
     <string name="event_details_title">Event Details</string>
     <string name="karma_shared">Karma shared! ✨</string>
-    <string name="karma_earned_title">You earned Karma! ✨</string>
-    <string name="karma_earned_message">Someone vouched for you in \'%1$s\'</string>
     <string name="already_vouched">You already vouched for this host.</string>
     <string name="cannot_vouch">Cannot vouch for this event.</string>
     <string name="rsvp_successful">RSVP Successful: %1$s</string>
@@ -94,7 +72,6 @@
     <string name="going_left_format">%1$d going · %2$s left</string>
     <string name="going_full_format">%1$d going · Full</string>
     <string name="date_time_format">%1$s, %2$s</string>
-    <string name="edit_event_details">Edit Event Details</string>
 
     <!-- Phase A: role-based dashboards -->
     <string name="i_am_a">I am a</string>
@@ -144,7 +121,6 @@
     <string name="moderation">Moderation</string>
     <string name="reports_format">Reports: %1$d</string>
     <string name="review_reports">Review Reports</string>
-    <string name="feature_coming_soon">This screen is part of a later build phase - coming soon.</string>
     <string name="ask_campusconnect_ai">✨ Ask CampusConnect AI</string>
     <string name="nothing_to_show">Nothing to show yet.</string>
     <string name="warn">Warn</string>
@@ -153,22 +129,12 @@
     <string name="remove_content">Remove</string>
     <string name="resolve">Resolve</string>
     <string name="user_management">User Management</string>
-    <string name="ai_unavailable">AI is temporarily unavailable. You can continue using regular search.</string>
-    <string name="event_created_success">Event created successfully</string>
     <string name="offline_saved">You\'re offline. Showing saved events.</string>
     <string name="retry">Retry</string>
-    <string name="explore">Explore</string>
     <string name="loading_events">Loading campus events</string>
     <string name="no_upcoming_events">No upcoming events</string>
     <string name="no_upcoming_events_hint">Try exploring another category or ask CampusConnect AI.</string>
-    <string name="cd_search_campus">Search campus events</string>
-    <string name="cd_filter_sports">Filter sports events</string>
-    <string name="cd_filter_technology">Filter technology events</string>
-    <string name="cd_filter_study">Filter study groups</string>
-    <string name="cd_filter_cultural">Filter cultural events</string>
-    <string name="cd_filter_today">Filter events happening today</string>
     <string name="cd_ask_ai">Ask CampusConnect AI</string>
-    <string name="cd_create_event">Create event</string>
     <string name="cd_notifications">Notifications</string>
     <string name="cd_event_image">Event image</string>
     <string name="cd_open_event">Open event details</string>
