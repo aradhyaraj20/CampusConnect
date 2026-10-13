@@ -74,13 +74,43 @@
         app:layout_constraintTop_toBottomOf="@id/userEmail" />
 
     <Button
+        android:id="@+id/editProfileButton"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Edit Bio"
+        app:layout_constraintBaseline_toBaselineOf="@id/userKarma"
+        app:layout_constraintStart_toEndOf="@id/userKarma" />
+
+    <TextView
+        android:id="@+id/userBio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="No bio yet. Tap edit to add one!"
+        android:fontStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profileImage" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/interestsChipGroup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/userBio" />
+
+    <Button
         android:id="@+id/marketplaceButton"
         style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Campus Marketplace"
-        app:layout_constraintTop_toBottomOf="@id/profileImage" />
+        app:layout_constraintTop_toBottomOf="@id/interestsChipGroup" />
 
     <TextView
         android:id="@+id/myEventsTitle"

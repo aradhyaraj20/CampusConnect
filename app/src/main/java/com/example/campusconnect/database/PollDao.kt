@@ -24,5 +24,5 @@ interface PollDao {
     suspend fun vote(vote: PollVote)
 
     @Query("UPDATE poll_options SET vote_count = vote_count + 1 WHERE id = :optionId")
-    suspend fun incrementVoteCount(optionId: Int)
+    suspend fun incrementVoteCount(optionId: Int): Int
 }

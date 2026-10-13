@@ -4,6 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="48dp"
+    android:contentDescription="@string/cd_open_event"
     app:cardCornerRadius="20dp"
     app:cardElevation="4dp">
 
@@ -17,6 +21,7 @@
             android:layout_height="180dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_campus_logo"
+            android:contentDescription="@string/cd_event_image"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

@@ -27,6 +27,7 @@
 
             <ImageView
                 android:id="@+id/bannerImage"
+                android:contentDescription="@null"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:scaleType="centerCrop"
@@ -74,16 +75,32 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/locationTextView" />
 
-            <TextView
-                android:id="@+id/attendeeInfoTextView"
+            <LinearLayout
+                android:id="@+id/attendeeLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="24 going · 6 spots left"
-                android:textStyle="bold"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/viewOnMapButton" />
+                app:layout_constraintTop_toBottomOf="@id/viewOnMapButton">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/attendeesRecyclerView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                <TextView
+                    android:id="@+id/attendeeInfoTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="24 going · 6 spots left"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <View
                 android:id="@+id/divider1"
@@ -91,7 +108,7 @@
                 android:layout_height="1dp"
                 android:layout_margin="16dp"
                 android:background="?android:attr/listDivider"
-                app:layout_constraintTop_toBottomOf="@id/attendeeInfoTextView" />
+                app:layout_constraintTop_toBottomOf="@id/attendeeLayout" />
 
             <TextView
                 android:id="@+id/aboutHeader"
@@ -146,66 +163,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:text="RSVP / Going"
+                android:text="@string/rsvp_join"
                 app:layout_constraintTop_toBottomOf="@id/actionButtons" />
 
-            <Button
-                android:id="@+id/vouchButton"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="+1 Helpful Karma"
-                android:textColor="?attr/colorPrimary"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rsvpButton" />
-
-            <Button
-                android:id="@+id/memoriesButton"
-                style="@style/Widget.Material3.Button.TonalButton"
+            <TextView
+                android:id="@+id/restrictedMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:text="View Event Memories"
-                app:layout_constraintTop_toBottomOf="@id/vouchButton" />
+                android:layout_margin="24dp"
+                android:gravity="center"
+                android:text="You are not enrolled in this event. RSVP to access Chat, Polls, and Materials."
+                android:textColor="?attr/colorError"
+                android:textStyle="italic"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/rsvpButton" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
-        android:id="@+id/scrollButtons"
+    <ProgressBar
+        android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:alpha="0.6"
-        android:background="@drawable/bg_scroll_strip"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="4dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollUpFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_up_float"
-            android:contentDescription="Scroll Up" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollDownFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="Scroll Down" />
-    </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

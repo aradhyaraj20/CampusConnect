@@ -4,19 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <CalendarView
+    <com.applandeo.materialcalendarview.CalendarView
         android:id="@+id/calendarView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:headerColor="?attr/colorPrimary"
+        app:selectionColor="?attr/colorPrimary"
+        app:todayLabelColor="?attr/colorTertiary"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/eventsOnDateTitle"
+        android:id="@+id/calendarFeedTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Events on this day"
+        android:text="Upcoming Events"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/calendarView" />
@@ -27,7 +30,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/eventsOnDateTitle" />
+        app:layout_constraintTop_toBottomOf="@id/calendarFeedTitle" />
 
     <LinearLayout
         android:id="@+id/scrollButtons"

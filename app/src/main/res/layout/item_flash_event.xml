@@ -14,6 +14,7 @@
 
         <ImageView
             android:id="@+id/flashImage"
+            android:contentDescription="@null"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:scaleType="centerCrop"

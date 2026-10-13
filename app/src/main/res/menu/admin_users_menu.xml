@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_manage_ads"
+        android:icon="@drawable/ic_nav_campaign"
+        android:title="@string/manage_ads"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_run_cleanup"
+        android:title="@string/run_cleanup_now"
+        app:showAsAction="never" />
+</menu>

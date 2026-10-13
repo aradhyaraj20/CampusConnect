@@ -46,7 +46,8 @@ class QrTicketActivity : AppCompatActivity() {
                     binding.eventTime.text = "${e.date}, ${e.time}"
                     binding.statusTextView.text = if (rsvp.checked_in) "Status: Checked In" else "Status: Not checked in"
                     
-                    val qrBitmap = QrCodeGenerator.generateQrCode("CAMPUS_CONNECT_RSVP_$rsvpId")
+                    val payload = QrCodeGenerator.generateSignedTicketPayload(rsvp.id, rsvp.event_id, rsvp.user_id)
+                    val qrBitmap = QrCodeGenerator.generateQrCode(payload)
                     binding.qrImageView.setImageBitmap(qrBitmap)
                 }
             }

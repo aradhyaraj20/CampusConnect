@@ -59,10 +59,24 @@ class StudyGroupsFragment : Fragment() {
 
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
-            
-            // Load Legends
-            db.userDao().getTopUsers(5).collectLatest { users ->
-                legendAdapter.updateLegends(users)
+            val prefs = requireContext().getSharedPreferences("campus_connect_prefs", android.content.Context.MODE_PRIVATE)
+            val currentUserId = prefs.getInt("user_id", -1)
+            val currentUser = if (currentUserId != -1) db.userDao().getUserById(currentUserId) else null
+
+            // Karma competition ("Legends") is scoped to classmates/batchmates on
+            // the same course, not the whole app - a student only sees and competes
+            // with peers registered on their own course.
+            val course = currentUser?.course
+            if (!course.isNullOrBlank()) {
+                db.userDao().getTopUsersByCourse(course, 5).collectLatest { users ->
+                    legendAdapter.updateLegends(users)
+                }
+            } else {
+                // Organizers/admins previewing this screen, or students who never
+                // set a course, fall back to the global board.
+                db.userDao().getTopUsers(5).collectLatest { users ->
+                    legendAdapter.updateLegends(users)
+                }
             }
         }
 

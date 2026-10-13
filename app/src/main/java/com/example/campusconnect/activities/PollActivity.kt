@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.adapters.PollOptionAdapter
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityPollBinding
 import com.example.campusconnect.models.PollVote
@@ -16,7 +17,7 @@ class PollActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPollBinding
     private lateinit var adapter: PollOptionAdapter
     private var eventId: Int = -1
-    private var currentUserId: Int = 1 // Placeholder
+    private var currentUserId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +27,8 @@ class PollActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Polls"
+
+        currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
         eventId = intent.getIntExtra("EVENT_ID", -1)
         if (eventId == -1) {

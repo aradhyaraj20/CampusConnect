@@ -3,7 +3,6 @@ package com.example.campusconnect.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil.decode.SvgDecoder
 import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.databinding.ItemAvatarOptionBinding
@@ -29,7 +28,7 @@ class AvatarAdapter(
             placeholder(R.drawable.ic_user_placeholder)
             error(R.drawable.ic_user_placeholder)
         }
-        
+
         // Highlight selection
         if (selectedPosition == position) {
             holder.binding.root.strokeColor = holder.itemView.context.getColor(R.color.primary)
@@ -39,14 +38,20 @@ class AvatarAdapter(
             holder.binding.root.setCardBackgroundColor(holder.itemView.context.getColor(R.color.white))
         }
 
-        holder.itemView.setOnClickListener { 
+        holder.itemView.setOnClickListener {
+            // Look the position up fresh at click-time (not the bind-time value captured
+            // above) so a stale index can't be used if the list changed in between.
+            @Suppress("DEPRECATION")
+            val clickedPosition = holder.adapterPosition
+            if (clickedPosition == RecyclerView.NO_POSITION) return@setOnClickListener
+
             val previousSelected = selectedPosition
-            selectedPosition = holder.bindingAdapterPosition
+            selectedPosition = clickedPosition
             if (previousSelected != -1) {
                 notifyItemChanged(previousSelected)
             }
             notifyItemChanged(selectedPosition)
-            onAvatarClick(url) 
+            onAvatarClick(avatarUrls[clickedPosition])
         }
     }
 

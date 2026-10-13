@@ -38,6 +38,10 @@ class EventAdapter(
 
         // Placeholder for going count
         holder.binding.goingCount.text = "Join now"
+        holder.itemView.contentDescription = holder.itemView.context.getString(
+            R.string.cd_open_event
+        ) + ": " + event.title + ". " + event.date + " " + event.location
+        holder.binding.eventImage.contentDescription = event.title
         
         holder.itemView.setOnClickListener { onEventClick(event) }
     }

@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/homeFragment"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_nav_home"
         android:title="Home" />
     <item
         android:id="@+id/studyGroupsFragment"
-        android:icon="@android:drawable/ic_menu_share"
+        android:icon="@drawable/ic_nav_groups"
         android:title="Groups" />
     <item
         android:id="@+id/calendarFragment"
-        android:icon="@android:drawable/ic_menu_today"
-        android:title="Calendar" />
+        android:icon="@drawable/ic_nav_calendar"
+        android:title="My Events" />
     <item
         android:id="@+id/profileFragment"
-        android:icon="@android:drawable/ic_menu_myplaces"
+        android:icon="@drawable/ic_nav_profile"
         android:title="Profile" />
 </menu>

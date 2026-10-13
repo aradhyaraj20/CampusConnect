@@ -10,8 +10,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.activities.EventDetailActivity
 import com.example.campusconnect.adapters.EventAdapter
+import com.example.campusconnect.R
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentCalendarBinding
+import com.example.campusconnect.models.Event
+import com.applandeo.materialcalendarview.CalendarDay
+import com.applandeo.materialcalendarview.listeners.OnCalendarDayClickListener
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -21,6 +25,7 @@ class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: EventAdapter
+    private var allEvents: List<Event> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,25 +58,65 @@ class CalendarFragment : Fragment() {
             }
         }
 
-        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            val selectedDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(calendar.time)
-            loadEventsForDate(selectedDate)
-        }
+        binding.calendarView.setOnCalendarDayClickListener(object : OnCalendarDayClickListener {
+            override fun onClick(calendarDay: CalendarDay) {
+                val selectedDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(calendarDay.calendar.time)
+                binding.calendarFeedTitle.text = "Events on $selectedDate"
+                filterEventsForDate(calendarDay.calendar)
+            }
+        })
 
-        // Load today's events initially
-        val today = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
-        loadEventsForDate(today)
+        loadAllEvents()
     }
 
-    private fun loadEventsForDate(date: String) {
+    private fun loadAllEvents() {
         lifecycleScope.launch {
             AppDatabase.getDatabase(requireContext()).eventDao().getAllEvents().collectLatest { events ->
-                val filtered = events.filter { it.date.contains(date) }
-                adapter.updateEvents(filtered)
+                allEvents = events
+                setupCalendarMarkers(events)
+                showUpcomingEvents()
             }
         }
+    }
+
+    private fun setupCalendarMarkers(events: List<Event>) {
+        val calendarDays = events.map { event ->
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = event.date_timestamp
+            val day = CalendarDay(calendar)
+            day.imageResource = R.drawable.ic_campus_logo
+            day
+        }
+        binding.calendarView.setCalendarDays(calendarDays)
+    }
+
+    private fun showUpcomingEvents() {
+        val today = Calendar.getInstance()
+        today.set(Calendar.HOUR_OF_DAY, 0)
+        today.set(Calendar.MINUTE, 0)
+        today.set(Calendar.SECOND, 0)
+        today.set(Calendar.MILLISECOND, 0)
+
+        val upcoming = allEvents.filter { it.date_timestamp >= today.timeInMillis }
+            .sortedBy { it.date_timestamp }
+        
+        binding.calendarFeedTitle.text = "Upcoming Events"
+        adapter.updateEvents(upcoming)
+    }
+
+    private fun filterEventsForDate(calendar: Calendar) {
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val month = calendar.get(Calendar.MONTH)
+        val year = calendar.get(Calendar.YEAR)
+
+        val filtered = allEvents.filter {
+            val eventCal = Calendar.getInstance()
+            eventCal.timeInMillis = it.date_timestamp
+            eventCal.get(Calendar.DAY_OF_MONTH) == day &&
+            eventCal.get(Calendar.MONTH) == month &&
+            eventCal.get(Calendar.YEAR) == year
+        }
+        adapter.updateEvents(filtered)
     }
 
     override fun onDestroyView() {

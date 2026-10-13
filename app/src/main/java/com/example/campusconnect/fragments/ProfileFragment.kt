@@ -13,12 +13,14 @@ import coil.decode.SvgDecoder
 import coil.load
 import com.example.campusconnect.activities.AvatarPickerActivity
 import com.example.campusconnect.activities.BadgesActivity
+import com.example.campusconnect.activities.EditProfileActivity
 import com.example.campusconnect.activities.MarketplaceActivity
 import com.example.campusconnect.activities.QrTicketActivity
 import com.example.campusconnect.activities.SettingsActivity
 import com.example.campusconnect.adapters.EventAdapter
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentProfileBinding
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -51,7 +53,18 @@ class ProfileFragment : Fragment() {
             AppDatabase.getDatabase(requireContext()).userDao().getUserByIdFlow(currentUserId).collectLatest { user ->
                 user?.let {
                     binding.userKarma.text = "Karma: ${it.karma_points}"
+                    binding.userBio.text = it.bio ?: "No bio yet. Tap edit to add one!"
                     
+                    binding.interestsChipGroup.removeAllViews()
+                    it.interests?.split(",")?.forEach { interest ->
+                        val cleanInterest = interest.trim()
+                        if (cleanInterest.isNotEmpty()) {
+                            val chip = Chip(requireContext())
+                            chip.text = cleanInterest
+                            binding.interestsChipGroup.addView(chip)
+                        }
+                    }
+
                     if (it.avatar_uri != null) {
                         binding.profileImage.load(it.avatar_uri) {
                             crossfade(true)
@@ -101,6 +114,10 @@ class ProfileFragment : Fragment() {
 
         binding.settingsButton.setOnClickListener {
             startActivity(Intent(requireContext(), SettingsActivity::class.java))
+        }
+
+        binding.editProfileButton.setOnClickListener {
+            startActivity(Intent(requireContext(), EditProfileActivity::class.java))
         }
 
         binding.profileImage.setOnClickListener {

@@ -20,5 +20,12 @@ data class Event(
     val is_user_created: Boolean,
     val creator_id: Int?,
     val is_flash: Boolean = false,
-    val expiry_time: Long? = null // Timestamp in ms
+    val expiry_time: Long? = null, // Timestamp in ms
+    val date_timestamp: Long = 0, // Timestamp in ms for calendar marking
+    val visibility: String = "public", // "public" or "private"
+    val eligibility: String? = null,
+    val tags: String? = null, // Comma-separated tags
+    val organizer_name: String? = null,
+    val registration_deadline: Long? = null,
+    val status: String = "active" // "active", "cancelled", "completed"
 )

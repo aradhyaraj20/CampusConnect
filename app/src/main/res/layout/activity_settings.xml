@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="?attr/colorSurface">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -11,48 +12,221 @@
         android:layout_height="?attr/actionBarSize"
         android:layout_marginTop="24dp"
         android:background="?attr/colorPrimary"
-        app:titleTextColor="?attr/colorOnPrimary" />
+        app:titleTextColor="?attr/colorOnPrimary"
+        app:navigationIconTint="?attr/colorOnPrimary" />
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Appearance"
-            android:textStyle="bold" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/darkModeSwitch"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Dark Mode" />
+            android:orientation="vertical"
+            android:paddingBottom="32dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Preferences"
-            android:textStyle="bold" />
+            <!-- ACCOUNT HEADER: identity at a glance, with the display picture as the
+                 primary affordance rather than buried in a menu. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="20dp">
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/offlineModeSwitch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Offline Mode (Cache)" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    app:cardCornerRadius="36dp"
+                    app:cardElevation="0dp">
 
-        <Button
-            android:id="@+id/logoutButton"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:text="Logout"
-            android:textColor="?attr/colorError" />
-    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/profileAvatar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/cd_profile_photo"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_user_placeholder" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/profileName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+
+                    <TextView
+                        android:id="@+id/profileEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="13sp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+
+                    <TextView
+                        android:id="@+id/profileRoleChip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_role_chip"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View style="@style/SettingsDivider" />
+
+            <TextView style="@style/SettingsSectionHeader" android:text="@string/settings_account" />
+
+            <LinearLayout
+                android:id="@+id/changePhotoRow"
+                style="@style/SettingsRow">
+                <TextView style="@style/SettingsRowTitle" android:text="@string/settings_change_photo" />
+                <TextView android:id="@+id/changePhotoSubtitle" style="@style/SettingsRowSubtitle"
+                    android:text="@string/settings_change_photo_sub" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/editProfileRow"
+                style="@style/SettingsRow">
+                <TextView style="@style/SettingsRowTitle" android:text="@string/settings_edit_profile" />
+                <TextView style="@style/SettingsRowSubtitle" android:text="@string/settings_edit_profile_sub" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/changePasswordRow"
+                style="@style/SettingsRow">
+                <TextView style="@style/SettingsRowTitle" android:text="@string/settings_change_password" />
+                <TextView style="@style/SettingsRowSubtitle" android:text="@string/settings_change_password_sub" />
+            </LinearLayout>
+
+            <View style="@style/SettingsDivider" />
+
+            <TextView style="@style/SettingsSectionHeader" android:text="@string/settings_appearance" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/darkModeSwitch"
+                style="@style/SettingsSwitch"
+                android:text="@string/settings_dark_mode" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/followSystemThemeSwitch"
+                style="@style/SettingsSwitch"
+                android:text="@string/settings_follow_system" />
+
+            <TextView
+                style="@style/SettingsRowSubtitle"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="12dp"
+                android:text="@string/settings_follow_system_sub" />
+
+            <View style="@style/SettingsDivider" />
+
+            <TextView style="@style/SettingsSectionHeader" android:text="@string/settings_notifications" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/eventRemindersSwitch"
+                style="@style/SettingsSwitch"
+                android:text="@string/settings_event_reminders" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/chatNotificationsSwitch"
+                style="@style/SettingsSwitch"
+                android:text="@string/settings_chat_notifications" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/announcementsSwitch"
+                style="@style/SettingsSwitch"
+                android:text="@string/settings_announcements" />
+
+            <View style="@style/SettingsDivider" />
+
+            <TextView style="@style/SettingsSectionHeader" android:text="@string/settings_data" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/offlineModeSwitch"
+                style="@style/SettingsSwitch"
+                android:text="@string/settings_offline_mode" />
+
+            <LinearLayout
+                android:id="@+id/clearCacheRow"
+                style="@style/SettingsRow">
+                <TextView style="@style/SettingsRowTitle" android:text="@string/settings_clear_cache" />
+                <TextView android:id="@+id/cacheSizeText" style="@style/SettingsRowSubtitle" />
+            </LinearLayout>
+
+            <View style="@style/SettingsDivider" />
+
+            <!-- ADMIN: only made visible for ADMIN accounts (see SettingsActivity.bindAdmin).
+                 Lets an admin add/manage the Gemini API key without leaving Settings. -->
+            <LinearLayout
+                android:id="@+id/adminSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView style="@style/SettingsSectionHeader" android:text="@string/settings_admin" />
+
+                <LinearLayout
+                    android:id="@+id/aiConfigRow"
+                    style="@style/SettingsRow">
+                    <TextView style="@style/SettingsRowTitle" android:text="@string/settings_ai_config" />
+                    <TextView style="@style/SettingsRowSubtitle" android:text="@string/settings_ai_config_sub" />
+                </LinearLayout>
+
+                <View style="@style/SettingsDivider" />
+            </LinearLayout>
+
+            <TextView style="@style/SettingsSectionHeader" android:text="@string/settings_about" />
+
+            <LinearLayout
+                android:id="@+id/helpRow"
+                style="@style/SettingsRow">
+                <TextView style="@style/SettingsRowTitle" android:text="@string/settings_help" />
+                <TextView style="@style/SettingsRowSubtitle" android:text="@string/settings_help_sub" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/privacyRow"
+                style="@style/SettingsRow">
+                <TextView style="@style/SettingsRowTitle" android:text="@string/settings_privacy" />
+                <TextView style="@style/SettingsRowSubtitle" android:text="@string/settings_privacy_sub" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/aboutRow"
+                style="@style/SettingsRow">
+                <TextView style="@style/SettingsRowTitle" android:text="@string/settings_app_version" />
+                <TextView android:id="@+id/versionText" style="@style/SettingsRowSubtitle" />
+            </LinearLayout>
+
+            <View style="@style/SettingsDivider" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/logoutButton"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:minHeight="48dp"
+                android:text="@string/logout"
+                android:textColor="?attr/colorError" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>
