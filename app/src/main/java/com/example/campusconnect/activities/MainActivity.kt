@@ -10,6 +10,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.campusconnect.R
 import com.example.campusconnect.core.common.NotificationPermission
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityMainBinding
 import com.example.campusconnect.utils.SeedData
@@ -23,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
         notificationPermission.request()
         setSupportActionBar(binding.toolbar)
 

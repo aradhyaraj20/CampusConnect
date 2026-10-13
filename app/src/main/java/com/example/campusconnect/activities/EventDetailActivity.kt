@@ -18,6 +18,7 @@ import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AttendeeAdapter
 import com.example.campusconnect.core.common.NotificationPermission
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityEventDetailBinding
@@ -49,6 +50,7 @@ class EventDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityEventDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -319,7 +321,7 @@ class EventDetailActivity : AppCompatActivity() {
             val emails = attendees.map { it.email }.filter { it.isNotBlank() }.toTypedArray()
 
             if (emails.isEmpty()) {
-                Toast.makeText(this@EventDetailActivity, "No attendees to email yet", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EventDetailActivity, R.string.no_attendees_to_email_yet, Toast.LENGTH_SHORT).show()
                 return@launch
             }
 
@@ -332,7 +334,7 @@ class EventDetailActivity : AppCompatActivity() {
             try {
                 startActivity(Intent.createChooser(intent, "Email attendees"))
             } catch (_: Exception) {
-                Toast.makeText(this@EventDetailActivity, "No email app available", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EventDetailActivity, R.string.no_email_app_available, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -344,7 +346,7 @@ class EventDetailActivity : AppCompatActivity() {
             val attendees = AppDatabase.getDatabase(this@EventDetailActivity)
                 .rsvpDao().getAttendeesForEvent(eventId).first()
             if (attendees.isEmpty()) {
-                Toast.makeText(this@EventDetailActivity, "No attendees to export yet", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EventDetailActivity, R.string.no_attendees_to_export_yet, Toast.LENGTH_SHORT).show()
                 return@launch
             }
             try {
@@ -362,7 +364,7 @@ class EventDetailActivity : AppCompatActivity() {
                 }
                 startActivity(Intent.createChooser(share, "Export attendees"))
             } catch (_: Exception) {
-                Toast.makeText(this@EventDetailActivity, "Could not export attendees", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EventDetailActivity, R.string.could_not_export_attendees, Toast.LENGTH_SHORT).show()
             }
         }
     }

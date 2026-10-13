@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Campus Legends (Top Helpful)"
+        android:text="@string/campus_legends_top_helpful"
         android:textColor="?attr/colorPrimary"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -47,6 +47,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/legendsRecyclerView" />
 
+    <TextView
+        android:id="@+id/groupsEmptyText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="32dp"
+        android:gravity="center"
+        android:text="@string/study_groups_empty"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColor="?android:attr/textColorSecondary"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/legendsRecyclerView" />
+
+
     <LinearLayout
         android:id="@+id/scrollButtons"
         android:layout_width="wrap_content"
@@ -69,7 +84,7 @@
             android:layout_margin="4dp"
             app:fabSize="mini"
             app:srcCompat="@android:drawable/arrow_up_float"
-            android:contentDescription="Scroll Up" />
+            android:contentDescription="@string/cd_scroll_up" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/scrollDownFab"
@@ -79,7 +94,7 @@
             android:layout_margin="4dp"
             app:fabSize="mini"
             app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="Scroll Down" />
+            android:contentDescription="@string/cd_scroll_down" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

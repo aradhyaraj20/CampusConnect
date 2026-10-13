@@ -5,7 +5,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.campusconnect.R
 import com.example.campusconnect.adapters.RecapPhotoAdapter
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityEventRecapBinding
 import kotlinx.coroutines.flow.collectLatest
@@ -20,10 +22,11 @@ class EventRecapActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityEventRecapBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Event Memories"
+        supportActionBar?.title = getString(R.string.event_memories)
 
         eventId = intent.getIntExtra("EVENT_ID", -1)
         if (eventId == -1) {
@@ -42,7 +45,7 @@ class EventRecapActivity : AppCompatActivity() {
         }
 
         binding.addPhotoFab.setOnClickListener {
-            Toast.makeText(this, "Upload feature coming soon!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.upload_feature_coming_soon, Toast.LENGTH_SHORT).show()
         }
     }
 

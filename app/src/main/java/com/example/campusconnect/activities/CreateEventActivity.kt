@@ -50,14 +50,14 @@ class CreateEventActivity : AppCompatActivity() {
         RoleGuard.enforce(this, AccessPolicy::canCreateEvents)
         binding = ActivityCreateEventBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.applyImeAndSystemBarInsets()
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val role = SessionManager.getInstance(this).getCurrentUserRole()
         if (role !in listOf("ORGANIZER", "ADMIN")) {
-            Toast.makeText(this, "Organizer access required to create events", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.organizer_access_required_to_cre, Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -68,7 +68,7 @@ class CreateEventActivity : AppCompatActivity() {
         if (editEventId != -1) {
             loadEventForEdit(editEventId)
         } else {
-            supportActionBar?.title = "Create Event"
+            supportActionBar?.title = getString(R.string.qa_create_event)
             binding.screenTitle.text = "Create New Event"
             updateDateLabel()
             updateTimeLabel()
@@ -94,20 +94,20 @@ class CreateEventActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val event = AppDatabase.getDatabase(this@CreateEventActivity).eventDao().getEventById(eventId)
             if (event == null) {
-                Toast.makeText(this@CreateEventActivity, "Event not found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@CreateEventActivity, R.string.event_not_found, Toast.LENGTH_SHORT).show()
                 finish()
                 return@launch
             }
             val currentUserId = SessionManager.getInstance(this@CreateEventActivity).getCurrentUserId()
             val currentRole = SessionManager.getInstance(this@CreateEventActivity).getCurrentUserRole()
             if (event.creator_id != currentUserId && currentRole != "ADMIN") {
-                Toast.makeText(this@CreateEventActivity, "You can only edit events you created", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@CreateEventActivity, R.string.you_can_only_edit_events_you_cre, Toast.LENGTH_SHORT).show()
                 finish()
                 return@launch
             }
 
             editingEvent = event
-            supportActionBar?.title = "Edit Event"
+            supportActionBar?.title = getString(R.string.edit_event_full)
             binding.screenTitle.text = "Edit Event"
             binding.createButton.text = getString(R.string.edit_event_full)
 
@@ -229,7 +229,7 @@ class CreateEventActivity : AppCompatActivity() {
                 finish()
             }
         } else {
-            Toast.makeText(this, "Please fill required fields", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.please_fill_required_fields, Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -43,7 +43,7 @@ class AIAssistantActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAiAssistantBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.applyImeAndSystemBarInsets()
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -61,10 +61,10 @@ class AIAssistantActivity : AppCompatActivity() {
         val session = SessionManager.getInstance(this)
         currentUserId = session.getCurrentUserId()
         if (mode == AIMode.CREATE && !AccessPolicy.canCreateEvents(session.getCurrentUserRole())) {
-            Toast.makeText(this, "Organizer access required", Toast.LENGTH_SHORT).show(); finish(); return
+            Toast.makeText(this, R.string.organizer_access_required, Toast.LENGTH_SHORT).show(); finish(); return
         }
         if (mode == AIMode.ADMIN && !AccessPolicy.canAccessAdmin(session.getCurrentUserRole())) {
-            Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show(); finish(); return
+            Toast.makeText(this, R.string.admin_access_required, Toast.LENGTH_SHORT).show(); finish(); return
         }
 
         when (mode) {
@@ -202,15 +202,15 @@ class AIAssistantActivity : AppCompatActivity() {
 
     private fun showConflictDialog(message: String) {
         AlertDialog.Builder(this)
-            .setTitle("Schedule conflict")
+            .setTitle(R.string.schedule_conflict)
             .setMessage("$message\n\nChange the time, change the location in chat, or continue anyway.")
-            .setPositiveButton("Continue anyway") { _, _ -> viewModel.clearConflictAndContinue() }
-            .setNeutralButton("Change time") { _, _ ->
+            .setPositiveButton(R.string.continue_anyway) { _, _ -> viewModel.clearConflictAndContinue() }
+            .setNeutralButton(R.string.change_time) { _, _ ->
                 viewModel.resetState()
                 binding.promptEditText.setText("Change the time to ")
                 binding.promptEditText.requestFocus()
             }
-            .setNegativeButton("Change location") { _, _ ->
+            .setNegativeButton(R.string.change_location) { _, _ ->
                 viewModel.resetState()
                 binding.promptEditText.setText("Change the location to ")
                 binding.promptEditText.requestFocus()

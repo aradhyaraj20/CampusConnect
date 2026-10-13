@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.activities.admin.AdminAdsActivity
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityMyProfileBinding
@@ -33,6 +34,7 @@ class MyProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMyProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.my_profile)

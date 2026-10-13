@@ -5,7 +5,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AvatarAdapter
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityAvatarPickerBinding
@@ -19,10 +21,11 @@ class AvatarPickerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAvatarPickerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Choose Your Avatar"
+        supportActionBar?.title = getString(R.string.choose_your_avatar)
 
         currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
@@ -48,7 +51,7 @@ class AvatarPickerActivity : AppCompatActivity() {
             if (selectedUrl != null) {
                 updateProfileAvatar(selectedUrl)
             } else {
-                Toast.makeText(this, "Please select an avatar first", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.please_select_an_avatar_first, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -61,7 +64,7 @@ class AvatarPickerActivity : AppCompatActivity() {
             db.userDao().updateAvatar(currentUserId, url)
             
             // Also update SharedPreferences for consistency if needed, but ProfileFragment loads from DB
-            Toast.makeText(this@AvatarPickerActivity, "Avatar updated!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@AvatarPickerActivity, R.string.avatar_updated, Toast.LENGTH_SHORT).show()
             finish()
         }
     }

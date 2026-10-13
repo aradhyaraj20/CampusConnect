@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.R
 import com.example.campusconnect.core.ai.AIConfig
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.data.remote.GeminiAIDataSource
@@ -33,6 +34,7 @@ class AdminAiConfigActivity : AppCompatActivity() {
         RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivityAdminAiConfigBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

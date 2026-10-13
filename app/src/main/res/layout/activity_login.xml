@@ -14,7 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="CampusConnect Logo" />
+        android:contentDescription="@string/cd_campusconnect_logo" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/loginScroll"

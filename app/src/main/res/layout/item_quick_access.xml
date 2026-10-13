@@ -47,7 +47,7 @@
                 android:paddingVertical="2dp"
                 android:text="@string/qa_new"
                 android:textColor="@color/white"
-                android:textSize="9sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
         </FrameLayout>
@@ -78,7 +78,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
 
             <ImageView
                 android:layout_width="16dp"

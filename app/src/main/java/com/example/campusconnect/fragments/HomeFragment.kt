@@ -10,6 +10,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -33,6 +36,7 @@ import com.example.campusconnect.core.network.AppConnectivity
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentHomeBinding
+import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.models.Event
 import com.example.campusconnect.presentation.home.HomeFeedState
 import com.google.android.material.card.MaterialCardView
@@ -71,6 +75,16 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // The header sits under the transparent status bar; pad it by the real inset
+        // (24-50dp depending on device/cutout) instead of a fixed 40dp.
+        val headerBaseTop = (16 * resources.displayMetrics.density).toInt()
+        ViewCompat.setOnApplyWindowInsetsListener(binding.homeHeader) { header, insets ->
+            val top = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()).top
+            header.updatePadding(top = headerBaseTop + top)
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.homeHeader)
 
         val session = SessionManager.getInstance(requireContext())
         val currentUserId = session.getCurrentUserId()
@@ -190,7 +204,14 @@ class HomeFragment : Fragment() {
             QuickAction(
                 R.string.qa_profile, R.string.qa_profile_sub,
                 R.drawable.ic_nav_profile, R.color.qa_purple, R.color.qa_purple_bg
-            ) { startActivity(Intent(requireContext(), MyProfileActivity::class.java)) },
+            ) {
+                // Students have their own Profile tab; MyProfileActivity shows organizer/admin stats.
+                if (AccessPolicy.canCreateEvents(role)) {
+                    startActivity(Intent(requireContext(), MyProfileActivity::class.java))
+                } else {
+                    safeNavigate(R.id.profileFragment)
+                }
+            },
             QuickAction(
                 R.string.qa_events, R.string.qa_events_sub,
                 R.drawable.ic_nav_events_list, R.color.qa_orange, R.color.qa_orange_bg
@@ -229,7 +250,7 @@ class HomeFragment : Fragment() {
             ) { startActivity(Intent(requireContext(), SettingsActivity::class.java)) }
         )
 
-        if (role == "ORGANIZER" || role == "ADMIN") {
+        if (AccessPolicy.canCreateEvents(role)) {
             actions.add(
                 QuickAction(
                     R.string.qa_create_event, R.string.qa_create_event_sub,

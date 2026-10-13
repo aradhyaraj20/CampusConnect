@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.withTransaction
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.PollOptionAdapter
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityPollBinding
@@ -26,6 +27,7 @@ class PollActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPollBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

@@ -15,6 +15,6 @@
         android:layout_height="100dp"
         android:scaleType="centerCrop"
         android:padding="8dp"
-        android:contentDescription="Avatar Option" />
+        android:contentDescription="@string/cd_avatar_option" />
 
 </com.google.android.material.card.MaterialCardView>

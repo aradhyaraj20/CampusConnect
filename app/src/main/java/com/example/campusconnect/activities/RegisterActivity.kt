@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.BuildConfig
+import com.example.campusconnect.R
 import com.example.campusconnect.core.common.Result
 import com.example.campusconnect.core.common.RoleRouter
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
@@ -26,7 +27,7 @@ class RegisterActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Register"
+        supportActionBar?.title = getString(R.string.register)
 
         val userDao = AppDatabase.getDatabase(this).userDao()
         val sessionManager = SessionManager.getInstance(this)
@@ -72,7 +73,7 @@ class RegisterActivity : AppCompatActivity() {
                         )
                     ) {
                         is Result.Success -> {
-                            Toast.makeText(this@RegisterActivity, "Registration successful", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@RegisterActivity, R.string.registration_successful, Toast.LENGTH_SHORT).show()
                             RoleRouter.routeToDashboard(this@RegisterActivity, result.data.role)
                             finish()
                         }
@@ -83,9 +84,9 @@ class RegisterActivity : AppCompatActivity() {
                     }
                 }
             } else if (!courseFieldsValid) {
-                Toast.makeText(this, "Please enter your course and its duration (months)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.please_enter_your_course_and_its, Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.please_fill_all_fields, Toast.LENGTH_SHORT).show()
             }
         }
 

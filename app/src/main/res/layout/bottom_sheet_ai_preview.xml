@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="AI Event Preview"
+        android:text="@string/ai_event_preview"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -17,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Please confirm the details extracted by AI."
+        android:text="@string/ai_event_preview_hint"
         android:textColor="?attr/colorOutline" />
 
     <com.google.android.material.card.MaterialCardView
@@ -38,7 +39,7 @@
                 android:id="@+id/previewTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Python Workshop"
+                tools:text="Python Workshop"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -47,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Sept 10, 2026 at 3:00 PM"
+                tools:text="Sept 10, 2026 at 3:00 PM"
                 app:drawableStartCompat="@android:drawable/ic_menu_today"
                 android:drawablePadding="8dp" />
 
@@ -56,7 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Lab 4"
+                tools:text="Lab 4"
                 app:drawableStartCompat="@android:drawable/ic_menu_mylocation"
                 android:drawablePadding="8dp" />
 
@@ -65,7 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Capacity: 50"
+                tools:text="Capacity: 50"
                 app:drawableStartCompat="@drawable/ic_nav_groups"
                 android:drawablePadding="8dp" />
 
@@ -74,7 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Eligibility: Open"
+                tools:text="Eligibility: Open"
                 android:textSize="14sp" />
 
             <TextView
@@ -82,7 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Tags: —"
+                tools:text="Tags: —"
                 android:textSize="14sp" />
 
         </LinearLayout>
@@ -101,7 +102,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:text="Edit" />
+            android:text="@string/edit" />
 
         <Button
             android:id="@+id/confirmButton"
@@ -109,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="2"
-            android:text="Confirm &amp; Create" />
+            android:text="@string/confirm_and_create" />
     </LinearLayout>
 
 </LinearLayout>

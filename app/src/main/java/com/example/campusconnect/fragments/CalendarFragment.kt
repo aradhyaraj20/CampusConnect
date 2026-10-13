@@ -61,7 +61,7 @@ class CalendarFragment : Fragment() {
         binding.calendarView.setOnCalendarDayClickListener(object : OnCalendarDayClickListener {
             override fun onClick(calendarDay: CalendarDay) {
                 val selectedDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(calendarDay.calendar.time)
-                binding.calendarFeedTitle.text = "Events on $selectedDate"
+                binding.calendarFeedTitle.text = getString(R.string.events_on_date, selectedDate)
                 filterEventsForDate(calendarDay.calendar)
             }
         })
@@ -100,8 +100,8 @@ class CalendarFragment : Fragment() {
         val upcoming = allEvents.filter { it.date_timestamp >= today.timeInMillis }
             .sortedBy { it.date_timestamp }
         
-        binding.calendarFeedTitle.text = "Upcoming Events"
-        adapter.updateEvents(upcoming)
+        binding.calendarFeedTitle.setText(R.string.upcoming_events)
+        showEvents(upcoming)
     }
 
     private fun filterEventsForDate(calendar: Calendar) {
@@ -116,7 +116,12 @@ class CalendarFragment : Fragment() {
             eventCal.get(Calendar.MONTH) == month &&
             eventCal.get(Calendar.YEAR) == year
         }
-        adapter.updateEvents(filtered)
+        showEvents(filtered)
+    }
+
+    private fun showEvents(events: List<Event>) {
+        adapter.updateEvents(events)
+        binding.calendarEmptyText.visibility = if (events.isEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun onDestroyView() {

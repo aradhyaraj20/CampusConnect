@@ -14,6 +14,7 @@ import com.example.campusconnect.adapters.LegendAdapter
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentStudyGroupsBinding
+import com.example.campusconnect.models.User
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -69,13 +70,13 @@ class StudyGroupsFragment : Fragment() {
             val course = currentUser?.course
             if (!course.isNullOrBlank()) {
                 db.userDao().getTopUsersByCourse(course, 5).collectLatest { users ->
-                    legendAdapter.updateLegends(users)
+                    showLegends(users)
                 }
             } else {
                 // Organizers/admins previewing this screen, or students who never
                 // set a course, fall back to the global board.
                 db.userDao().getTopUsers(5).collectLatest { users ->
-                    legendAdapter.updateLegends(users)
+                    showLegends(users)
                 }
             }
         }
@@ -84,8 +85,17 @@ class StudyGroupsFragment : Fragment() {
             AppDatabase.getDatabase(requireContext()).eventDao().getAllEvents().collectLatest { events ->
                 val studyGroups = events.filter { it.type == "study_group" }
                 adapter.updateEvents(studyGroups)
+                binding.groupsEmptyText.visibility = if (studyGroups.isEmpty()) View.VISIBLE else View.GONE
             }
         }
+    }
+
+    /** An empty leaderboard hides its header instead of leaving an orphan title. */
+    private fun showLegends(users: List<User>) {
+        legendAdapter.updateLegends(users)
+        val visibility = if (users.isEmpty()) View.GONE else View.VISIBLE
+        binding.legendHeader.visibility = visibility
+        binding.legendsRecyclerView.visibility = visibility
     }
 
     override fun onDestroyView() {

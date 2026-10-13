@@ -14,6 +14,7 @@ import coil.load
 import com.example.campusconnect.BuildConfig
 import com.example.campusconnect.R
 import com.example.campusconnect.activities.admin.AdminAiConfigActivity
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.CryptoUtils
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
@@ -33,6 +34,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

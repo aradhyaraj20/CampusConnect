@@ -13,6 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="centerCrop"
-        android:contentDescription="Event Memory Photo" />
+        android:contentDescription="@string/cd_event_memory_photo" />
 
 </com.google.android.material.card.MaterialCardView>

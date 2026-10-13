@@ -6,7 +6,9 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.campusconnect.R
 import com.example.campusconnect.adapters.NotificationAdapter
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.network.AppConnectivity
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
@@ -24,10 +26,11 @@ class NotificationsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityNotificationsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Notifications"
+        supportActionBar?.title = getString(R.string.cd_notifications)
 
         currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 

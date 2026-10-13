@@ -8,7 +8,6 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:layout_marginTop="24dp"
         android:background="?attr/colorPrimary"
         app:title="Smart Search"
         app:titleTextColor="?attr/colorOnPrimary"
@@ -36,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:hint="Try 'I like football' or 'AI this weekend'..."
+        android:hint="@string/try_i_like_football_or_ai_this_w"
         app:boxCornerRadiusBottomEnd="28dp"
         app:boxCornerRadiusBottomStart="28dp"
         app:boxCornerRadiusTopEnd="28dp"
@@ -57,7 +56,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
-        android:text="Recent Searches"
+        android:text="@string/recent_searches"
         android:textSize="12sp"
         android:textStyle="bold"
         android:visibility="gone"
@@ -94,7 +93,7 @@
             android:id="@+id/emptyResultsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No matches found"
+            android:text="@string/no_matches_found"
             android:textStyle="bold"
             android:textSize="16sp" />
 
@@ -103,7 +102,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:gravity="center"
-            android:text="Try different words, or ask CampusConnect AI instead."
+            android:text="@string/try_different_words_or_ask_campu"
             android:textColor="?android:attr/textColorSecondary" />
 
         <Button

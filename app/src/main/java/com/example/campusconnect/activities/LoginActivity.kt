@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.campusconnect.R
 import com.example.campusconnect.core.common.Result
 import com.example.campusconnect.core.common.RoleRouter
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
@@ -46,7 +47,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.please_fill_all_fields, Toast.LENGTH_SHORT).show()
             }
         }
 

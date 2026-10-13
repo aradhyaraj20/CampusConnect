@@ -9,7 +9,7 @@ UI (Activities / Fragments, ViewBinding)
 ```
 
 Pure logic lives in `domain/` (`RsvpPolicy`, `AccessPolicy`, `TicketCrypto`) and `search/` so it can be unit-tested without Android.
-The Room schema is exported to `app/schemas/.../16.json`; open it for the ER diagram.
+The Room schema is exported to `app/schemas/.../18.json`; open it for the ER diagram. Unique indices enforce one RSVP per user per event, one vote per user per poll and one check-in per attendee.
 
 ## RBAC
 
@@ -22,11 +22,11 @@ The Room schema is exported to `app/schemas/.../16.json`; open it for the ER dia
 | Export / email attendees | no | own events | yes |
 | Moderate reports, manage users, ads, analytics | no | no | yes |
 
-Enforced by `AccessPolicy` (not only by hiding buttons).
+Enforced by `AccessPolicy` (not only by hiding buttons). Admin and organizer screens call `RoleGuard`, which re-reads the role and account status from the database, so a demoted or suspended account is sent back out even if the cached session says otherwise. Event chat and polls check enrollment themselves.
 
 ## Security (built)
 PBKDF2-SHA256 password hashing, login lockout (5 min), invite-code organizer signup, demo accounts only in debug builds,
-HMAC-signed QR tickets, role re-check before privileged operations, cascade delete of user data.
+HMAC-signed QR tickets checked against the database at the door (scanner must own the event or be admin, event active, RSVP still "going", ticket matches; no replay), tickets only for the holder's own confirmed seat, role re-check before privileged operations, cascade delete of user and event data, https-only ad links, shared login/password-change lockout.
 
 ## Limitations (be upfront in the viva)
 - No backend: single-device data; two phones do not share events.

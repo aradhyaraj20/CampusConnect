@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:hint="About Me (Bio)">
+                android:hint="@string/about_me_bio">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/bioEditText"
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:hint="Interests (comma separated)">
+                android:hint="@string/interests_comma_separated">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/interestsEditText"
@@ -61,7 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:text="Save Profile" />
+                android:text="@string/save_profile" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

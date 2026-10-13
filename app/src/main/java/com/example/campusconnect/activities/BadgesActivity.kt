@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.campusconnect.R
 import com.example.campusconnect.adapters.BadgeAdapter
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityBadgesBinding
@@ -20,10 +22,11 @@ class BadgesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityBadgesBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "My Badges"
+        supportActionBar?.title = getString(R.string.my_badges)
 
         currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 

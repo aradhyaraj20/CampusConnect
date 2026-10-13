@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AdAdapter
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
@@ -57,12 +58,13 @@ class AdminAdsActivity : AppCompatActivity() {
         RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivityAdminAdsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.manage_ads)
 
         if (!AccessPolicy.canAccessAdmin(SessionManager.getInstance(this).getCurrentUserRole())) {
-            Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show(); finish(); return
+            Toast.makeText(this, R.string.admin_access_required, Toast.LENGTH_SHORT).show(); finish(); return
         }
 
         val db = AppDatabase.getDatabase(this)
@@ -72,7 +74,7 @@ class AdminAdsActivity : AppCompatActivity() {
             onDelete = { ad ->
                 lifecycleScope.launch {
                     db.adDao().deleteAd(ad)
-                    Toast.makeText(this@AdminAdsActivity, "Ad removed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AdminAdsActivity, R.string.ad_removed, Toast.LENGTH_SHORT).show()
                 }
             }
         )

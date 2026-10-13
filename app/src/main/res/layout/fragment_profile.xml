@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,7 +11,7 @@
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Settings"
+        android:text="@string/qa_settings"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -39,14 +40,14 @@
         android:padding="4dp"
         app:layout_constraintBottom_toBottomOf="@id/profileImage"
         app:layout_constraintEnd_toEndOf="@id/profileImage"
-        android:contentDescription="Edit Avatar" />
+        android:contentDescription="@string/cd_edit_avatar" />
 
     <TextView
         android:id="@+id/userName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="Aradhya Raj"
+        tools:text="Aradhya Raj"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/profileImage"
@@ -57,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="aradhya@email.com"
+        tools:text="aradhya@email.com"
         app:layout_constraintStart_toEndOf="@id/profileImage"
         app:layout_constraintTop_toBottomOf="@id/userName" />
 
@@ -67,7 +68,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
-        android:text="Karma: 150"
+        tools:text="Karma: 150"
         android:textColor="?attr/colorPrimary"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/profileImage"
@@ -79,7 +80,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Edit Bio"
+        android:text="@string/edit_bio"
         app:layout_constraintBaseline_toBaselineOf="@id/userKarma"
         app:layout_constraintStart_toEndOf="@id/userKarma" />
 
@@ -88,7 +89,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="No bio yet. Tap edit to add one!"
+        tools:text="No bio yet. Tap edit to add one!"
         android:fontStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -109,7 +110,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Campus Marketplace"
+        android:text="@string/campus_marketplace"
         app:layout_constraintTop_toBottomOf="@id/interestsChipGroup" />
 
     <TextView
@@ -117,7 +118,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="My Joined Events"
+        android:text="@string/my_joined_events"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/marketplaceButton" />
@@ -127,7 +128,7 @@
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="My Badges"
+        android:text="@string/my_badges"
         app:layout_constraintBaseline_toBaselineOf="@id/myEventsTitle"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -175,7 +176,7 @@
             android:layout_margin="4dp"
             app:fabSize="mini"
             app:srcCompat="@android:drawable/arrow_up_float"
-            android:contentDescription="Scroll Up" />
+            android:contentDescription="@string/cd_scroll_up" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/scrollDownFab"
@@ -185,7 +186,7 @@
             android:layout_margin="4dp"
             app:fabSize="mini"
             app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="Scroll Down" />
+            android:contentDescription="@string/cd_scroll_down" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

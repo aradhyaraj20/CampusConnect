@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AdminUserAdapter
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
@@ -43,12 +44,13 @@ class AdminUsersActivity : AppCompatActivity() {
         RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivityAdminUsersBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.user_management)
 
         if (!AccessPolicy.canAccessAdmin(SessionManager.getInstance(this).getCurrentUserRole())) {
-            Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show(); finish(); return
+            Toast.makeText(this, R.string.admin_access_required, Toast.LENGTH_SHORT).show(); finish(); return
         }
 
         val db = AppDatabase.getDatabase(this)
@@ -61,16 +63,16 @@ class AdminUsersActivity : AppCompatActivity() {
             onChangeRole = { user ->
                 val newRole = if (user.role == "ORGANIZER") "STUDENT" else "ORGANIZER"
                 androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("Change role")
+                    .setTitle(R.string.change_role)
                     .setMessage("Make ${user.name} a ${newRole.lowercase()}?")
-                    .setPositiveButton("Confirm") { _, _ ->
+                    .setPositiveButton(R.string.confirm) { _, _ ->
                         lifecycleScope.launch {
                             db.userDao().updateRole(user.id, newRole)
                             Toast.makeText(this@AdminUsersActivity, "${user.name} is now $newRole", Toast.LENGTH_SHORT).show()
                             resetAndLoad()
                         }
                     }
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton(R.string.cancel, null)
                     .show()
             }
         )
@@ -146,7 +148,7 @@ class AdminUsersActivity : AppCompatActivity() {
     private fun runCleanupNow() {
         val request = androidx.work.OneTimeWorkRequestBuilder<AccountCleanupWorker>().build()
         androidx.work.WorkManager.getInstance(this).enqueue(request)
-        Toast.makeText(this, "Inactive-account cleanup started", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, R.string.inactive_account_cleanup_started, Toast.LENGTH_SHORT).show()
     }
 
     override fun onSupportNavigateUp(): Boolean { onBackPressedDispatcher.onBackPressed(); return true }

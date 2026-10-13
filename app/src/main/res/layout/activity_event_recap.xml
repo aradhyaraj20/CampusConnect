@@ -8,7 +8,6 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:layout_marginTop="24dp"
         android:background="?attr/colorPrimary"
         app:titleTextColor="?attr/colorOnPrimary"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,6 +28,6 @@
         android:src="@android:drawable/ic_menu_camera"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="Add Memory Photo" />
+        android:contentDescription="@string/cd_add_memory_photo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

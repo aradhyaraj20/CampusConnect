@@ -9,18 +9,19 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.MarketplaceAdapter
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityMarketplaceBinding
 import com.example.campusconnect.databinding.DialogAddMarketplaceItemBinding
 import com.example.campusconnect.models.MarketplaceItem
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class MarketplaceActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMarketplaceBinding
@@ -30,6 +31,7 @@ class MarketplaceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMarketplaceBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.ReportAdapter
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
@@ -24,17 +25,18 @@ class AdminModerationActivity : AppCompatActivity() {
         RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivitySimpleListBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.moderation)
         if (!AccessPolicy.canAccessAdmin(SessionManager.getInstance(this).getCurrentUserRole())) {
-            Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show(); finish(); return
+            Toast.makeText(this, R.string.admin_access_required, Toast.LENGTH_SHORT).show(); finish(); return
         }
         val db = AppDatabase.getDatabase(this)
         val useCase = ModerateReportUseCase(db.reportDao(), db.userDao(), db.eventDao())
         val adapter = ReportAdapter(emptyList(),
             onDismiss = { report -> lifecycleScope.launch { useCase.dismiss(report) } },
-            onRemove = { report -> lifecycleScope.launch { useCase.removeContent(report); Toast.makeText(this@AdminModerationActivity, "Content action applied", Toast.LENGTH_SHORT).show() } },
+            onRemove = { report -> lifecycleScope.launch { useCase.removeContent(report); Toast.makeText(this@AdminModerationActivity, R.string.content_action_applied, Toast.LENGTH_SHORT).show() } },
             onResolve = { report -> lifecycleScope.launch { useCase.resolve(report) } }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(this)

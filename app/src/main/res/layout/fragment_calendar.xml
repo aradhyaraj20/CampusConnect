@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Upcoming Events"
+        android:text="@string/upcoming_events"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/calendarView" />
@@ -30,6 +30,20 @@
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/calendarFeedTitle" />
+
+    <TextView
+        android:id="@+id/calendarEmptyText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="32dp"
+        android:gravity="center"
+        android:text="@string/calendar_no_events"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColor="?android:attr/textColorSecondary"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/calendarFeedTitle" />
 
     <LinearLayout
@@ -54,7 +68,7 @@
             android:layout_margin="4dp"
             app:fabSize="mini"
             app:srcCompat="@android:drawable/arrow_up_float"
-            android:contentDescription="Scroll Up" />
+            android:contentDescription="@string/cd_scroll_up" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/scrollDownFab"
@@ -64,7 +78,7 @@
             android:layout_margin="4dp"
             app:fabSize="mini"
             app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="Scroll Down" />
+            android:contentDescription="@string/cd_scroll_down" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

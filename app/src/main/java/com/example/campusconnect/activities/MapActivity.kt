@@ -3,6 +3,8 @@ package com.example.campusconnect.activities
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.campusconnect.R
+import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityMapBinding
 import kotlinx.coroutines.launch
@@ -15,10 +17,11 @@ class MapActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Campus Navigation"
+        supportActionBar?.title = getString(R.string.campus_navigation)
 
         eventId = intent.getIntExtra("EVENT_ID", -1)
         if (eventId != -1) {

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.campusconnect.R
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
@@ -18,11 +19,11 @@ class EditProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.applyImeAndSystemBarInsets()
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Edit Profile"
+        supportActionBar?.title = getString(R.string.edit_profile)
 
         currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
@@ -65,7 +66,7 @@ class EditProfileActivity : AppCompatActivity() {
                     }
                 }
 
-                Toast.makeText(this@EditProfileActivity, "Profile updated!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EditProfileActivity, R.string.profile_updated, Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
