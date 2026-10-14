@@ -34,6 +34,7 @@ class OrganizerDashboardActivity : AppCompatActivity() {
     private lateinit var binding: ActivityOrganizerDashboardBinding
     private lateinit var viewModel: OrganizerDashboardViewModel
     private lateinit var eventAdapter: EventAdapter
+    private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.models.Event>
     private var currentTab = 0 // 0 = upcoming, 1 = ongoing, 2 = completed
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +45,9 @@ class OrganizerDashboardActivity : AppCompatActivity() {
         binding.root.applyImeAndSystemBarInsets(binding.toolbar)
         notificationPermission.request()
         setSupportActionBar(binding.toolbar)
+        binding.toolbar.overflowIcon?.setTint(
+            com.google.android.material.color.MaterialColors.getColor(binding.toolbar, com.google.android.material.R.attr.colorOnPrimary)
+        )
 
         val db = AppDatabase.getDatabase(this)
         val sessionManager = SessionManager.getInstance(this)
@@ -70,10 +74,16 @@ class OrganizerDashboardActivity : AppCompatActivity() {
             })
         }
         binding.eventsRecyclerView.adapter = eventAdapter
+        pager = com.example.campusconnect.core.common.Pager(binding.eventsRecyclerView) { eventAdapter.updateEvents(it) }
         binding.eventsRecyclerView.layoutManager =
             androidx.recyclerview.widget.LinearLayoutManager(this)
 
         binding.createEventWithAiButton.setOnClickListener {
+            startActivity(Intent(this, AIAssistantActivity::class.java).apply {
+                putExtra(AIAssistantActivity.EXTRA_MODE, AIAssistantActivity.MODE_CREATE)
+            })
+        }
+        binding.aiAssistantFab.setOnClickListener {
             startActivity(Intent(this, AIAssistantActivity::class.java).apply {
                 putExtra(AIAssistantActivity.EXTRA_MODE, AIAssistantActivity.MODE_CREATE)
             })
@@ -85,6 +95,7 @@ class OrganizerDashboardActivity : AppCompatActivity() {
         binding.eventsTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 currentTab = tab.position
+                pager.reset()
                 renderCurrentTab()
             }
             override fun onTabUnselected(tab: TabLayout.Tab) {}
@@ -103,19 +114,27 @@ class OrganizerDashboardActivity : AppCompatActivity() {
                 latestState = state
                 binding.welcomeText.text = getString(com.example.campusconnect.R.string.welcome_format, state.organizerName)
 
-                bindStat(binding.statEventsCreated, state.eventsCreated.toString(), getString(com.example.campusconnect.R.string.events_created))
-                bindStat(binding.statRegistrations, state.registrations.toString(), getString(com.example.campusconnect.R.string.registrations))
-                bindStat(binding.statAttendance, state.attendanceCount.toString(), getString(com.example.campusconnect.R.string.attendance))
-                bindStat(binding.statAttendancePercent, "${state.attendancePercent}%", getString(com.example.campusconnect.R.string.attendance_percent))
+                bindStat(binding.statEventsCreated, state.eventsCreated.toString(), getString(com.example.campusconnect.R.string.events_created), R.color.qa_purple, R.color.qa_purple_bg)
+                bindStat(binding.statRegistrations, state.registrations.toString(), getString(com.example.campusconnect.R.string.registrations), R.color.qa_orange, R.color.qa_orange_bg)
+                bindStat(binding.statAttendance, state.attendanceCount.toString(), getString(com.example.campusconnect.R.string.attendance), R.color.qa_blue, R.color.qa_blue_bg)
+                bindStat(binding.statAttendancePercent, "${state.attendancePercent}%", getString(com.example.campusconnect.R.string.attendance_percent), R.color.qa_green, R.color.qa_green_bg)
 
                 renderCurrentTab()
             }
         }
     }
 
-    private fun bindStat(cardBinding: ItemStatCardBinding, value: String, label: String) {
+    /** Styled like the student Quick Access tiles: pale tint, strong accent for the number. */
+    private fun bindStat(cardBinding: ItemStatCardBinding, value: String, label: String, accentRes: Int, tintRes: Int) {
         cardBinding.statValue.text = value
         cardBinding.statLabel.text = label
+        cardBinding.statValue.setTextColor(getColor(accentRes))
+        cardBinding.statLabel.setTextColor(getColor(R.color.text_secondary))
+        (cardBinding.root as com.google.android.material.card.MaterialCardView).apply {
+            setCardBackgroundColor(getColor(tintRes))
+            radius = resources.displayMetrics.density * 18
+            cardElevation = 0f
+        }
     }
 
     private fun renderCurrentTab() {
@@ -124,7 +143,7 @@ class OrganizerDashboardActivity : AppCompatActivity() {
             1 -> latestState.ongoingEvents
             else -> latestState.completedEvents
         }
-        eventAdapter.updateEvents(events)
+        pager.submit(events)
         binding.emptyEventsState.visibility =
             if (!latestState.isLoading && events.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
     }

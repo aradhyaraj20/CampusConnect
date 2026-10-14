@@ -50,16 +50,10 @@ class AdminAiConfigActivity : AppCompatActivity() {
         AIConfig.init(this)
         renderStatus()
 
-        binding.modelFlash.isChecked = AIConfig.model != "gemini-2.5-flash-lite"
-        binding.modelFlashLite.isChecked = AIConfig.model == "gemini-2.5-flash-lite"
-
         binding.saveKeyButton.setOnClickListener { saveKey() }
         binding.testConnectionButton.setOnClickListener { testConnection() }
         binding.clearKeyButton.setOnClickListener { confirmClear() }
     }
-
-    private fun selectedModel(): String =
-        if (binding.modelFlashLite.isChecked) "gemini-2.5-flash-lite" else "gemini-2.5-flash"
 
     private fun renderStatus() {
         val configured = AIConfig.isConfigured
@@ -93,7 +87,7 @@ class AdminAiConfigActivity : AppCompatActivity() {
         }
         binding.apiKeyLayout.error = null
 
-        AIConfig.saveRuntimeKey(key, selectedModel())
+        AIConfig.saveRuntimeKey(key)
         binding.apiKeyInput.setText("")
         binding.testResultText.visibility = View.GONE
         renderStatus()
@@ -145,7 +139,7 @@ class AdminAiConfigActivity : AppCompatActivity() {
                     val friendly = when {
                         message.contains("400") || message.contains("403") ->
                             getString(R.string.ai_test_bad_key)
-                        message.contains("404") -> getString(R.string.ai_test_bad_model)
+                        message.contains("404") -> getString(R.string.ai_test_failed, message)
                         message.contains("429") -> getString(R.string.ai_test_rate_limited)
                         else -> getString(R.string.ai_test_failed, message)
                     }

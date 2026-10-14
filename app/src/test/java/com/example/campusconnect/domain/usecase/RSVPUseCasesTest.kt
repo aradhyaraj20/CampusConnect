@@ -14,7 +14,10 @@ import org.junit.Test
 
 class RSVPUseCasesTest {
 
-    private class Fixture(max: Int?, going: Int, waitlist: RSVP? = null, existing: RSVP? = null) {
+    private class Fixture(
+        max: Int?, going: Int, waitlist: RSVP? = null, existing: RSVP? = null,
+        tx: com.example.campusconnect.core.common.TransactionRunner = com.example.campusconnect.core.common.TransactionRunner.None
+    ) {
         val inserted = mutableListOf<RSVP>()
         val updated = mutableListOf<RSVP>()
         val deleted = mutableListOf<RSVP>()
@@ -39,7 +42,8 @@ class RSVPUseCasesTest {
             eventDao = fakeDao<EventDao>(mapOf("getEventById" to { event })),
             notificationDao = fakeDao<NotificationDao>(
                 mapOf("insertNotification" to { a -> notifications += a[0] as Notification })
-            )
+            ),
+            transactions = tx
         )
     }
 
@@ -105,5 +109,29 @@ class RSVPUseCasesTest {
 
         assertTrue(f.deleted.isEmpty())
         assertTrue(f.updated.isEmpty())
+    }
+
+    @Test
+    fun alreadyGoing_returnsExistingStatusWithoutInserting() = runBlocking {
+        val f = Fixture(max = 1, going = 1, existing = rsvp(7, "going"))
+        assertEquals("going", f.useCases.rsvpOrWaitlist(7, 1))
+        assertTrue(f.inserted.isEmpty())
+    }
+
+    @Test
+    fun joinAndCancel_runInsideATransaction() = runBlocking {
+        var active = 0
+        var runs = 0
+        val tx = object : com.example.campusconnect.core.common.TransactionRunner {
+            override suspend fun <T> run(block: suspend () -> T): T {
+                runs++; active++
+                try { return block() } finally { active-- }
+            }
+        }
+        val f = Fixture(max = 1, going = 0, tx = tx)
+        f.useCases.rsvpOrWaitlist(7, 1)
+        f.useCases.cancelRsvpAndPromoteWaitlist(7, 1)
+        assertEquals(2, runs)
+        assertEquals(0, active)
     }
 }

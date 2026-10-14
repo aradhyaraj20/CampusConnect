@@ -8,27 +8,31 @@
     android:background="@color/background">
 
     <com.google.android.material.appbar.MaterialToolbar
+        android:theme="@style/ThemeOverlay.CampusConnect.Toolbar"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/bg_toolbar_gradient"
         app:titleTextColor="?attr/colorOnPrimary"
         app:title="@string/my_events"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/notificationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_gravity="end"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_popup_reminder"
+            android:src="@drawable/ic_qa_bell"
             app:tint="?attr/colorOnPrimary"
             android:contentDescription="@string/cd_notifications" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.core.widget.NestedScrollView
+        android:clipToPadding="false"
         android:id="@+id/dashboardScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -39,7 +43,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:paddingBottom="96dp">
             <TextView
                 android:id="@+id/welcomeText"
                 android:layout_width="wrap_content"
@@ -195,10 +200,21 @@
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
+        style="@style/Widget.CampusConnect.BottomNav"
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/organizer_bottom_nav_menu" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/aiAssistantFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/cd_ask_ai"
+        android:src="@drawable/ic_ai_sparkle"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

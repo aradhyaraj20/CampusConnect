@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AdminUserAdapter
+import com.example.campusconnect.appContainer
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
@@ -34,10 +35,10 @@ class AdminUsersActivity : AppCompatActivity() {
 
     private var searchQuery: String = ""
     private var roleFilter: String = "ALL"
-    private var pageOffset: Int = 0
-    private val pageSize = 25
+    private var pageIndex: Int = 0
+    private val pageSize = 5
     private var totalCount: Int = 0
-    private val loadedUsers = mutableListOf<com.example.campusconnect.models.User>()
+    private lateinit var pagerBar: com.example.campusconnect.core.common.PagerBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,21 +55,31 @@ class AdminUsersActivity : AppCompatActivity() {
         }
 
         val db = AppDatabase.getDatabase(this)
-        useCase = ModerateReportUseCase(db.reportDao(), db.userDao(), db.eventDao())
+        useCase = appContainer.moderationUseCase()
 
         adapter = AdminUserAdapter(emptyList(),
-            onWarn = { user -> lifecycleScope.launch { useCase.warnUser(user.id); Toast.makeText(this@AdminUsersActivity, "${user.name} warned", Toast.LENGTH_SHORT).show() } },
-            onSuspend = { user -> lifecycleScope.launch { useCase.suspendUser(user.id); Toast.makeText(this@AdminUsersActivity, "${user.name} suspended", Toast.LENGTH_SHORT).show() } },
+            onWarn = { user ->
+                lifecycleScope.launch {
+                    useCase.warnUser(user.id).toast(this@AdminUsersActivity, getString(R.string.user_warned_format, user.name))
+                    resetAndLoad()
+                }
+            },
+            onSuspend = { user ->
+                lifecycleScope.launch {
+                    useCase.suspendUser(user.id).toast(this@AdminUsersActivity, getString(R.string.user_suspended_format, user.name))
+                    resetAndLoad()
+                }
+            },
             // Long-press a row: promote/demote between Student and Organizer (admins are never changed here).
             onChangeRole = { user ->
                 val newRole = if (user.role == "ORGANIZER") "STUDENT" else "ORGANIZER"
                 androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle(R.string.change_role)
-                    .setMessage("Make ${user.name} a ${newRole.lowercase()}?")
+                    .setMessage(getString(R.string.change_role_message_format, user.name, newRole.lowercase()))
                     .setPositiveButton(R.string.confirm) { _, _ ->
                         lifecycleScope.launch {
-                            db.userDao().updateRole(user.id, newRole)
-                            Toast.makeText(this@AdminUsersActivity, "${user.name} is now $newRole", Toast.LENGTH_SHORT).show()
+                            useCase.changeRole(user.id, newRole)
+                                .toast(this@AdminUsersActivity, getString(R.string.user_role_changed_format, user.name, newRole))
                             resetAndLoad()
                         }
                     }
@@ -98,31 +109,33 @@ class AdminUsersActivity : AppCompatActivity() {
             resetAndLoad()
         }
 
-        binding.loadMoreButton.setOnClickListener { loadPage() }
+        binding.loadMoreButton.visibility = View.GONE
+        pagerBar = com.example.campusconnect.core.common.PagerBar.attachBelow(binding.recyclerView)
+        pagerBar.onPrev = { if (pageIndex > 0) { pageIndex--; loadPage() } }
+        pagerBar.onNext = { pageIndex++; loadPage() }
 
         resetAndLoad()
     }
 
     private fun resetAndLoad() {
-        pageOffset = 0
-        loadedUsers.clear()
-        adapter.submit(emptyList())
+        pageIndex = 0
         loadPage()
     }
 
+    /** Server-side paging: only the 5 rows of the current page are ever read from the database. */
     private fun loadPage() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(this@AdminUsersActivity)
             totalCount = db.userDao().getUsersPageCount(searchQuery, roleFilter)
-            val page = db.userDao().getUsersPage(searchQuery, roleFilter, pageSize, pageOffset)
-            loadedUsers.addAll(page)
-            pageOffset += page.size
-            adapter.submit(loadedUsers.toList())
+            val pages = ((totalCount + pageSize - 1) / pageSize).coerceAtLeast(1)
+            pageIndex = pageIndex.coerceIn(0, pages - 1)
+            val page = db.userDao().getUsersPage(searchQuery, roleFilter, pageSize, pageIndex * pageSize)
+            adapter.submit(page)
 
-            binding.emptyState.visibility = if (loadedUsers.isEmpty()) View.VISIBLE else View.GONE
-            binding.resultCountText.text = getString(R.string.showing_of_users_format, loadedUsers.size, totalCount)
-            binding.loadMoreButton.visibility =
-                if (pageOffset < totalCount) View.VISIBLE else View.GONE
+            binding.emptyState.visibility = if (totalCount == 0) View.VISIBLE else View.GONE
+            binding.resultCountText.text = getString(R.string.showing_of_users_format, page.size, totalCount)
+            pagerBar.show(pageIndex, pages)
+            binding.recyclerView.scrollToPosition(0)
         }
     }
 

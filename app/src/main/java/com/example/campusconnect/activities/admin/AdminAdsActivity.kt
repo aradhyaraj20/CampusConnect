@@ -80,10 +80,11 @@ class AdminAdsActivity : AppCompatActivity() {
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
+        val pager = com.example.campusconnect.core.common.Pager(binding.recyclerView) { adapter.submit(it) }
 
         lifecycleScope.launch {
             db.adDao().getAllAds().collectLatest { ads ->
-                adapter.submit(ads)
+                pager.submit(ads)
                 binding.emptyState.visibility = if (ads.isEmpty()) View.VISIBLE else View.GONE
             }
         }

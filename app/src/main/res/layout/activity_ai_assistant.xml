@@ -5,10 +5,11 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.appbar.MaterialToolbar
+        android:theme="@style/ThemeOverlay.CampusConnect.Toolbar"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/bg_toolbar_gradient"
         app:title="CampusConnect AI"
         app:titleTextColor="?attr/colorOnPrimary"
         app:layout_constraintTop_toTopOf="parent" />

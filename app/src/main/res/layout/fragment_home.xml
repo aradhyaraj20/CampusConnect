@@ -65,6 +65,17 @@
                     android:visibility="gone"
                     tools:text="3" />
             </FrameLayout>
+
+            <ImageButton
+                android:id="@+id/homeOverflowButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cd_more_options"
+                android:src="@drawable/ic_more_vert"
+                app:tint="@color/white" />
         </LinearLayout>
 
         <TextView
@@ -157,17 +168,6 @@
                     android:textColor="@color/text_primary"
                     android:textSize="19sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/viewAllButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="4dp"
-                    android:text="@string/view_all"
-                    android:textColor="@color/qa_purple"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Quick Access grid (rows built programmatically) -->
@@ -187,8 +187,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:visibility="gone"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/tertiary"
                 app:strokeWidth="1dp">
 

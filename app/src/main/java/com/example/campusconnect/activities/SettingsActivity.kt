@@ -15,9 +15,10 @@ import com.example.campusconnect.BuildConfig
 import com.example.campusconnect.R
 import com.example.campusconnect.activities.admin.AdminAiConfigActivity
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
-import com.example.campusconnect.core.security.CryptoUtils
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
+import com.example.campusconnect.data.repository.AuthRepository
+import com.example.campusconnect.data.repository.PasswordChangeResult
 import com.example.campusconnect.databinding.ActivitySettingsBinding
 import com.example.campusconnect.databinding.DialogChangePasswordBinding
 import kotlinx.coroutines.Dispatchers
@@ -211,33 +212,24 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val dao = AppDatabase.getDatabase(this@SettingsActivity).userDao()
-            val userId = session.getCurrentUserId()
-            val user = withContext(Dispatchers.IO) { dao.getUserById(userId) }
-
-            if (user == null) {
-                Toast.makeText(this@SettingsActivity, R.string.pwd_err_no_user, Toast.LENGTH_SHORT).show()
-                return@launch
+            val repo = AuthRepository(AppDatabase.getDatabase(this@SettingsActivity).userDao(), session)
+            val result = withContext(Dispatchers.IO) { repo.changePassword(session.getCurrentUserId(), current, new) }
+            when (result) {
+                PasswordChangeResult.SUCCESS -> {
+                    dialog.dismiss()
+                    Toast.makeText(this@SettingsActivity, R.string.pwd_updated, Toast.LENGTH_LONG).show()
+                }
+                PasswordChangeResult.NO_USER ->
+                    Toast.makeText(this@SettingsActivity, R.string.pwd_err_no_user, Toast.LENGTH_SHORT).show()
+                PasswordChangeResult.LOCKED ->
+                    b.currentPasswordLayout.error = getString(R.string.pwd_err_locked)
+                PasswordChangeResult.WRONG_CURRENT ->
+                    b.currentPasswordLayout.error = getString(R.string.pwd_err_current_wrong)
+                PasswordChangeResult.TOO_SHORT ->
+                    b.newPasswordLayout.error = getString(R.string.pwd_err_too_short)
+                PasswordChangeResult.SAME ->
+                    b.newPasswordLayout.error = getString(R.string.pwd_err_same)
             }
-            // Verify the current password before allowing a change - otherwise anyone
-            // with a borrowed unlocked phone could take over the account.
-            // Shares the login lockout, so the current password can't be brute-forced here.
-            if (session.lockoutRemainingMs(user.email) > 0) {
-                b.currentPasswordLayout.error = getString(R.string.pwd_err_locked)
-                return@launch
-            }
-            if (!CryptoUtils.verifyPassword(current, user.password_hash)) {
-                session.recordFailedLogin(user.email)
-                b.currentPasswordLayout.error = getString(R.string.pwd_err_current_wrong)
-                return@launch
-            }
-            session.clearFailedLogins(user.email)
-
-            withContext(Dispatchers.IO) {
-                dao.updatePassword(userId, CryptoUtils.hashPassword(new))
-            }
-            dialog.dismiss()
-            Toast.makeText(this@SettingsActivity, R.string.pwd_updated, Toast.LENGTH_LONG).show()
         }
     }
 

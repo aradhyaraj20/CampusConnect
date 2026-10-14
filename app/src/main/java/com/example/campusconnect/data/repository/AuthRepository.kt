@@ -1,5 +1,6 @@
 package com.example.campusconnect.data.repository
 
+import com.example.campusconnect.utils.DateFormats
 import com.example.campusconnect.core.common.Result
 import com.example.campusconnect.core.error.AppException
 import com.example.campusconnect.core.security.CryptoUtils
@@ -99,7 +100,7 @@ class AuthRepository(
 
             val hashedPassword = CryptoUtils.hashPassword(password)
             val now = Date()
-            val createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(now)
+            val createdAt = DateFormats.storedTimestamp(now)
 
             val courseEndAt: Long? = if (safeRole == "STUDENT" && courseDurationMonths != null && courseDurationMonths > 0) {
                 Calendar.getInstance().apply {
@@ -157,6 +158,25 @@ class AuthRepository(
         return user.role
     }
 
+
+    /**
+     * Changes the password after verifying the current one. Shares the login lockout so the
+     * current password can't be brute-forced from the settings screen.
+     */
+    suspend fun changePassword(userId: Int, current: String, new: String): PasswordChangeResult {
+        val user = userDao.getUserById(userId) ?: return PasswordChangeResult.NO_USER
+        if (sessionManager.lockoutRemainingMs(user.email) > 0) return PasswordChangeResult.LOCKED
+        if (!CryptoUtils.verifyPassword(current, user.password_hash)) {
+            sessionManager.recordFailedLogin(user.email)
+            return PasswordChangeResult.WRONG_CURRENT
+        }
+        sessionManager.clearFailedLogins(user.email)
+        if (new.length < MIN_PASSWORD_LENGTH) return PasswordChangeResult.TOO_SHORT
+        if (new == current) return PasswordChangeResult.SAME
+        userDao.updatePassword(userId, CryptoUtils.hashPassword(new))
+        return PasswordChangeResult.SUCCESS
+    }
+
     fun logout() {
         sessionManager.clearSession()
     }
@@ -172,3 +192,5 @@ class AuthRepository(
         val EMAIL_REGEX = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
     }
 }
+
+enum class PasswordChangeResult { SUCCESS, NO_USER, LOCKED, WRONG_CURRENT, TOO_SHORT, SAME }

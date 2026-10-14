@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.R
+import com.example.campusconnect.appContainer
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.domain.security.AccessPolicy
@@ -88,21 +89,25 @@ class QrScanActivity : AppCompatActivity() {
                 finishWith(R.string.scan_no_valid_rsvp); return@launch
             }
 
-            val inserted = db.attendanceDao().recordAttendance(
-                Attendance(
-                    eventId = eventId,
-                    userId = userId,
-                    ticketId = ticketId,
-                    checkInTime = System.currentTimeMillis(),
-                    checkedInBy = scannerUserId,
-                    status = "CHECKED_IN"
+            // Attendance row and the RSVP flag must change together.
+            val checkedIn = appContainer.transactions.run {
+                val inserted = db.attendanceDao().recordAttendance(
+                    Attendance(
+                        eventId = eventId,
+                        userId = userId,
+                        ticketId = ticketId,
+                        checkInTime = System.currentTimeMillis(),
+                        checkedInBy = scannerUserId,
+                        status = "CHECKED_IN"
+                    )
                 )
-            )
-            if (inserted == -1L) {
-                finishWith(R.string.scan_already_checked_in); return@launch
+                if (inserted == -1L) false
+                else {
+                    db.rsvpDao().updateRsvp(rsvp.copy(checked_in = true))
+                    true
+                }
             }
-            db.rsvpDao().updateRsvp(rsvp.copy(checked_in = true))
-            finishWith(R.string.scan_success)
+            finishWith(if (checkedIn) R.string.scan_success else R.string.scan_already_checked_in)
         }
     }
 

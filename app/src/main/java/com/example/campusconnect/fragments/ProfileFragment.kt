@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.campusconnect.adapters.trackRsvps
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,7 +14,6 @@ import coil.load
 import com.example.campusconnect.activities.AvatarPickerActivity
 import com.example.campusconnect.activities.BadgesActivity
 import com.example.campusconnect.activities.EditProfileActivity
-import com.example.campusconnect.activities.MarketplaceActivity
 import com.example.campusconnect.activities.QrTicketActivity
 import com.example.campusconnect.activities.SettingsActivity
 import com.example.campusconnect.adapters.EventAdapter
@@ -28,6 +28,7 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: EventAdapter
+    private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.models.Event>
     private var currentUserId: Int = -1
 
     override fun onCreateView(
@@ -89,9 +90,11 @@ class ProfileFragment : Fragment() {
                 }
             }
         }
+        adapter.trackRsvps(requireContext(), viewLifecycleOwner)
 
         binding.myEventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.myEventsRecyclerView.adapter = adapter
+        pager = com.example.campusconnect.core.common.Pager(binding.myEventsRecyclerView) { adapter.updateEvents(it) }
 
         binding.scrollUpFab.setOnClickListener {
             binding.myEventsRecyclerView.smoothScrollToPosition(0)
@@ -106,10 +109,6 @@ class ProfileFragment : Fragment() {
 
         binding.myBadgesButton.setOnClickListener {
             startActivity(Intent(requireContext(), BadgesActivity::class.java))
-        }
-
-        binding.marketplaceButton.setOnClickListener {
-            startActivity(Intent(requireContext(), MarketplaceActivity::class.java))
         }
 
         binding.settingsButton.setOnClickListener {
@@ -135,7 +134,7 @@ class ProfileFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
             db.eventDao().getJoinedEvents(currentUserId).collectLatest { joinedEvents ->
-                adapter.updateEvents(joinedEvents)
+                pager.submit(joinedEvents)
                 binding.joinedEmptyText.visibility = if (joinedEvents.isEmpty()) View.VISIBLE else View.GONE
             }
         }

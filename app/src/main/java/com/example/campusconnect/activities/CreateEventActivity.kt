@@ -11,13 +11,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.example.campusconnect.R
+import com.example.campusconnect.appContainer
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityCreateEventBinding
 import com.example.campusconnect.domain.security.AccessPolicy
+import com.example.campusconnect.domain.event.EventTime
+import com.example.campusconnect.domain.usecase.EventForm
+import com.example.campusconnect.domain.usecase.SaveEventError
+import com.example.campusconnect.domain.usecase.SaveEventResult
+import com.example.campusconnect.domain.usecase.SaveEventUseCase
 import com.example.campusconnect.models.Event
+import com.example.campusconnect.utils.ReminderManager
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.coroutines.launch
@@ -69,7 +76,7 @@ class CreateEventActivity : AppCompatActivity() {
             loadEventForEdit(editEventId)
         } else {
             supportActionBar?.title = getString(R.string.qa_create_event)
-            binding.screenTitle.text = "Create New Event"
+            binding.screenTitle.setText(R.string.create_event_screen_title)
             updateDateLabel()
             updateTimeLabel()
         }
@@ -108,7 +115,7 @@ class CreateEventActivity : AppCompatActivity() {
 
             editingEvent = event
             supportActionBar?.title = getString(R.string.edit_event_full)
-            binding.screenTitle.text = "Edit Event"
+            binding.screenTitle.setText(R.string.edit_event_screen_title)
             binding.createButton.text = getString(R.string.edit_event_full)
 
             binding.titleEditText.setText(event.title)
@@ -118,7 +125,8 @@ class CreateEventActivity : AppCompatActivity() {
             binding.flashSessionSwitch.isChecked = event.is_flash
             if (event.type == "event") binding.radioEvent.isChecked = true else binding.radioStudyGroup.isChecked = true
 
-            selectedCalendar.timeInMillis = event.date_timestamp
+            // Seed/AI events keep the displayed start time in `time`; the timestamp may carry another time of day.
+            selectedCalendar.timeInMillis = EventTime.combine(event.date_timestamp, event.time, TimeZone.getDefault())
             updateDateLabel()
             updateTimeLabel()
 
@@ -173,64 +181,49 @@ class CreateEventActivity : AppCompatActivity() {
     }
 
     private fun saveEvent() {
-        val title = binding.titleEditText.text.toString()
-        val description = binding.descriptionEditText.text.toString()
-        val location = binding.locationEditText.text.toString()
-        val maxAttendees = binding.maxAttendeesEditText.text.toString().toIntOrNull()
-        val type = if (binding.radioEvent.isChecked) "event" else "study_group"
-        val isFlash = binding.flashSessionSwitch.isChecked
-
-        if (title.isNotEmpty() && description.isNotEmpty() && location.isNotEmpty()) {
-            lifecycleScope.launch {
-                val dateTimestamp = selectedCalendar.timeInMillis
-                val date = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(selectedCalendar.time)
-                val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(selectedCalendar.time)
-                val expiryTime = if (isFlash) dateTimestamp + 3600000 else null
-
-                val currentUserId = SessionManager.getInstance(this@CreateEventActivity).getCurrentUserId()
-                val existing = editingEvent
-                val imageUri = selectedImageUri?.toString() ?: existing?.image_uri
-
-                val event = Event(
-                    id = existing?.id ?: 0,
-                    title = title,
-                    description = description,
-                    type = type,
-                    category = existing?.category ?: (if (type == "event") "Social" else "Academic"),
-                    image_uri = imageUri,
-                    date = date,
-                    time = time,
-                    location = location,
-                    map_lat = existing?.map_lat,
-                    map_lng = existing?.map_lng,
-                    max_attendees = maxAttendees,
-                    is_user_created = true,
-                    creator_id = existing?.creator_id ?: currentUserId,
-                    is_flash = isFlash,
-                    expiry_time = expiryTime,
-                    date_timestamp = dateTimestamp,
-                    visibility = existing?.visibility ?: "public",
-                    eligibility = existing?.eligibility,
-                    tags = existing?.tags,
-                    organizer_name = existing?.organizer_name,
-                    registration_deadline = existing?.registration_deadline,
-                    status = existing?.status ?: "active"
-                )
-
-                // insertEvent uses OnConflictStrategy.REPLACE, so passing the
-                // existing id here performs an in-place update rather than
-                // creating a duplicate row.
-                AppDatabase.getDatabase(this@CreateEventActivity).eventDao().insertEvent(event)
-                Toast.makeText(
-                    this@CreateEventActivity,
-                    if (existing != null) "Event updated" else "Event Created Successfully",
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
+        val form = EventForm(
+            title = binding.titleEditText.text.toString(),
+            description = binding.descriptionEditText.text.toString(),
+            location = binding.locationEditText.text.toString(),
+            maxAttendeesText = binding.maxAttendeesEditText.text.toString(),
+            type = if (binding.radioEvent.isChecked) "event" else "study_group",
+            isFlash = binding.flashSessionSwitch.isChecked,
+            dateTimestamp = selectedCalendar.timeInMillis,
+            imageUri = selectedImageUri?.toString()
+        )
+        // Disabled while saving so a double tap can't create the event twice.
+        binding.createButton.isEnabled = false
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(this@CreateEventActivity)
+            val useCase = SaveEventUseCase(db.eventDao(), db.userDao(), db.rsvpDao(), db.notificationDao(), appContainer.transactions)
+            val userId = SessionManager.getInstance(this@CreateEventActivity).getCurrentUserId()
+            when (val result = useCase.save(userId, editingEvent?.id, form)) {
+                is SaveEventResult.Saved -> {
+                    // Replace any reminders scheduled for the old time, then schedule for the new one.
+                    ReminderManager.cancelReminders(this@CreateEventActivity, result.event.id)
+                    ReminderManager.scheduleReminders(this@CreateEventActivity, result.event)
+                    Toast.makeText(
+                        this@CreateEventActivity,
+                        if (result.isNew) R.string.event_created_success else R.string.event_updated_success,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    finish()
+                }
+                is SaveEventResult.Invalid -> {
+                    binding.createButton.isEnabled = true
+                    Toast.makeText(this@CreateEventActivity, errorMessage(result.error), Toast.LENGTH_SHORT).show()
+                }
             }
-        } else {
-            Toast.makeText(this, R.string.please_fill_required_fields, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun errorMessage(error: SaveEventError): Int = when (error) {
+        SaveEventError.REQUIRED_FIELDS -> R.string.please_fill_required_fields
+        SaveEventError.INVALID_CAPACITY -> R.string.err_invalid_capacity
+        SaveEventError.PAST_DATE -> R.string.err_event_past_date
+        SaveEventError.CAPACITY_BELOW_ATTENDEES -> R.string.err_capacity_below_attendees
+        SaveEventError.NOT_ALLOWED -> R.string.you_can_only_edit_events_you_cre
+        SaveEventError.NOT_FOUND -> R.string.event_not_found
     }
 
     companion object {

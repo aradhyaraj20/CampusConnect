@@ -13,11 +13,18 @@ interface RsvpDao {
     @Query("SELECT users.* FROM users INNER JOIN rsvps ON users.id = rsvps.user_id WHERE rsvps.event_id = :eventId AND rsvps.status = 'going'")
     fun getAttendeesForEvent(eventId: Int): Flow<List<User>>
 
+    @Query("SELECT * FROM rsvps WHERE user_id = :userId")
+    fun getRsvpsForUser(userId: Int): Flow<List<RSVP>>
+
     @Query("SELECT * FROM rsvps WHERE id = :rsvpId")
     suspend fun getRsvpById(rsvpId: Int): RSVP?
 
     @Query("SELECT * FROM rsvps WHERE user_id = :userId AND event_id = :eventId")
     suspend fun getUserRSVPForEvent(userId: Int, eventId: Int): RSVP?
+
+    /** Everyone holding a seat or a waitlist spot, i.e. who should hear about changes to the event. */
+    @Query("SELECT * FROM rsvps WHERE event_id = :eventId AND status IN ('going', 'waitlisted')")
+    suspend fun getActiveRsvpsForEvent(eventId: Int): List<RSVP>
 
     @Query("SELECT COUNT(*) FROM rsvps WHERE event_id = :eventId AND status = 'going'")
     suspend fun getAttendeeCount(eventId: Int): Int

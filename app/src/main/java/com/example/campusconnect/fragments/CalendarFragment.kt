@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.campusconnect.adapters.trackRsvps
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,6 +26,7 @@ class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: EventAdapter
+    private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.models.Event>
     private var allEvents: List<Event> = emptyList()
 
     override fun onCreateView(
@@ -43,20 +45,12 @@ class CalendarFragment : Fragment() {
             intent.putExtra("EVENT_ID", event.id)
             startActivity(intent)
         }
+        adapter.trackRsvps(requireContext(), viewLifecycleOwner)
 
         binding.calendarEventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.calendarEventsRecyclerView.adapter = adapter
+        pager = com.example.campusconnect.core.common.Pager(binding.calendarEventsRecyclerView) { adapter.updateEvents(it) }
 
-        binding.scrollUpFab.setOnClickListener {
-            binding.calendarEventsRecyclerView.smoothScrollToPosition(0)
-        }
-
-        binding.scrollDownFab.setOnClickListener {
-            val count = adapter.itemCount
-            if (count > 0) {
-                binding.calendarEventsRecyclerView.smoothScrollToPosition(count - 1)
-            }
-        }
 
         binding.calendarView.setOnCalendarDayClickListener(object : OnCalendarDayClickListener {
             override fun onClick(calendarDay: CalendarDay) {
@@ -105,6 +99,7 @@ class CalendarFragment : Fragment() {
     }
 
     private fun filterEventsForDate(calendar: Calendar) {
+        pager.reset()
         val day = calendar.get(Calendar.DAY_OF_MONTH)
         val month = calendar.get(Calendar.MONTH)
         val year = calendar.get(Calendar.YEAR)
@@ -120,7 +115,7 @@ class CalendarFragment : Fragment() {
     }
 
     private fun showEvents(events: List<Event>) {
-        adapter.updateEvents(events)
+        pager.submit(events)
         binding.calendarEmptyText.visibility = if (events.isEmpty()) View.VISIBLE else View.GONE
     }
 

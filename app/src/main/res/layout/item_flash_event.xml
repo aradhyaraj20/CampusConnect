@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="16dp"
-    app:cardBackgroundColor="?attr/colorTertiaryContainer"
+    app:cardBackgroundColor="@color/event_card_navy"
     app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -46,7 +46,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             tools:text="Python Help"
-            android:textColor="?attr/colorOnTertiaryContainer"
+            android:textColor="@color/event_card_text_secondary"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +60,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="12dp"
             tools:text="Ends in 45m"
-            android:textColor="?attr/colorOnTertiaryContainer"
+            android:textColor="@color/event_card_text_secondary"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

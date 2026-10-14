@@ -5,10 +5,11 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.appbar.MaterialToolbar
+        android:theme="@style/ThemeOverlay.CampusConnect.Toolbar"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/bg_toolbar_gradient"
         app:titleTextColor="?attr/colorOnPrimary"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -44,22 +45,30 @@
         <com.google.android.material.chip.Chip
             android:id="@+id/chipAll"
             style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:checked="true"
             android:text="@string/role_all" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipStudent"
             style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/role_student" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipOrganizer"
             style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/role_organizer" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipAdmin"
             style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/role_admin" />
     </com.google.android.material.chip.ChipGroup>
 

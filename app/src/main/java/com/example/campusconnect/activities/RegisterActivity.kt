@@ -78,7 +78,7 @@ class RegisterActivity : AppCompatActivity() {
                             finish()
                         }
                         is Result.Error -> {
-                            Toast.makeText(this@RegisterActivity, result.message ?: "Registration failed", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@RegisterActivity, result.message ?: getString(R.string.registration_failed), Toast.LENGTH_SHORT).show()
                         }
                         else -> {}
                     }

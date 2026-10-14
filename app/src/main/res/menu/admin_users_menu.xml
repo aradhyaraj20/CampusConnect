@@ -4,6 +4,7 @@
     <item
         android:id="@+id/action_manage_ads"
         android:icon="@drawable/ic_nav_campaign"
+        app:iconTint="?attr/colorOnPrimary"
         android:title="@string/manage_ads"
         app:showAsAction="ifRoom" />
     <item

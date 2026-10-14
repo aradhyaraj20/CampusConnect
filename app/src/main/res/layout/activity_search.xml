@@ -5,10 +5,11 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.appbar.MaterialToolbar
+        android:theme="@style/ThemeOverlay.CampusConnect.Toolbar"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/bg_toolbar_gradient"
         app:title="Smart Search"
         app:titleTextColor="?attr/colorOnPrimary"
         app:layout_constraintTop_toTopOf="parent" />
@@ -113,5 +114,15 @@
             android:minHeight="48dp"
             android:text="@string/ask_campusconnect_ai" />
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/aiAssistantFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/cd_ask_ai"
+        android:src="@drawable/ic_ai_sparkle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

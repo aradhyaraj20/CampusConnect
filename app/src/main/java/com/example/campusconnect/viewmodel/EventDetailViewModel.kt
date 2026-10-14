@@ -1,12 +1,15 @@
 package com.example.campusconnect.viewmodel
 
+import com.example.campusconnect.utils.DateFormats
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.campusconnect.R
 import com.example.campusconnect.database.EventDao
 import com.example.campusconnect.database.NotificationDao
+import com.example.campusconnect.core.common.TransactionRunner
 import com.example.campusconnect.database.RsvpDao
+import com.example.campusconnect.domain.usecase.RSVPUseCases
 import com.example.campusconnect.database.UserDao
 import com.example.campusconnect.models.Event
 import com.example.campusconnect.models.KarmaTransaction
@@ -28,6 +31,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -65,8 +69,11 @@ class EventDetailViewModel(
     private val notificationDao: NotificationDao,
     private val eventId: Int,
     private val currentUserId: Int,
+    transactions: TransactionRunner = TransactionRunner.None,
     private val aiRepository: AIRepository = AIRepository(eventDao = eventDao, userDao = userDao, rsvpDao = rsvpDao)
 ) : ViewModel() {
+
+    private val rsvpUseCases = RSVPUseCases(rsvpDao, eventDao, notificationDao, transactions)
 
     private val _uiState = MutableStateFlow(EventDetailUiState())
     val uiState: StateFlow<EventDetailUiState> = _uiState.asStateFlow()
@@ -151,8 +158,12 @@ class EventDetailViewModel(
         }.copy(hasAccess = hasAccess, isLoading = false)
     }
 
+    private var attendeesJob: Job? = null
+
+    // Restarted on every reload so the seat count uses the current capacity, not the one from first load.
     private fun observeAttendees(event: Event) {
-        viewModelScope.launch {
+        attendeesJob?.cancel()
+        attendeesJob = viewModelScope.launch {
             rsvpDao.getAttendeesForEvent(eventId).collectLatest { users ->
                 val count = users.size
                 val maxAttendees = event.max_attendees ?: 0
@@ -187,21 +198,8 @@ class EventDetailViewModel(
                 updateRsvpAndAccessState(event)
                 return
             }
-            val count = rsvpDao.getAttendeeCount(eventId)
-            val decision = RsvpPolicy.decideJoin(count, event.max_attendees)
-            val status = RsvpPolicy.statusLabel(decision)
-
-            val rsvp = RSVP(
-                user_id = currentUserId,
-                event_id = eventId,
-                status = status,
-                checked_in = false,
-                joined_at = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
-            )
-
-            if (rsvpDao.insertRSVP(rsvp) != -1L) {
-                _uiEvent.emit(EventDetailUiEvent.ShowToastRes(R.string.rsvp_successful, status))
-            }
+            val status = rsvpUseCases.rsvpOrWaitlist(currentUserId, eventId)
+            _uiEvent.emit(EventDetailUiEvent.ShowToastRes(R.string.rsvp_successful, status))
             updateRsvpAndAccessState(event)
         }
     }
@@ -210,25 +208,7 @@ class EventDetailViewModel(
     fun cancelRsvp() {
         viewModelScope.launch {
             val event = _uiState.value.event ?: eventDao.getEventById(eventId) ?: return@launch
-            val existing = rsvpDao.getUserRSVPForEvent(currentUserId, eventId) ?: return@launch
-            rsvpDao.deleteRsvp(existing)
-
-            if (RsvpPolicy.shouldPromoteWaitlist(existing.status, 1)) {
-                val next = rsvpDao.getEarliestWaitlistedUser(eventId)
-                if (next != null) {
-                    rsvpDao.updateRsvp(next.copy(status = "going"))
-                    notificationDao.insertNotification(
-                        Notification(
-                            user_id = next.user_id,
-                            title = "You're off the waitlist",
-                            message = "A seat opened for '${event.title}'.",
-                            timestamp = System.currentTimeMillis(),
-                            type = "waitlist",
-                            event_id = eventId
-                        )
-                    )
-                }
-            }
+            rsvpMutex.withLock { rsvpUseCases.cancelRsvpAndPromoteWaitlist(currentUserId, eventId) }
             updateRsvpAndAccessState(event)
         }
     }
@@ -256,7 +236,7 @@ class EventDetailViewModel(
                     to_user_id = toUserId,
                     event_id = eventId,
                     points = 1,
-                    given_at = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    given_at = DateFormats.storedDay()
                 )
             )
             userDao.addKarma(toUserId, 1)
@@ -329,7 +309,8 @@ class EventDetailViewModelFactory(
     private val userDao: UserDao,
     private val notificationDao: NotificationDao,
     private val eventId: Int,
-    private val currentUserId: Int
+    private val currentUserId: Int,
+    private val transactions: TransactionRunner = TransactionRunner.None
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -341,7 +322,8 @@ class EventDetailViewModelFactory(
                 userDao = userDao,
                 notificationDao = notificationDao,
                 eventId = eventId,
-                currentUserId = currentUserId
+                currentUserId = currentUserId,
+                transactions = transactions
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

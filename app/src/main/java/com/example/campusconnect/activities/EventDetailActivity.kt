@@ -27,6 +27,7 @@ import com.example.campusconnect.models.Notification
 import com.example.campusconnect.utils.AttendeeCsv
 import com.example.campusconnect.utils.ReminderManager
 import com.example.campusconnect.viewmodel.EventDetailUiEvent
+import com.example.campusconnect.appContainer
 import com.example.campusconnect.viewmodel.EventDetailViewModel
 import com.example.campusconnect.viewmodel.EventDetailViewModelFactory
 import com.example.campusconnect.viewmodel.ONE_HOUR_MILLIS
@@ -40,6 +41,7 @@ class EventDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEventDetailBinding
     private lateinit var attendeeAdapter: AttendeeAdapter
+    private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.models.User>
     private lateinit var viewModel: EventDetailViewModel
 
     private var eventId: Int = -1
@@ -72,7 +74,8 @@ class EventDetailActivity : AppCompatActivity() {
             userDao = database.userDao(),
             notificationDao = database.notificationDao(),
             eventId = eventId,
-            currentUserId = currentUserId
+            currentUserId = currentUserId,
+            transactions = appContainer.transactions
         )
         viewModel = ViewModelProvider(this, factory)[EventDetailViewModel::class.java]
 
@@ -81,10 +84,20 @@ class EventDetailActivity : AppCompatActivity() {
         observeViewModel()
     }
 
+    private var hasResumedOnce = false
+
+    override fun onResume() {
+        super.onResume()
+        // Coming back from Edit (or any screen that changes the event): show the saved values.
+        if (hasResumedOnce) viewModel.loadEventData()
+        hasResumedOnce = true
+    }
+
     private fun setupRecyclerView() {
         attendeeAdapter = AttendeeAdapter(emptyList())
         binding.attendeesRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.attendeesRecyclerView.adapter = attendeeAdapter
+        pager = com.example.campusconnect.core.common.Pager(binding.attendeesRecyclerView) { attendeeAdapter.updateAttendees(it) }
     }
 
     private fun setupListeners() {
@@ -219,7 +232,7 @@ class EventDetailActivity : AppCompatActivity() {
                         binding.restrictedMessage.visibility = if (state.hasAccess) View.GONE else View.VISIBLE
 
                         // Attendees list & count info
-                        attendeeAdapter.updateAttendees(state.attendees)
+                        pager.submit(state.attendees)
                         if (state.isFull) {
                             binding.attendeeInfoTextView.text = getString(R.string.going_full_format, state.attendeeCount)
                         } else {

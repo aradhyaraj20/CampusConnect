@@ -10,7 +10,7 @@
     <color name="on_secondary">#FFFFFF</color>
     <color name="tertiary">#FFC107</color>
     <color name="on_tertiary">#000000</color>
-    <color name="background">#F6F7FB</color>
+    <color name="background">#CDE8FA</color>
     <color name="on_background">#1A1C1E</color>
     <color name="surface">#FFFFFF</color>
     <color name="on_surface">#1A1C1E</color>
@@ -47,7 +47,7 @@
     <color name="qa_teal_bg">#DEF2F5</color>
 
     <!-- Home screen neutrals -->
-    <color name="home_bg">#F6F7FB</color>
+    <color name="home_bg">#CDE8FA</color>
     <color name="text_primary">#1B1B2F</color>
     <color name="text_secondary">#6B7084</color>
     <color name="chevron_grey">#B4B8C5</color>
@@ -55,4 +55,14 @@
     <!-- Warning banner (offline notice) -->
     <color name="warning_container">#FFF8E1</color>
     <color name="on_warning_container">#5D4037</color>
+    <color name="chat_bubble_mine">#6C4DF6</color>
+    <color name="chat_on_bubble_mine">#FFFFFF</color>
+    <color name="chat_bubble_other">#FFFFFF</color>
+    <color name="chat_bg">#CDE8FA</color>
+    <color name="event_card_navy">#3A57A7</color>
+    <color name="event_card_text">#FFFFFF</color>
+    <color name="event_card_text_secondary">#E1E7F7</color>
+    <color name="event_card_accent">#8FD3FF</color>
+    <color name="nav_indicator">#33FFFFFF</color>
+    <color name="tile_bg">#ECE8FE</color>
 </resources>

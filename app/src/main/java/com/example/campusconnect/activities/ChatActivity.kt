@@ -43,13 +43,16 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
-        adapter = MessageAdapter(emptyList())
-        binding.chatRecyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = MessageAdapter(emptyList(), currentUserId)
+        val layoutManager = LinearLayoutManager(this)
+        binding.chatRecyclerView.layoutManager = layoutManager
+        binding.chatRecyclerView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                val atBottom = layoutManager.findLastVisibleItemPosition() >= adapter.itemCount - 2
+                binding.scrollDownFab.visibility = if (atBottom) View.GONE else View.VISIBLE
+            }
+        })
         binding.chatRecyclerView.adapter = adapter
-
-        binding.scrollUpFab.setOnClickListener {
-            binding.chatRecyclerView.smoothScrollToPosition(0)
-        }
 
         binding.scrollDownFab.setOnClickListener {
             val count = adapter.itemCount
@@ -65,15 +68,22 @@ class ChatActivity : AppCompatActivity() {
                 finish()
                 return@launch
             }
+            db.eventDao().getEventById(eventId)?.let {
+                supportActionBar?.title = it.title
+                supportActionBar?.subtitle = getString(R.string.chat_subtitle)
+            }
             db.messageDao().getMessagesForEvent(eventId).collectLatest { messages ->
-                adapter.updateMessages(messages)
+                val names = messages.map { it.user_id }.distinct().associateWith { id ->
+                    db.userDao().getUserById(id)?.name ?: getString(R.string.chat_unknown_user)
+                }
+                adapter.updateMessages(messages, names)
                 binding.chatEmptyText.visibility = if (messages.isEmpty()) View.VISIBLE else View.GONE
                 if (messages.isNotEmpty()) binding.chatRecyclerView.scrollToPosition(messages.size - 1)
             }
         }
 
         binding.sendButton.setOnClickListener {
-            val content = binding.messageEditText.text.toString()
+            val content = binding.messageEditText.text.toString().trim()
             if (content.isNotEmpty()) {
                 sendMessage(content)
                 binding.messageEditText.text.clear()

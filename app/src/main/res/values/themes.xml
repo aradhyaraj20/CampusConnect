@@ -22,12 +22,40 @@
 
         <!-- Component Styles -->
         <item name="materialCardViewStyle">@style/Widget.CampusConnect.Card</item>
+        <item name="toolbarStyle">@style/Widget.CampusConnect.Toolbar</item>
     </style>
 
     <style name="Widget.CampusConnect.Card" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardCornerRadius">16dp</item>
-        <item name="cardElevation">2dp</item>
+        <!-- Same pale tile look as the student Quick Access cards, app-wide. -->
+        <item name="cardBackgroundColor">@color/tile_bg</item>
+        <item name="cardCornerRadius">18dp</item>
+        <item name="cardElevation">0dp</item>
         <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- One look for every bottom navigation bar (student, organizer, admin). -->
+    <style name="Widget.CampusConnect.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@drawable/bg_bottom_nav</item>
+        <item name="backgroundTint">@null</item>
+        <item name="itemIconTint">@color/nav_item_color</item>
+        <item name="itemTextColor">@color/nav_item_color</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.CampusConnect.BottomNav.Indicator</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.CampusConnect.BottomNav.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/nav_indicator</item>
+    </style>
+
+    <!-- Back arrow, menu icons and the 3-dot overflow are drawn in colorOnPrimary (white
+         on the gradient bar) on every screen. -->
+    <style name="Widget.CampusConnect.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="navigationIconTint">?attr/colorOnPrimary</item>
+        <item name="android:theme">@style/ThemeOverlay.CampusConnect.Toolbar</item>
+    </style>
+
+    <style name="ThemeOverlay.CampusConnect.Toolbar" parent="">
+        <item name="colorControlNormal">?attr/colorOnPrimary</item>
     </style>
 
     <style name="CircleImage">

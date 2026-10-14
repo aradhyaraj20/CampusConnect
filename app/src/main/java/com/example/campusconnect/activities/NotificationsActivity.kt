@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 class NotificationsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNotificationsBinding
     private lateinit var adapter: NotificationAdapter
+    private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.models.Notification>
     private var currentUserId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +53,7 @@ class NotificationsActivity : AppCompatActivity() {
         }
         binding.notificationsRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.notificationsRecyclerView.adapter = adapter
+        pager = com.example.campusconnect.core.common.Pager(binding.notificationsRecyclerView) { adapter.updateNotifications(it) }
 
         lifecycleScope.launch {
             db.notificationDao().getNotificationsForUser(currentUserId).collectLatest { notifications ->
@@ -61,7 +63,7 @@ class NotificationsActivity : AppCompatActivity() {
                 } else {
                     binding.emptyStateText.visibility = View.GONE
                     binding.notificationsRecyclerView.visibility = View.VISIBLE
-                    adapter.updateNotifications(notifications)
+                    pager.submit(notifications)
                 }
             }
         }

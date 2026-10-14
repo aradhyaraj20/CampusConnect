@@ -27,6 +27,9 @@ class MainActivity : AppCompatActivity() {
         binding.root.applyImeAndSystemBarInsets(binding.toolbar)
         notificationPermission.request()
         setSupportActionBar(binding.toolbar)
+        binding.toolbar.overflowIcon?.setTint(
+            com.google.android.material.color.MaterialColors.getColor(binding.toolbar, com.google.android.material.R.attr.colorOnPrimary)
+        )
 
         val db = AppDatabase.getDatabase(this)
         lifecycleScope.launch {
@@ -46,6 +49,9 @@ class MainActivity : AppCompatActivity() {
         // Portal design), so the shared toolbar is hidden there and shown on
         // every other destination.
         navController.addOnDestinationChangedListener { _, destination, _ ->
+            // AI assistant FAB is hidden on Profile (settings/profile stay uncluttered).
+            binding.aiAssistantFab.visibility =
+                if (destination.id == R.id.profileFragment) android.view.View.GONE else android.view.View.VISIBLE
             if (destination.id == R.id.homeFragment) {
                 binding.toolbar.visibility = android.view.View.GONE
                 supportActionBar?.hide()
@@ -59,7 +65,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, NotificationsActivity::class.java))
         }
 
-        binding.aiAssistantButton.setOnClickListener {
+        binding.aiAssistantFab.setOnClickListener {
             startActivity(Intent(this, AIAssistantActivity::class.java).apply {
                 putExtra(AIAssistantActivity.EXTRA_MODE, AIAssistantActivity.MODE_STUDENT)
             })

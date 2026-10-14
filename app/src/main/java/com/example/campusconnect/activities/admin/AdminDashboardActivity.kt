@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.R
+import com.example.campusconnect.core.common.StatCardStyle
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
@@ -32,6 +33,9 @@ class AdminDashboardActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.root.applyImeAndSystemBarInsets(binding.toolbar)
         setSupportActionBar(binding.toolbar)
+        binding.toolbar.overflowIcon?.setTint(
+            com.google.android.material.color.MaterialColors.getColor(binding.toolbar, com.google.android.material.R.attr.colorOnPrimary)
+        )
 
         val db = AppDatabase.getDatabase(this)
         val sessionManager = SessionManager.getInstance(this)
@@ -63,6 +67,16 @@ class AdminDashboardActivity : AppCompatActivity() {
         binding.aiConfigCard.setOnClickListener { openAiConfig() }
         binding.manageAiKeyButton.setOnClickListener { openAiConfig() }
 
+        binding.notificationButton.setOnClickListener {
+            startActivity(Intent(this, com.example.campusconnect.activities.NotificationsActivity::class.java))
+        }
+
+        binding.aiAssistantFab.setOnClickListener {
+            startActivity(Intent(this, com.example.campusconnect.activities.AIAssistantActivity::class.java).apply {
+                putExtra(com.example.campusconnect.activities.AIAssistantActivity.EXTRA_MODE, com.example.campusconnect.activities.AIAssistantActivity.MODE_ADMIN)
+            })
+        }
+
         setupBottomNav()
         observeState()
     }
@@ -70,21 +84,16 @@ class AdminDashboardActivity : AppCompatActivity() {
     private fun observeState() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
-                bindStat(binding.statUsers, state.userCount.toString(), getString(R.string.users))
-                bindStat(binding.statEvents, state.eventCount.toString(), getString(R.string.events))
-                bindStat(binding.statRsvps, state.rsvpCount.toString(), getString(R.string.rsvps))
-                bindStat(binding.statAttendancePercent, "${state.attendancePercent}%", getString(R.string.attendance_percent))
+                StatCardStyle.apply(this@AdminDashboardActivity, binding.statUsers, state.userCount.toString(), getString(R.string.users), R.color.qa_purple, R.color.qa_purple_bg)
+                StatCardStyle.apply(this@AdminDashboardActivity, binding.statEvents, state.eventCount.toString(), getString(R.string.events), R.color.qa_orange, R.color.qa_orange_bg)
+                StatCardStyle.apply(this@AdminDashboardActivity, binding.statRsvps, state.rsvpCount.toString(), getString(R.string.rsvps), R.color.qa_blue, R.color.qa_blue_bg)
+                StatCardStyle.apply(this@AdminDashboardActivity, binding.statAttendancePercent, "${state.attendancePercent}%", getString(R.string.attendance_percent), R.color.qa_green, R.color.qa_green_bg)
 
                 binding.pendingReportsText.text = getString(R.string.reports_format, state.pendingReports)
 
                 renderCategories(state.popularCategories)
             }
         }
-    }
-
-    private fun bindStat(cardBinding: ItemStatCardBinding, value: String, label: String) {
-        cardBinding.statValue.text = value
-        cardBinding.statLabel.text = label
     }
 
     private fun renderCategories(categories: List<CategoryStat>) {

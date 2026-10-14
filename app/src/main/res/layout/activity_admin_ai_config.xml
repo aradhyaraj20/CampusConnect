@@ -7,10 +7,11 @@
     android:background="@color/background">
 
     <com.google.android.material.appbar.MaterialToolbar
+        android:theme="@style/ThemeOverlay.CampusConnect.Toolbar"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@drawable/bg_toolbar_gradient"
         app:titleTextColor="?attr/colorOnPrimary"
         app:navigationIconTint="?attr/colorOnPrimary" />
 
@@ -110,28 +111,13 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <RadioGroup
-                android:id="@+id/modelRadioGroup"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/modelAutoText"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:orientation="vertical">
-
-                <RadioButton
-                    android:id="@+id/modelFlash"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:checked="true"
-                    android:text="@string/ai_model_flash" />
-
-                <RadioButton
-                    android:id="@+id/modelFlashLite"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="@string/ai_model_flash_lite" />
-            </RadioGroup>
+                android:text="@string/ai_model_auto"
+                android:textSize="13sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveKeyButton"

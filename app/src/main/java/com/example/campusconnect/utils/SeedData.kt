@@ -15,7 +15,7 @@ object SeedData {
     private fun dayMillis(offsetDays: Int): Long = System.currentTimeMillis() + offsetDays * DAY_MS
 
     private fun dayLabel(offsetDays: Int): String =
-        SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(dayMillis(offsetDays)))
+        DateFormats.eventDay(Date(dayMillis(offsetDays)))
 
     /**
      * Release builds never get the demo accounts (known "password" credentials) or
@@ -31,7 +31,7 @@ object SeedData {
                     name = "Campus Admin",
                     email = "admin@campus.edu",
                     password_hash = CryptoUtils.hashPassword(adminPassword),
-                    created_at = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date()),
+                    created_at = DateFormats.storedTimestamp(),
                     role = "ADMIN"
                 )
             )

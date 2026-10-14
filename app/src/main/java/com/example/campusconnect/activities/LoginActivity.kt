@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
                             finish()
                         }
                         is Result.Error -> {
-                            Toast.makeText(this@LoginActivity, result.message ?: "Login failed", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@LoginActivity, result.message ?: getString(R.string.login_failed), Toast.LENGTH_SHORT).show()
                         }
                         else -> {}
                     }

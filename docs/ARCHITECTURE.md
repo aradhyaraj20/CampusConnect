@@ -32,6 +32,17 @@ HMAC-signed QR tickets checked against the database at the door (scanner must ow
 - No backend: single-device data; two phones do not share events.
 - The QR HMAC secret is shared by every install (compiled in).
 - The Gemini key is embedded in the APK via `local.properties`.
+- The runtime Gemini key an admin enters in-app is stored in plain private SharedPreferences (not Keystore-backed).
+- Debug builds fall back to a public default QR secret (release builds refuse it), so debug-build tickets are forgeable.
+- No foreign keys: cascades are written by hand in `eraseUser` / `deleteEventCascade`; a new table must be added to both.
+- Several timestamp columns (`created_at`, `joined_at`) are text, not epoch millis; formatting is centralised in `DateFormats`.
+- A downgrade install wipes the local database (`fallbackToDestructiveMigrationOnDowngrade`).
+- AI prompts delimit untrusted text, but prompt injection through event text can't be fully prevented without a server.
+
+## Consistency rules
+- Multi-step writes (join/leave RSVP with waitlist promotion, QR check-in, moderation removal) run inside `TransactionRunner`, via `AppContainer.transactions`.
+- Admin actions return a `ModerationOutcome` so the UI reports the real result; admin accounts cannot be suspended, warned or re-roled from the moderation screens.
+- Gemini calls run on `Dispatchers.IO` with a 30 s total budget, then the local parser takes over.
 
 ## Future work
 Firebase/Supabase backend, server-issued tickets, push notifications, server-side AI proxy.

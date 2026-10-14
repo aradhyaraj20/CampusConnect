@@ -1,84 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.applandeo.materialcalendarview.CalendarView
-        android:id="@+id/calendarView"
+    <!-- The calendar card scrolls away as the event list scrolls up, and comes straight
+         back (enterAlways) as soon as the list is scrolled down again. The
+         "Upcoming Events" title has no scroll flag, so it stays pinned. -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/calendarAppBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:headerColor="?attr/colorPrimary"
-        app:selectionColor="?attr/colorPrimary"
-        app:todayLabelColor="?attr/colorTertiary"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="@android:color/transparent"
+        app:elevation="0dp"
+        app:liftOnScroll="false">
 
-    <TextView
-        android:id="@+id/calendarFeedTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/upcoming_events"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/calendarView" />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/calendarCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:layout_scrollFlags="scroll|enterAlways|snap">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/calendarEventsRecyclerView"
+            <com.applandeo.materialcalendarview.CalendarView
+                android:id="@+id/calendarView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:headerColor="@color/event_card_navy"
+                app:selectionColor="@color/event_card_navy"
+                app:todayLabelColor="@color/qa_purple" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/calendarFeedTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="4dp"
+            android:text="@string/upcoming_events"
+            android:textColor="@color/text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/calendarFeedTitle" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/calendarEventsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingTop="4dp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/calendarEmptyText"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_margin="32dp"
         android:gravity="center"
         android:text="@string/calendar_no_events"
         android:textAppearance="?attr/textAppearanceBodyLarge"
-        android:textColor="?android:attr/textColorSecondary"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/calendarFeedTitle" />
+        android:textColor="@color/text_secondary"
+        android:visibility="gone" />
 
-    <LinearLayout
-        android:id="@+id/scrollButtons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:alpha="0.6"
-        android:background="@drawable/bg_scroll_strip"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollUpFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_up_float"
-            android:contentDescription="@string/cd_scroll_up" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollDownFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="@string/cd_scroll_down" />
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

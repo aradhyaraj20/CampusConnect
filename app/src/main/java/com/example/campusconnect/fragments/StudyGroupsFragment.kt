@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.campusconnect.adapters.trackRsvps
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +23,7 @@ class StudyGroupsFragment : Fragment() {
     private var _binding: FragmentStudyGroupsBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: EventAdapter
+    private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.models.Event>
     private lateinit var legendAdapter: LegendAdapter
 
     override fun onCreateView(
@@ -41,12 +43,15 @@ class StudyGroupsFragment : Fragment() {
             startActivity(intent)
         }
 
+        adapter.trackRsvps(requireContext(), viewLifecycleOwner)
+
         legendAdapter = LegendAdapter(emptyList())
         binding.legendsRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.legendsRecyclerView.adapter = legendAdapter
 
         binding.groupsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.groupsRecyclerView.adapter = adapter
+        pager = com.example.campusconnect.core.common.Pager(binding.groupsRecyclerView) { adapter.updateEvents(it) }
 
         binding.scrollUpFab.setOnClickListener {
             binding.groupsRecyclerView.smoothScrollToPosition(0)
@@ -84,7 +89,7 @@ class StudyGroupsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             AppDatabase.getDatabase(requireContext()).eventDao().getAllEvents().collectLatest { events ->
                 val studyGroups = events.filter { it.type == "study_group" }
-                adapter.updateEvents(studyGroups)
+                pager.submit(studyGroups)
                 binding.groupsEmptyText.visibility = if (studyGroups.isEmpty()) View.VISIBLE else View.GONE
             }
         }

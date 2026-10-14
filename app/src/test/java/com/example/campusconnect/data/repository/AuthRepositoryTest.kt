@@ -159,4 +159,44 @@ class AuthRepositoryTest {
         assertNull(f.repo.refreshSession())
         assertFalse(f.repo.isLoggedIn())
     }
+
+    // ---- changePassword ----
+
+    private class ChangeFixture(u: User) {
+        val updated = mutableListOf<String>()
+        val session = SessionManager(FakeContext())
+        val repo = AuthRepository(
+            fakeDao<UserDao>(
+                mapOf(
+                    "getUserById" to { a -> if (a[0] == u.id) u else null },
+                    "updatePassword" to { a -> updated += a[1] as String }
+                )
+            ),
+            session
+        )
+    }
+
+    @Test
+    fun changePassword_wrongCurrent_countsTowardLockout() = runBlocking {
+        val f = ChangeFixture(user("a@x.com", "password1"))
+        repeat(5) { assertEquals(PasswordChangeResult.WRONG_CURRENT, f.repo.changePassword(1, "nope", "newpassword1")) }
+        assertEquals(PasswordChangeResult.LOCKED, f.repo.changePassword(1, "password1", "newpassword1"))
+        assertTrue(f.updated.isEmpty())
+    }
+
+    @Test
+    fun changePassword_success_storesAVerifiableHash() = runBlocking {
+        val f = ChangeFixture(user("a@x.com", "password1"))
+        assertEquals(PasswordChangeResult.SUCCESS, f.repo.changePassword(1, "password1", "newpassword1"))
+        assertTrue(CryptoUtils.verifyPassword("newpassword1", f.updated.single()))
+    }
+
+    @Test
+    fun changePassword_rejectsShortSameAndUnknownUser() = runBlocking {
+        val f = ChangeFixture(user("a@x.com", "password1"))
+        assertEquals(PasswordChangeResult.TOO_SHORT, f.repo.changePassword(1, "password1", "short"))
+        assertEquals(PasswordChangeResult.SAME, f.repo.changePassword(1, "password1", "password1"))
+        assertEquals(PasswordChangeResult.NO_USER, f.repo.changePassword(99, "password1", "newpassword1"))
+        assertTrue(f.updated.isEmpty())
+    }
 }

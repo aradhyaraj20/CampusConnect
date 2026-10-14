@@ -24,9 +24,6 @@ object AIConfig {
     private const val KEY_API_KEY = "runtime_gemini_api_key"
     private const val KEY_MODEL = "runtime_gemini_model"
 
-    /** Models the app is allowed to talk to (spec section 15). */
-    val SUPPORTED_MODELS = listOf("gemini-2.5-flash", "gemini-2.5-flash-lite")
-
     private var prefs: SharedPreferences? = null
 
     fun init(context: Context) {
@@ -56,11 +53,11 @@ object AIConfig {
             return if (runtime.isNotBlank()) runtime else buildTimeApiKey.trim()
         }
 
+    /** Cached/discovered model, or blank when it should be discovered from the key. */
     val model: String
         get() {
             val runtime = prefs?.getString(KEY_MODEL, null).orEmpty().trim()
-            val resolved = if (runtime.isNotBlank()) runtime else buildTimeModel.trim()
-            return resolved.ifBlank { DEFAULT_MODEL }
+            return if (runtime.isNotBlank()) runtime else if (isUsingRuntimeKey) "" else buildTimeModel.trim()
         }
 
     val isConfigured: Boolean
@@ -74,11 +71,17 @@ object AIConfig {
     val hasBuildTimeKey: Boolean
         get() = buildTimeApiKey.isNotBlank()
 
-    fun saveRuntimeKey(apiKey: String, model: String = DEFAULT_MODEL) {
+    /** Saves only the key; the model is discovered from the key (see GeminiAIDataSource). */
+    fun saveRuntimeKey(apiKey: String) {
         prefs?.edit()
             ?.putString(KEY_API_KEY, apiKey.trim())
-            ?.putString(KEY_MODEL, model.trim().ifBlank { DEFAULT_MODEL })
+            ?.remove(KEY_MODEL)
             ?.apply()
+    }
+
+    /** Caches the model discovered for the active key; blank clears it to force re-discovery. */
+    fun cacheModel(model: String) {
+        prefs?.edit()?.putString(KEY_MODEL, model.trim())?.apply()
     }
 
     /** Drops the in-app key, falling back to whatever local.properties provided. */

@@ -1,5 +1,6 @@
 package com.example.campusconnect.domain.usecase
 
+import com.example.campusconnect.utils.DateFormats
 import com.example.campusconnect.database.BadgeDao
 import com.example.campusconnect.database.NotificationDao
 import com.example.campusconnect.database.UserDao
@@ -31,7 +32,7 @@ class KarmaUseCases(
             to_user_id = userId,
             event_id = eventId,
             points = points,
-            given_at = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            given_at = DateFormats.storedDay()
         )
         userDao.insertKarmaTransaction(transaction)
 

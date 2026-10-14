@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.ReportAdapter
+import com.example.campusconnect.appContainer
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
@@ -33,17 +34,18 @@ class AdminModerationActivity : AppCompatActivity() {
             Toast.makeText(this, R.string.admin_access_required, Toast.LENGTH_SHORT).show(); finish(); return
         }
         val db = AppDatabase.getDatabase(this)
-        val useCase = ModerateReportUseCase(db.reportDao(), db.userDao(), db.eventDao())
+        val useCase = appContainer.moderationUseCase()
         val adapter = ReportAdapter(emptyList(),
             onDismiss = { report -> lifecycleScope.launch { useCase.dismiss(report) } },
-            onRemove = { report -> lifecycleScope.launch { useCase.removeContent(report); Toast.makeText(this@AdminModerationActivity, R.string.content_action_applied, Toast.LENGTH_SHORT).show() } },
+            onRemove = { report -> lifecycleScope.launch { useCase.removeContent(report).toast(this@AdminModerationActivity, getString(R.string.content_action_applied)) } },
             onResolve = { report -> lifecycleScope.launch { useCase.resolve(report) } }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
+        val pager = com.example.campusconnect.core.common.Pager(binding.recyclerView) { adapter.submit(it) }
         lifecycleScope.launch {
             db.reportDao().getAllReports().collectLatest { reports ->
-                adapter.submit(reports)
+                pager.submit(reports)
                 binding.emptyState.visibility = if (reports.isEmpty()) View.VISIBLE else View.GONE
             }
         }

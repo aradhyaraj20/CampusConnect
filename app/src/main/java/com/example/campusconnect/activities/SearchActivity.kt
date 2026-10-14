@@ -27,6 +27,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchBinding
     private lateinit var viewModel: SearchViewModel
     private lateinit var adapter: SearchResultAdapter
+    private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.repository.SearchResult>
     private var currentUserId: Int = -1
     private var hasSearched = false
 
@@ -59,15 +60,18 @@ class SearchActivity : AppCompatActivity() {
 
         binding.resultsRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.resultsRecyclerView.adapter = adapter
+        pager = com.example.campusconnect.core.common.Pager(binding.resultsRecyclerView) { adapter.updateResults(it) }
 
         if (AppConnectivity.isOffline(this)) {
             binding.offlineBannerInclude.offlineBanner.visibility = View.VISIBLE
         }
-        binding.askAiFromSearchButton.setOnClickListener {
+        val openAi = View.OnClickListener {
             startActivity(Intent(this, AIAssistantActivity::class.java).apply {
                 putExtra(AIAssistantActivity.EXTRA_MODE, AIAssistantActivity.MODE_STUDENT)
             })
         }
+        binding.askAiFromSearchButton.setOnClickListener(openAi)
+        binding.aiAssistantFab.setOnClickListener(openAi)
 
         binding.searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -97,7 +101,8 @@ class SearchActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.searchResults.collectLatest { results ->
-                adapter.updateResults(results)
+                pager.reset()
+                pager.submit(results)
                 updateEmptyState()
             }
         }

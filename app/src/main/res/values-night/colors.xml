@@ -44,4 +44,14 @@
 
     <color name="warning_container">#3A2F12</color>
     <color name="on_warning_container">#F2DDB0</color>
+    <color name="chat_bubble_mine">#5B3FD6</color>
+    <color name="chat_on_bubble_mine">#FFFFFF</color>
+    <color name="chat_bubble_other">#2B2930</color>
+    <color name="chat_bg">#121316</color>
+    <color name="event_card_navy">#3A57A7</color>
+    <color name="event_card_text">#FFFFFF</color>
+    <color name="event_card_text_secondary">#E1E7F7</color>
+    <color name="event_card_accent">#8FD3FF</color>
+    <color name="nav_indicator">#4A4458</color>
+    <color name="tile_bg">#2B2930</color>
 </resources>

@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 class BadgesActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBadgesBinding
     private lateinit var adapter: BadgeAdapter
+    private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.models.Badge>
     private var currentUserId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +34,7 @@ class BadgesActivity : AppCompatActivity() {
         adapter = BadgeAdapter(emptyList())
         binding.badgesRecyclerView.layoutManager = GridLayoutManager(this, 2)
         binding.badgesRecyclerView.adapter = adapter
+        pager = com.example.campusconnect.core.common.Pager(binding.badgesRecyclerView) { adapter.updateBadges(it) }
 
         binding.scrollUpFab.setOnClickListener {
             binding.badgesRecyclerView.smoothScrollToPosition(0)
@@ -47,7 +49,7 @@ class BadgesActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             AppDatabase.getDatabase(this@BadgesActivity).badgeDao().getUserBadges(currentUserId).collectLatest { badges ->
-                adapter.updateBadges(badges)
+                pager.submit(badges)
             }
         }
     }

@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import com.example.campusconnect.adapters.trackRsvps
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -23,7 +24,6 @@ import com.example.campusconnect.activities.AIAssistantActivity
 import com.example.campusconnect.activities.BadgesActivity
 import com.example.campusconnect.activities.CreateEventActivity
 import com.example.campusconnect.activities.EventDetailActivity
-import com.example.campusconnect.activities.MarketplaceActivity
 import com.example.campusconnect.activities.MyProfileActivity
 import com.example.campusconnect.activities.NotificationsActivity
 import com.example.campusconnect.activities.QrScanActivity
@@ -48,6 +48,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: EventAdapter
+    private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.models.Event>
     private lateinit var flashAdapter: FlashEventAdapter
     private lateinit var recommendationAdapter: RecommendationAdapter
     private var allEvents: List<Event> = emptyList()
@@ -143,11 +144,13 @@ class HomeFragment : Fragment() {
             })
         }
         adapter = EventAdapter(emptyList(), openDetail)
+        adapter.trackRsvps(requireContext(), viewLifecycleOwner)
         flashAdapter = FlashEventAdapter(emptyList(), openDetail)
         recommendationAdapter = RecommendationAdapter(emptyList(), openDetail)
 
         binding.eventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.eventsRecyclerView.adapter = adapter
+        pager = com.example.campusconnect.core.common.Pager(binding.eventsRecyclerView) { adapter.updateEvents(it) }
 
         binding.flashRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -162,12 +165,19 @@ class HomeFragment : Fragment() {
         binding.searchBar.setOnClickListener {
             startActivity(Intent(requireContext(), SearchActivity::class.java))
         }
-        binding.viewAllButton.setOnClickListener {
-            startActivity(Intent(requireContext(), SearchActivity::class.java))
-        }
         binding.viewCalendarButton.setOnClickListener { safeNavigate(R.id.calendarFragment) }
         binding.notificationBell.setOnClickListener {
             startActivity(Intent(requireContext(), NotificationsActivity::class.java))
+        }
+        binding.homeOverflowButton.setOnClickListener { anchor ->
+            val popup = androidx.appcompat.widget.PopupMenu(requireContext(), anchor)
+            popup.menuInflater.inflate(R.menu.toolbar_account_menu, popup.menu)
+            popup.setOnMenuItemClickListener {
+                com.example.campusconnect.core.common.AccountMenuHelper.handleMenuItem(
+                    requireActivity() as androidx.appcompat.app.AppCompatActivity, it.itemId
+                )
+            }
+            popup.show()
         }
     }
 
@@ -223,31 +233,7 @@ class HomeFragment : Fragment() {
             QuickAction(
                 R.string.qa_groups, R.string.qa_groups_sub,
                 R.drawable.ic_nav_groups, R.color.qa_green, R.color.qa_green_bg
-            ) { safeNavigate(R.id.studyGroupsFragment) },
-            QuickAction(
-                R.string.qa_assistant, R.string.qa_assistant_sub,
-                R.drawable.ic_ai_sparkle, R.color.qa_pink, R.color.qa_pink_bg
-            ) {
-                startActivity(Intent(requireContext(), AIAssistantActivity::class.java).apply {
-                    putExtra(AIAssistantActivity.EXTRA_MODE, AIAssistantActivity.MODE_STUDENT)
-                })
-            },
-            QuickAction(
-                R.string.qa_notices, R.string.qa_notices_sub,
-                R.drawable.ic_nav_campaign, R.color.qa_purple, R.color.qa_purple_bg, isNew = true
-            ) { startActivity(Intent(requireContext(), NotificationsActivity::class.java)) },
-            QuickAction(
-                R.string.qa_marketplace, R.string.qa_marketplace_sub,
-                R.drawable.ic_qa_marketplace, R.color.qa_teal, R.color.qa_teal_bg
-            ) { startActivity(Intent(requireContext(), MarketplaceActivity::class.java)) },
-            QuickAction(
-                R.string.qa_badges, R.string.qa_badges_sub,
-                R.drawable.ic_qa_badge, R.color.qa_yellow, R.color.qa_yellow_bg
-            ) { startActivity(Intent(requireContext(), BadgesActivity::class.java)) },
-            QuickAction(
-                R.string.qa_settings, R.string.qa_settings_sub,
-                R.drawable.ic_qa_settings, R.color.qa_blue, R.color.qa_blue_bg
-            ) { startActivity(Intent(requireContext(), SettingsActivity::class.java)) }
+            ) { safeNavigate(R.id.studyGroupsFragment) }
         )
 
         if (AccessPolicy.canCreateEvents(role)) {
@@ -272,7 +258,7 @@ class HomeFragment : Fragment() {
         val container = binding.quickAccessContainer
         container.removeAllViews()
         val inflater = LayoutInflater.from(requireContext())
-        val columns = 3
+        val columns = 2
         val gap = dp(6)
 
         var row: LinearLayout? = null
@@ -420,7 +406,7 @@ class HomeFragment : Fragment() {
         val filtered = allEvents.filter { event ->
             !event.is_flash || (event.expiry_time ?: Long.MAX_VALUE) > currentTime
         }
-        adapter.updateEvents(filtered)
+        pager.submit(filtered)
         val vis = HomeFeedState.visibility(
             hasLoaded = binding.homeSkeletonInclude.homeSkeleton.visibility != View.VISIBLE,
             eventCount = filtered.size
