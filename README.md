@@ -44,6 +44,16 @@ If the key is empty or Gemini is down, the app uses the local parser / database 
 - **Admin:** paged user management, moderation (warn / suspend / remove / dismiss), analytics, ads, inactive-account cleanup.
 - Offline banner, loading/empty states, dark mode, local fallback when Gemini is unavailable.
 
+## Reliability and security
+
+- **Atomic RSVP / check-in:** join/leave with waitlist promotion, QR check-in and moderation removal run inside a
+  single database transaction (`TransactionRunner`), so seat counts stay consistent.
+- **Validated event editing:** `SaveEventUseCase` checks and authorises create/edit (trimmed fields, positive capacity,
+  no past dates, capacity not below the going count) and notifies going/waitlisted attendees when date or location changes.
+- **Safer moderation:** admins cannot be warned, suspended or re-roled; screens show the real outcome.
+- **Auth:** lockout-aware password change via `AuthRepository.changePassword`.
+- **Gemini hardening:** calls run off the main thread with short timeouts and delimited untrusted prompt text.
+
 ## Build and test
 
 ```
