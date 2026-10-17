@@ -20,8 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         tools:text="Event Name"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.CampusConnect.Headline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
@@ -30,7 +29,7 @@
         android:id="@+id/eventTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/space_s"
         tools:text="Aug 12, 6:00 PM"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         tools:text="Status: Not checked in"
-        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.CampusConnect.Label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/qrImageView" />
@@ -60,7 +59,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/space_l"
         android:gravity="center"
         android:text="@string/show_this_at_the_entrance_norgan"
         app:layout_constraintEnd_toEndOf="parent"

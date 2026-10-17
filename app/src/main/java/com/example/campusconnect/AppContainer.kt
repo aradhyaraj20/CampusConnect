@@ -5,6 +5,7 @@ import com.example.campusconnect.core.common.RoomTransactionRunner
 import com.example.campusconnect.core.common.TransactionRunner
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.domain.usecase.ModerateReportUseCase
+import com.example.campusconnect.domain.usecase.PollUseCases
 
 /**
  * Hand-rolled dependency container (no DI framework): screens ask it for the database, the
@@ -17,8 +18,13 @@ class AppContainer(context: Context) {
     val database: AppDatabase by lazy { AppDatabase.getDatabase(appContext) }
     val transactions: TransactionRunner by lazy { RoomTransactionRunner(database) }
 
-    fun moderationUseCase() =
-        ModerateReportUseCase(database.reportDao(), database.userDao(), database.eventDao(), transactions)
+    /** [actorId] is the signed-in admin; the use case re-checks their role on every action. */
+    fun moderationUseCase(actorId: Int) =
+        ModerateReportUseCase(database.reportDao(), database.userDao(), database.eventDao(), actorId, transactions)
+
+    fun pollUseCases() = PollUseCases(
+        database.pollDao(), database.eventDao(), database.userDao(), database.rsvpDao(), database.notificationDao(), transactions
+    )
 }
 
 val Context.appContainer: AppContainer

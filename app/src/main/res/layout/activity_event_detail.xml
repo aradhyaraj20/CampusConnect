@@ -1,195 +1,334 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:theme="@style/ThemeOverlay.CampusConnect.Toolbar"
-        android:id="@+id/toolbar"
+    <!-- Collapsing hero: the banner scrolls away with parallax and the toolbar stays pinned,
+         showing the event title once collapsed. Status-bar/top insets are applied to the
+         toolbar from EventDetailActivity. -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/bg_toolbar_gradient"
-        app:titleTextColor="?attr/colorOnPrimary"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="260dp"
+        android:background="@android:color/transparent"
+        app:liftOnScroll="false">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:collapsedTitleTextColor="@color/on_header"
+            app:contentScrim="@drawable/bg_toolbar_gradient"
+            app:scrimVisibleHeightTrigger="180dp"
+            app:scrimAnimationDuration="250"
+            app:expandedTitleTextColor="@android:color/transparent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:titleCollapseMode="fade">
+
+            <ImageView
+                android:id="@+id/bannerImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/image_placeholder"
+                android:contentDescription="@string/event_detail_cd_banner"
+                android:scaleType="centerCrop"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.5" />
+
+            <!-- Top scrim keeps the white toolbar icons readable over bright photos. -->
+            <View
+                android:id="@+id/heroTopScrim"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_gravity="top" />
+
+            <!-- Bottom scrim fades the photo into the page. Gradients are set in code. -->
+            <View
+                android:id="@+id/heroBottomScrim"
+                android:layout_width="match_parent"
+                android:layout_height="96dp"
+                android:layout_gravity="bottom" />
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@android:color/transparent"
+                android:theme="@style/ThemeOverlay.CampusConnect.Toolbar"
+                app:layout_collapseMode="pin"
+                app:navigationIconTint="@color/on_header"
+                app:titleTextColor="@color/on_header" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Bottom padding is kept equal to the sticky action bar's height in code. -->
+        <LinearLayout
+            android:id="@+id/contentContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="32dp">
-
-            <ImageView
-                android:id="@+id/bannerImage"
-                android:contentDescription="@null"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_launcher_background"
-                app:layout_constraintTop_toTopOf="parent" />
+            android:orientation="vertical"
+            android:paddingStart="@dimen/screen_gutter"
+            android:paddingTop="@dimen/space_l"
+            android:paddingEnd="@dimen/screen_gutter"
+            android:paddingBottom="@dimen/space_xl">
 
             <TextView
                 android:id="@+id/titleTextView"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                tools:text="Event Title"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/bannerImage" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Headline"
+                android:textColor="@color/text_primary"
+                tools:text="Event Title" />
 
-            <TextView
-                android:id="@+id/dateTimeTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                tools:text="Aug 12, 6:00 PM"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/titleTextView" />
-
-            <TextView
-                android:id="@+id/locationTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                tools:text="Innovation Block C"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dateTimeTextView" />
-
-            <Button
-                android:id="@+id/viewOnMapButton"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_on_map"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/locationTextView" />
-
+            <!-- Date & time -->
             <LinearLayout
-                android:id="@+id/attendeeLayout"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/viewOnMapButton">
+                android:minHeight="@dimen/touch_target"
+                android:orientation="horizontal">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/attendeesRecyclerView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_event"
+                    app:tint="?attr/colorPrimary" />
 
                 <TextView
-                    android:id="@+id/attendeeInfoTextView"
+                    android:id="@+id/dateTimeTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_m"
+                    android:layout_weight="1"
+                    android:textAppearance="@style/TextAppearance.CampusConnect.Body"
+                    android:textColor="@color/text_primary"
+                    tools:text="Aug 12, 6:00 PM" />
+            </LinearLayout>
+
+            <!-- Location + "View on map" link -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/touch_target"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_location"
+                    app:tint="?attr/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/locationTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_m"
+                    android:layout_weight="1"
+                    android:textAppearance="@style/TextAppearance.CampusConnect.Body"
+                    android:textColor="@color/text_primary"
+                    tools:text="Innovation Block C" />
+
+                <Button
+                    android:id="@+id/viewOnMapButton"
+                    style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    tools:text="24 going · 6 spots left"
-                    android:textStyle="bold" />
+                    android:layout_marginStart="@dimen/space_s"
+                    android:layout_marginEnd="-12dp"
+                    android:minHeight="@dimen/touch_target"
+                    android:text="@string/event_detail_view_on_map"
+                    android:textColor="@color/link_accent"
+                    app:icon="@drawable/ic_map"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/link_accent" />
             </LinearLayout>
+
+            <!-- Attendees: count line with the avatar row (and its pager) underneath -->
+            <LinearLayout
+                android:id="@+id/attendeeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="2dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_people"
+                    app:tint="?attr/colorPrimary" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_m"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/attendeeInfoTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.Body"
+                        android:textColor="@color/text_primary"
+                        tools:text="24 going · 6 left" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/attendeesRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_s"
+                        android:orientation="horizontal"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Not-enrolled notice: informational, not an error. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/restrictedCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/info_container"
+                app:cardCornerRadius="@dimen/radius_card"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/space_l">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginTop="2dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_info"
+                        app:tint="@color/on_info_container" />
+
+                    <TextView
+                        android:id="@+id/restrictedMessage"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_m"
+                        android:layout_weight="1"
+                        android:text="@string/you_are_not_enrolled_in_this_eve"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.Body"
+                        android:textColor="@color/on_info_container" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <View
                 android:id="@+id/divider1"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_margin="16dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintTop_toBottomOf="@id/attendeeLayout" />
+                android:layout_marginTop="@dimen/space_l"
+                android:background="@color/card_stroke" />
 
             <TextView
                 android:id="@+id/aboutHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:text="@string/about"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/divider1" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Section"
+                android:textColor="@color/text_primary" />
 
             <TextView
                 android:id="@+id/descriptionTextView"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                tools:text="An overnight coding sprint open to all departments."
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/aboutHeader" />
+                android:layout_marginTop="@dimen/space_s"
+                android:textAppearance="@style/TextAppearance.CampusConnect.Body"
+                android:textColor="@color/text_primary"
+                tools:text="An overnight coding sprint open to all departments." />
 
             <LinearLayout
                 android:id="@+id/actionButtons"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@id/descriptionTextView">
+                android:layout_marginTop="@dimen/space_xl"
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/groupChatButton"
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/space_s"
                     android:layout_weight="1"
-                    android:text="@string/group_chat" />
+                    android:minHeight="@dimen/touch_target"
+                    android:text="@string/group_chat"
+                    app:icon="@drawable/ic_people" />
 
                 <Button
                     android:id="@+id/pollsButton"
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/space_s"
                     android:layout_weight="1"
-                    android:text="@string/polls_title" />
+                    android:minHeight="@dimen/touch_target"
+                    android:text="@string/polls_title"
+                    app:icon="@drawable/ic_nav_analytics" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/rsvpButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:text="@string/rsvp_join"
-                app:layout_constraintTop_toBottomOf="@id/actionButtons" />
-
-            <TextView
-                android:id="@+id/restrictedMessage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="24dp"
-                android:gravity="center"
-                android:text="@string/you_are_not_enrolled_in_this_eve"
-                android:textColor="?attr/colorError"
-                android:textStyle="italic"
-                android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/rsvpButton" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Sticky bottom action bar: Join/Leave is always reachable. Bottom system inset is
+         added to its padding in code so its surface reaches the screen edge. -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/card_surface"
+        android:elevation="8dp"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/card_stroke" />
+
+        <Button
+            android:id="@+id/rsvpButton"
+            style="@style/Widget.CampusConnect.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_gutter"
+            android:layout_marginTop="@dimen/space_m"
+            android:layout_marginEnd="@dimen/screen_gutter"
+            android:layout_marginBottom="@dimen/space_m"
+            android:text="@string/rsvp_join" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

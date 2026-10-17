@@ -4,7 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:paddingStart="@dimen/screen_gutter"
+    android:paddingTop="@dimen/space_l"
+    android:paddingEnd="@dimen/screen_gutter"
+    android:paddingBottom="@dimen/space_l"
     android:contentDescription="@string/loading_events">
 
     <View
@@ -16,21 +19,21 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="96dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="@dimen/space_m"
         android:background="@drawable/bg_skeleton"
         android:importantForAccessibility="no" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="160dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/space_l"
         android:background="@drawable/bg_skeleton"
         android:importantForAccessibility="no" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="160dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="@dimen/space_m"
         android:background="@drawable/bg_skeleton"
         android:importantForAccessibility="no" />
 </LinearLayout>

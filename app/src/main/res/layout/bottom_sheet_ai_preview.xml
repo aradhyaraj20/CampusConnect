@@ -5,27 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="@dimen/space_xl">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/ai_event_preview"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.CampusConnect.Title" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="@dimen/space_xs"
         android:text="@string/ai_event_preview_hint"
-        android:textColor="?attr/colorOutline" />
+        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        app:cardCornerRadius="16dp"
+        app:cardCornerRadius="@dimen/radius_card"
         app:strokeWidth="1dp"
         app:strokeColor="?attr/colorOutlineVariant">
 
@@ -33,39 +32,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="@dimen/space_l">
 
             <TextView
                 android:id="@+id/previewTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Python Workshop"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Section" />
 
             <TextView
                 android:id="@+id/previewDateTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 tools:text="Sept 10, 2026 at 3:00 PM"
-                app:drawableStartCompat="@android:drawable/ic_menu_today"
+                app:drawableStartCompat="@drawable/ic_event"
+                app:drawableTint="?attr/colorPrimary"
                 android:drawablePadding="8dp" />
 
             <TextView
                 android:id="@+id/previewLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 tools:text="Lab 4"
-                app:drawableStartCompat="@android:drawable/ic_menu_mylocation"
+                app:drawableStartCompat="@drawable/ic_location"
+                app:drawableTint="?attr/colorPrimary"
                 android:drawablePadding="8dp" />
 
             <TextView
                 android:id="@+id/previewCapacity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 tools:text="Capacity: 50"
                 app:drawableStartCompat="@drawable/ic_nav_groups"
                 android:drawablePadding="8dp" />
@@ -74,17 +74,17 @@
                 android:id="@+id/previewEligibility"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 tools:text="Eligibility: Open"
-                android:textSize="14sp" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Body" />
 
             <TextView
                 android:id="@+id/previewTags"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 tools:text="Tags: —"
-                android:textSize="14sp" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Body" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -92,7 +92,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="@dimen/space_xl"
         android:orientation="horizontal">
 
         <Button
@@ -100,7 +100,7 @@
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="@dimen/space_s"
             android:layout_weight="1"
             android:text="@string/edit" />
 
@@ -108,7 +108,7 @@
             android:id="@+id/confirmButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/space_s"
             android:layout_weight="2"
             android:text="@string/confirm_and_create" />
     </LinearLayout>

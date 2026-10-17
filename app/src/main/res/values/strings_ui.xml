@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Navigation, menu and screen text that used to be hardcoded in layouts and Kotlin. -->
+<resources>
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_users">Users</string>
+    <string name="nav_moderation">Moderation</string>
+    <string name="nav_analytics">Analytics</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_groups">Groups</string>
+    <string name="nav_my_events">My Events</string>
+    <string name="nav_create">Create</string>
+
+    <string name="menu_view_memories">View event memories</string>
+    <string name="menu_add_to_calendar">Add to calendar</string>
+    <string name="menu_set_reminders">Remind me</string>
+
+    <string name="stat_total_users">Total Users</string>
+    <string name="stat_total_events">Total Events</string>
+    <string name="stat_events_created">Events Created</string>
+    <string name="stat_registrations">Registrations</string>
+
+    <string name="ai_event_created_title">Event created</string>
+    <string name="ai_preview_capacity">Capacity: %1$s</string>
+    <string name="ai_preview_open">Open</string>
+    <string name="ai_preview_eligibility">Eligibility: %1$s</string>
+    <string name="ai_preview_open_to_all">Open to all</string>
+    <string name="ai_preview_tags">Tags: %1$s</string>
+    <string name="ai_preview_none">—</string>
+    <string name="ai_conflict_message">%1$s\n\nChange the time, change the location in chat, or continue anyway.</string>
+    <string name="ai_prompt_change_time">Change the time to </string>
+    <string name="ai_prompt_change_location">Change the location to </string>
+
+    <string name="email_subject">Update: %1$s</string>
+    <string name="email_body">Hi everyone,\n\nThis is an update about \"%1$s\" on %2$s at %3$s.\n\n</string>
+    <string name="email_chooser">Email attendees</string>
+    <string name="export_subject">Attendees: %1$s</string>
+    <string name="export_chooser">Export attendees</string>
+
+    <plurals name="cd_upcoming_events_badge">
+        <item quantity="one">%1$d upcoming event</item>
+        <item quantity="other">%1$d upcoming events</item>
+    </plurals>
+
+    <string name="home_my_events">My Events</string>
+    <string name="home_my_events_see_all">See all</string>
+    <string name="home_my_events_empty_title">No upcoming events yet</string>
+    <string name="home_my_events_empty_sub">Events you join will show up here.</string>
+    <string name="home_my_events_browse">Browse events</string>
+
+    <string name="karma_format">Karma: %1$d</string>
+    <string name="points_format">%1$d pts</string>
+    <string name="flash_ends_in">Ends in %1$dm</string>
+
+    <string name="cd_attendee_photo">Attendee photo</string>
+</resources>

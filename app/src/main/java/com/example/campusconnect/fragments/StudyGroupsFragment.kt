@@ -9,6 +9,7 @@ import com.example.campusconnect.adapters.trackRsvps
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.campusconnect.R
 import com.example.campusconnect.activities.EventDetailActivity
 import com.example.campusconnect.adapters.EventAdapter
 import com.example.campusconnect.adapters.LegendAdapter
@@ -17,6 +18,7 @@ import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentStudyGroupsBinding
 import com.example.campusconnect.models.User
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class StudyGroupsFragment : Fragment() {
@@ -53,17 +55,6 @@ class StudyGroupsFragment : Fragment() {
         binding.groupsRecyclerView.adapter = adapter
         pager = com.example.campusconnect.core.common.Pager(binding.groupsRecyclerView) { adapter.updateEvents(it) }
 
-        binding.scrollUpFab.setOnClickListener {
-            binding.groupsRecyclerView.smoothScrollToPosition(0)
-        }
-
-        binding.scrollDownFab.setOnClickListener {
-            val count = adapter.itemCount
-            if (count > 0) {
-                binding.groupsRecyclerView.smoothScrollToPosition(count - 1)
-            }
-        }
-
         viewLifecycleOwner.lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
             val currentUserId = SessionManager.getInstance(requireContext()).getCurrentUserId()
@@ -86,11 +77,19 @@ class StudyGroupsFragment : Fragment() {
             }
         }
 
+        // Groups the student already has a seat in live under Home / My Events, so they are left
+        // out here; the list updates as soon as they join or leave one.
         viewLifecycleOwner.lifecycleScope.launch {
-            AppDatabase.getDatabase(requireContext()).eventDao().getAllEvents().collectLatest { events ->
-                val studyGroups = events.filter { it.type == "study_group" }
-                pager.submit(studyGroups)
-                binding.groupsEmptyText.visibility = if (studyGroups.isEmpty()) View.VISIBLE else View.GONE
+            val db = AppDatabase.getDatabase(requireContext())
+            val userId = SessionManager.getInstance(requireContext()).getCurrentUserId()
+            combine(db.eventDao().getAllEvents(), db.rsvpDao().getRsvpsForUser(userId)) { events, rsvps ->
+                val joined = rsvps.filter { it.status == "going" }.map { it.event_id }.toSet()
+                val allGroups = events.filter { it.type == "study_group" }
+                allGroups.filter { it.id !in joined } to allGroups.isNotEmpty()
+            }.collectLatest { (openGroups, anyGroups) ->
+                pager.submit(openGroups)
+                binding.groupsEmptyText.setText(if (anyGroups) R.string.study_groups_all_joined else R.string.study_groups_empty)
+                binding.groupsEmptyText.visibility = if (openGroups.isEmpty()) View.VISIBLE else View.GONE
             }
         }
     }

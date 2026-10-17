@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings for registration validation, forced password change and moderation feedback. -->
+<resources>
+    <string name="pwd_forced_title">Set a new password</string>
+    <string name="pwd_forced_message">This account was created with a temporary password. Choose your own password to continue.</string>
+
+    <string name="reg_confirm_password">Confirm password</string>
+    <string name="reg_role_hint_student">Join events, study groups and chats on your course.</string>
+    <string name="reg_role_hint_organizer">Create and manage events, scan tickets and see attendance.</string>
+
+    <string name="reg_err_name">Enter your name (up to 60 characters)</string>
+    <string name="reg_err_email">Enter a valid email address</string>
+    <string name="reg_err_course">Enter your course name</string>
+    <string name="reg_err_duration">Enter the course length in months (1 to %1$d)</string>
+
+    <string name="report_dismissed">Report dismissed</string>
+    <string name="report_resolved">Report marked as resolved</string>
+
+    <string name="profile_err_bio">Keep your bio under 300 characters</string>
+    <string name="profile_err_interests">Use up to 10 interests, separated by commas</string>
+</resources>

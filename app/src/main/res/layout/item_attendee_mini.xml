@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.imageview.ShapeableImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:contentDescription="@string/cd_attendee_photo"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/attendeeImage"
     android:layout_width="32dp"

@@ -42,7 +42,7 @@ class OrganizerDashboardActivity : AppCompatActivity() {
         RoleGuard.enforce(this, AccessPolicy::canAccessOrganizerDashboard)
         binding = ActivityOrganizerDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar, hasBottomNav = true)
         notificationPermission.request()
         setSupportActionBar(binding.toolbar)
         binding.toolbar.overflowIcon?.setTint(

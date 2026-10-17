@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="@dimen/screen_gutter">
 
     <Button
         android:id="@+id/settingsButton"
@@ -16,6 +16,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.imageview.ShapeableImageView
+        android:contentDescription="@string/cd_profile_photo"
         android:id="@+id/profileImage"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -32,12 +33,17 @@
 
     <ImageView
         android:id="@+id/editAvatarIcon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@android:drawable/ic_menu_edit"
+        android:layout_width="@dimen/touch_target"
+        android:layout_height="@dimen/touch_target"
+        android:translationX="12dp"
+        android:translationY="12dp"
+        android:src="@drawable/ic_edit"
         app:tint="?attr/colorPrimary"
-        android:background="@drawable/bg_pill_search"
-        android:padding="4dp"
+        android:background="@drawable/bg_avatar_edit_badge"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="15dp"
         app:layout_constraintBottom_toBottomOf="@id/profileImage"
         app:layout_constraintEnd_toEndOf="@id/profileImage"
         android:contentDescription="@string/cd_edit_avatar" />
@@ -46,10 +52,9 @@
         android:id="@+id/userName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="@dimen/space_l"
         tools:text="Aradhya Raj"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.CampusConnect.Title"
         app:layout_constraintStart_toEndOf="@id/profileImage"
         app:layout_constraintTop_toTopOf="@id/profileImage" />
 
@@ -57,7 +62,7 @@
         android:id="@+id/userEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="@dimen/space_l"
         tools:text="aradhya@email.com"
         app:layout_constraintStart_toEndOf="@id/profileImage"
         app:layout_constraintTop_toBottomOf="@id/userName" />
@@ -66,11 +71,11 @@
         android:id="@+id/userKarma"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginStart="@dimen/space_l"
+        android:layout_marginTop="@dimen/space_xs"
         tools:text="Karma: 150"
+        android:textAppearance="@style/TextAppearance.CampusConnect.Label"
         android:textColor="?attr/colorPrimary"
-        android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/profileImage"
         app:layout_constraintTop_toBottomOf="@id/userEmail" />
 
@@ -79,7 +84,7 @@
         style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="@dimen/space_s"
         android:text="@string/edit_bio"
         app:layout_constraintBaseline_toBaselineOf="@id/userKarma"
         app:layout_constraintStart_toEndOf="@id/userKarma" />
@@ -88,7 +93,7 @@
         android:id="@+id/userBio"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/space_l"
         tools:text="No bio yet. Tap edit to add one!"
         android:fontStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
@@ -99,7 +104,7 @@
         android:id="@+id/interestsChipGroup"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/space_s"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/userBio" />
@@ -108,26 +113,18 @@
         android:id="@+id/myEventsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/space_l"
         android:text="@string/my_joined_events"
-        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.CampusConnect.Section"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/interestsChipGroup" />
 
-    <Button
-        android:id="@+id/myBadgesButton"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/my_badges"
-        app:layout_constraintBaseline_toBaselineOf="@id/myEventsTitle"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/myEventsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/space_s"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/myEventsTitle" />
 
@@ -138,46 +135,11 @@
         android:layout_margin="32dp"
         android:gravity="center"
         android:text="@string/profile_no_joined_events"
-        android:textAppearance="?attr/textAppearanceBodyLarge"
-        android:textColor="?android:attr/textColorSecondary"
+        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/myEventsTitle" />
 
-    <LinearLayout
-        android:id="@+id/scrollButtons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:alpha="0.6"
-        android:background="@drawable/bg_scroll_strip"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollUpFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_up_float"
-            android:contentDescription="@string/cd_scroll_up" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollDownFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="@string/cd_scroll_down" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

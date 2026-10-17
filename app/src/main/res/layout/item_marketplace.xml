@@ -4,14 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="0dp">
+    android:layout_margin="@dimen/space_s"
+    app:cardCornerRadius="@dimen/radius_card">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="@dimen/space_m">
 
         <ImageView
             android:id="@+id/itemImage"
@@ -27,10 +26,9 @@
             android:id="@+id/itemTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="@dimen/space_m"
             tools:text="Calculus Textbook"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/itemImage"
             app:layout_constraintTop_toTopOf="parent" />
@@ -39,11 +37,11 @@
             android:id="@+id/itemPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginStart="@dimen/space_m"
+            android:layout_marginTop="@dimen/space_xs"
             tools:text="₹300"
             android:textColor="?attr/colorPrimary"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.CampusConnect.Label"
             app:layout_constraintStart_toEndOf="@id/itemImage"
             app:layout_constraintTop_toBottomOf="@id/itemTitle" />
 
@@ -51,10 +49,10 @@
             android:id="@+id/itemPoster"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginStart="@dimen/space_m"
+            android:layout_marginTop="@dimen/space_xs"
             tools:text="Posted by Aradhya"
-            android:textSize="12sp"
+            android:textAppearance="@style/TextAppearance.CampusConnect.Caption"
             app:layout_constraintStart_toEndOf="@id/itemImage"
             app:layout_constraintTop_toBottomOf="@id/itemPrice" />
 

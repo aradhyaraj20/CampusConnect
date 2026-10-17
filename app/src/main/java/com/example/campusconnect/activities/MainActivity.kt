@@ -11,9 +11,11 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.campusconnect.R
 import com.example.campusconnect.core.common.NotificationPermission
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
+import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityMainBinding
 import com.example.campusconnect.utils.SeedData
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -24,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar, hasBottomNav = true)
         notificationPermission.request()
         setSupportActionBar(binding.toolbar)
         binding.toolbar.overflowIcon?.setTint(
@@ -44,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNav.setupWithNavController(navController)
+        showUpcomingEventsBadge()
 
         // The Home screen ships its own full-bleed gradient header (Student
         // Portal design), so the shared toolbar is hidden there and shown on
@@ -85,5 +88,32 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return com.example.campusconnect.core.common.AccountMenuHelper
             .handleMenuItem(this, item.itemId) || super.onOptionsItemSelected(item)
+    }
+
+    /** Number badge on the My Events tab: upcoming events this student has a confirmed seat for. */
+    private fun showUpcomingEventsBadge() {
+        val userId = SessionManager.getInstance(this).getCurrentUserId()
+        if (userId <= 0) return
+        val startOfToday = java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        lifecycleScope.launch {
+            AppDatabase.getDatabase(this@MainActivity).eventDao()
+                .getUpcomingGoingEvents(userId, startOfToday)
+                .collectLatest { events ->
+                    if (events.isEmpty()) {
+                        binding.bottomNav.removeBadge(R.id.calendarFragment)
+                    } else {
+                        binding.bottomNav.getOrCreateBadge(R.id.calendarFragment).apply {
+                            number = events.size
+                            maxCharacterCount = 2
+                            setContentDescriptionQuantityStringsResource(R.plurals.cd_upcoming_events_badge)
+                        }
+                    }
+                }
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.example.campusconnect.activities.admin
 
+import com.example.campusconnect.core.common.showMessage
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -7,7 +9,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AdminUserAdapter
 import com.example.campusconnect.appContainer
@@ -55,31 +57,31 @@ class AdminUsersActivity : AppCompatActivity() {
         }
 
         val db = AppDatabase.getDatabase(this)
-        useCase = appContainer.moderationUseCase()
+        useCase = appContainer.moderationUseCase(SessionManager.getInstance(this).getCurrentUserId())
 
         adapter = AdminUserAdapter(emptyList(),
             onWarn = { user ->
                 lifecycleScope.launch {
-                    useCase.warnUser(user.id).toast(this@AdminUsersActivity, getString(R.string.user_warned_format, user.name))
+                    useCase.warnUser(user.id).showResult(this@AdminUsersActivity, getString(R.string.user_warned_format, user.name))
                     resetAndLoad()
                 }
             },
             onSuspend = { user ->
                 lifecycleScope.launch {
-                    useCase.suspendUser(user.id).toast(this@AdminUsersActivity, getString(R.string.user_suspended_format, user.name))
+                    useCase.suspendUser(user.id).showResult(this@AdminUsersActivity, getString(R.string.user_suspended_format, user.name))
                     resetAndLoad()
                 }
             },
             // Long-press a row: promote/demote between Student and Organizer (admins are never changed here).
             onChangeRole = { user ->
                 val newRole = if (user.role == "ORGANIZER") "STUDENT" else "ORGANIZER"
-                androidx.appcompat.app.AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.change_role)
                     .setMessage(getString(R.string.change_role_message_format, user.name, newRole.lowercase()))
                     .setPositiveButton(R.string.confirm) { _, _ ->
                         lifecycleScope.launch {
                             useCase.changeRole(user.id, newRole)
-                                .toast(this@AdminUsersActivity, getString(R.string.user_role_changed_format, user.name, newRole))
+                                .showResult(this@AdminUsersActivity, getString(R.string.user_role_changed_format, user.name, newRole))
                             resetAndLoad()
                         }
                     }
@@ -87,7 +89,7 @@ class AdminUsersActivity : AppCompatActivity() {
                     .show()
             }
         )
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = GridLayoutManager(this, resources.getInteger(R.integer.list_columns))
         binding.recyclerView.adapter = adapter
 
         binding.searchEditText.addTextChangedListener(object : TextWatcher {
@@ -161,7 +163,7 @@ class AdminUsersActivity : AppCompatActivity() {
     private fun runCleanupNow() {
         val request = androidx.work.OneTimeWorkRequestBuilder<AccountCleanupWorker>().build()
         androidx.work.WorkManager.getInstance(this).enqueue(request)
-        Toast.makeText(this, R.string.inactive_account_cleanup_started, Toast.LENGTH_SHORT).show()
+        showMessage(R.string.inactive_account_cleanup_started)
     }
 
     override fun onSupportNavigateUp(): Boolean { onBackPressedDispatcher.onBackPressed(); return true }

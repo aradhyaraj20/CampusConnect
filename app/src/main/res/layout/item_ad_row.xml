@@ -3,21 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="0dp">
+    android:layout_margin="@dimen/space_s"
+    app:cardCornerRadius="@dimen/radius_card">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/space_l">
 
         <ImageView
             android:id="@+id/adImage"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/space_s"
+            android:background="@drawable/bg_image_placeholder"
             android:scaleType="centerCrop"
             android:visibility="gone"
             android:contentDescription="@string/create_ad" />
@@ -26,20 +26,19 @@
             android:id="@+id/adTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp" />
+            android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle" />
 
         <TextView
             android:id="@+id/adMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="14sp" />
+            android:layout_marginTop="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.CampusConnect.Body" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/space_m"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -52,10 +51,13 @@
 
             <ImageButton
                 android:id="@+id/deleteAdButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="@dimen/touch_target"
+                android:layout_height="@dimen/touch_target"
+                android:padding="@dimen/space_m"
+                android:scaleType="fitCenter"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_delete"
+                android:src="@drawable/ic_delete"
+                app:tint="?attr/colorError"
                 android:contentDescription="@string/delete_event" />
         </LinearLayout>
     </LinearLayout>

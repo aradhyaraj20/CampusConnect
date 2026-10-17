@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
 import com.example.campusconnect.databinding.ItemAdRowBinding
 import com.example.campusconnect.models.Ad
 
@@ -26,8 +25,9 @@ class AdAdapter(
 
         if (!ad.image_uri.isNullOrBlank()) {
             holder.binding.adImage.visibility = View.VISIBLE
-            holder.binding.adImage.load(ad.image_uri)
+            holder.binding.adImage.loadEventImage(ad.image_uri)
         } else {
+            holder.binding.adImage.setImageDrawable(null)
             holder.binding.adImage.visibility = View.GONE
         }
 

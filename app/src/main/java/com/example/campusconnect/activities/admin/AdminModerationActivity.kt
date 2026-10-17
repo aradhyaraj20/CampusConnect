@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.ReportAdapter
 import com.example.campusconnect.appContainer
@@ -34,13 +34,13 @@ class AdminModerationActivity : AppCompatActivity() {
             Toast.makeText(this, R.string.admin_access_required, Toast.LENGTH_SHORT).show(); finish(); return
         }
         val db = AppDatabase.getDatabase(this)
-        val useCase = appContainer.moderationUseCase()
+        val useCase = appContainer.moderationUseCase(SessionManager.getInstance(this).getCurrentUserId())
         val adapter = ReportAdapter(emptyList(),
-            onDismiss = { report -> lifecycleScope.launch { useCase.dismiss(report) } },
-            onRemove = { report -> lifecycleScope.launch { useCase.removeContent(report).toast(this@AdminModerationActivity, getString(R.string.content_action_applied)) } },
-            onResolve = { report -> lifecycleScope.launch { useCase.resolve(report) } }
+            onDismiss = { report -> lifecycleScope.launch { useCase.dismiss(report).showResult(this@AdminModerationActivity, getString(R.string.report_dismissed)) } },
+            onRemove = { report -> lifecycleScope.launch { useCase.removeContent(report).showResult(this@AdminModerationActivity, getString(R.string.content_action_applied)) } },
+            onResolve = { report -> lifecycleScope.launch { useCase.resolve(report).showResult(this@AdminModerationActivity, getString(R.string.report_resolved)) } }
         )
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = GridLayoutManager(this, resources.getInteger(R.integer.list_columns))
         binding.recyclerView.adapter = adapter
         val pager = com.example.campusconnect.core.common.Pager(binding.recyclerView) { adapter.submit(it) }
         lifecycleScope.launch {

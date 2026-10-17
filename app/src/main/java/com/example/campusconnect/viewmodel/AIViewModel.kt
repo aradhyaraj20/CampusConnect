@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.campusconnect.database.AIInteractionDao
 import com.example.campusconnect.domain.event.EventTime
+import com.example.campusconnect.domain.usecase.EventForm
+import com.example.campusconnect.domain.usecase.SaveEventError
+import com.example.campusconnect.domain.usecase.SaveEventResult
+import com.example.campusconnect.domain.usecase.SaveEventUseCase
 import com.example.campusconnect.models.AIInteraction
 import com.example.campusconnect.models.Event
 import com.example.campusconnect.repository.AIEventResponse
@@ -25,7 +29,8 @@ class AIViewModel(
     private val eventRepository: EventRepository,
     private val interactionDao: AIInteractionDao,
     private val userId: Int,
-    private val mode: AIMode = AIMode.CREATE
+    private val mode: AIMode = AIMode.CREATE,
+    private val saveEvent: SaveEventUseCase? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AIUiState>(AIUiState.Idle)
@@ -141,15 +146,43 @@ class AIViewModel(
             _uiState.value = AIUiState.Conflict(conflict, event)
             return
         }
+        val useCase = saveEvent ?: return
         viewModelScope.launch {
             _uiState.value = AIUiState.Loading
-            val id = eventRepository.insertEvent(event.copy(creator_id = userId, status = "active"))
-            interactionDao.clearHistory(userId, mode.name)
-            _uiState.value = AIUiState.Success("Event '${event.title}' created!", id.toInt())
-            draftEvent = null
-            pendingMissingField = null
-            lastConflict = null
+            // Same path as the manual form: role re-checked in the database, no past dates, valid
+            // capacity. The draft came from model output, so it gets no shortcut around the rules.
+            val form = EventForm(
+                title = event.title,
+                description = event.description.ifBlank { event.title },
+                location = event.location,
+                maxAttendeesText = event.max_attendees?.toString().orEmpty(),
+                type = event.type,
+                isFlash = event.is_flash,
+                dateTimestamp = event.date_timestamp,
+                imageUri = null,
+                category = event.category,
+                tags = event.tags,
+                eligibility = event.eligibility
+            )
+            when (val result = useCase.save(userId, null, form)) {
+                is SaveEventResult.Saved -> {
+                    interactionDao.clearHistory(userId, mode.name)
+                    _uiState.value = AIUiState.Success("Event '${result.event.title}' created!", result.event.id)
+                    draftEvent = null
+                    pendingMissingField = null
+                    lastConflict = null
+                }
+                is SaveEventResult.Invalid -> _uiState.value = AIUiState.Error(saveErrorMessage(result.error))
+            }
         }
+    }
+
+    private fun saveErrorMessage(error: SaveEventError) = when (error) {
+        SaveEventError.REQUIRED_FIELDS -> "The event still needs a title and a location. Tell me where it happens."
+        SaveEventError.INVALID_CAPACITY -> "The capacity must be a positive number."
+        SaveEventError.PAST_DATE -> "That date is in the past. Give me a date from today onwards."
+        SaveEventError.NOT_ALLOWED -> "Your account can no longer create events."
+        SaveEventError.CAPACITY_BELOW_ATTENDEES, SaveEventError.NOT_FOUND -> "The event could not be saved."
     }
 
     fun clearConflictAndContinue() {

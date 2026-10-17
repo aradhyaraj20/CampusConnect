@@ -17,7 +17,7 @@
         android:id="@+id/aiAssistButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/screen_gutter"
         android:text="@string/ask_campusconnect_ai"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
@@ -26,7 +26,7 @@
         android:id="@+id/emptyState"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="24dp"
+        android:layout_margin="@dimen/space_xl"
         android:gravity="center"
         android:text="@string/nothing_to_show"
         android:visibility="gone"
@@ -38,7 +38,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="8dp"
+        android:padding="@dimen/space_s"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/aiAssistButton" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,57 +12,104 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/bg_toolbar_gradient"
         app:titleTextColor="?attr/colorOnPrimary"
+        app:subtitleTextColor="?attr/colorOnPrimary"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <FrameLayout
-        android:id="@+id/mapContainer"
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/loadingProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="1dp"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:indicatorColor="?attr/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="?attr/colorSurfaceVariant"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <!-- Simulated Map Background -->
-        <ImageView
-            android:id="@+id/mapImage"
-            android:contentDescription="@string/cd_campus_map"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_background"
-            android:alpha="0.3" />
-
-        <TextView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/map_preview_label"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textStyle="bold" />
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_gutter">
 
-        <!-- Location Pin -->
-        <ImageView
-            android:id="@+id/mapPin"
-            android:contentDescription="@null"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_mylocation"
-            app:tint="@color/tertiary" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxWidth="560dp"
+                app:cardCornerRadius="@dimen/radius_hero">
 
-        <TextView
-            android:id="@+id/locationLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="32dp"
-            android:background="@drawable/bg_pill_search"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:textColor="?attr/colorOnSurface"
-            android:textStyle="bold"
-            tools:text="Event Location" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_xl">
 
-    </FrameLayout>
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_map"
+                        app:tint="?attr/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/locationLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.Title"
+                        tools:text="Main Auditorium, Block C" />
+
+                    <TextView
+                        android:id="@+id/eventWhen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary"
+                        tools:text="Oct 20, 2026 · 18:00" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:gravity="center"
+                        android:text="@string/map_hint"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/openMapsButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="@string/map_open"
+                        app:icon="@drawable/ic_map" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/directionsButton"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/map_directions"
+                        app:icon="@drawable/ic_directions" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/copyButton"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/map_copy"
+                        app:icon="@drawable/ic_content_copy" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="recap_columns">4</integer>
+    <!-- Card lists show side by side on wide screens. -->
+    <integer name="list_columns">2</integer>
+</resources>

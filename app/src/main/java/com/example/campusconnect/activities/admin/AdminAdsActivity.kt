@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AdAdapter
@@ -78,7 +78,7 @@ class AdminAdsActivity : AppCompatActivity() {
                 }
             }
         )
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = GridLayoutManager(this, resources.getInteger(R.integer.list_columns))
         binding.recyclerView.adapter = adapter
         val pager = com.example.campusconnect.core.common.Pager(binding.recyclerView) { adapter.submit(it) }
 

@@ -48,7 +48,6 @@
         <activity android:name=".activities.ChatActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".activities.PollActivity" />
-        <activity android:name=".activities.BadgesActivity" />
         <activity android:name=".activities.MarketplaceActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".activities.SettingsActivity" />

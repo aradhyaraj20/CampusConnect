@@ -22,8 +22,8 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="end"
-            android:layout_marginEnd="8dp"
-            android:padding="12dp"
+            android:layout_marginEnd="@dimen/space_s"
+            android:padding="@dimen/space_m"
             android:scaleType="fitCenter"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_qa_bell"
@@ -43,22 +43,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="@dimen/screen_gutter"
             android:paddingBottom="96dp">
             <TextView
                 android:id="@+id/welcomeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/welcome_format"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Title" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/createEventWithAiButton"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:text="@string/create_event_with_ai"
                 app:cornerRadius="16dp" />
 
@@ -73,15 +71,13 @@
                     android:id="@+id/analyticsSectionHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="@dimen/space_xl"
                     android:text="@string/analytics"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="@style/TextAppearance.CampusConnect.Section" />
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/space_s"
                     android:orientation="horizontal">
 
                     <include
@@ -90,7 +86,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_margin="4dp" />
+                        android:layout_margin="@dimen/space_xs" />
 
                     <include
                         android:id="@+id/statRegistrations"
@@ -98,7 +94,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_margin="4dp" />
+                        android:layout_margin="@dimen/space_xs" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -112,7 +108,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_margin="4dp" />
+                        android:layout_margin="@dimen/space_xs" />
 
                     <include
                         android:id="@+id/statAttendancePercent"
@@ -120,7 +116,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_margin="4dp" />
+                        android:layout_margin="@dimen/space_xs" />
                 </LinearLayout>
             </LinearLayout>
             <!-- EVENTS: shown on the Dashboard (overview) and the My Events tab. -->
@@ -134,19 +130,27 @@
                     android:id="@+id/myEventsSectionHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="@dimen/space_xl"
                     android:text="@string/my_events"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textAppearance="@style/TextAppearance.CampusConnect.Section" />
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.CampusConnect.Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_s">
 
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/eventsTabLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:background="@android:color/transparent"
                     app:tabMode="fixed"
-                    app:tabGravity="fill">
+                    app:tabGravity="fill"
+                    app:tabIndicatorColor="?attr/colorPrimary"
+                    app:tabIndicatorFullWidth="false"
+                    app:tabTextColor="@color/text_secondary"
+                    app:tabSelectedTextColor="?attr/colorPrimary">
 
                     <com.google.android.material.tabs.TabItem
                         android:layout_width="wrap_content"
@@ -163,11 +167,13 @@
                         android:layout_height="wrap_content"
                         android:text="@string/completed" />
                 </com.google.android.material.tabs.TabLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/eventsRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/space_s"
                     android:nestedScrollingEnabled="false"
                     tools:listitem="@layout/item_event" />
 
@@ -184,15 +190,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/no_events_yet"
-                        android:textStyle="bold"
-                        android:textSize="16sp" />
+                        android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="@dimen/space_xs"
                         android:text="@string/no_events_yet_desc"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -211,7 +216,7 @@
         android:id="@+id/aiAssistantFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/space_l"
         android:contentDescription="@string/cd_ask_ai"
         android:src="@drawable/ic_ai_sparkle"
         app:layout_constraintBottom_toTopOf="@id/bottomNav"

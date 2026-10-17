@@ -2,36 +2,46 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/menu_memories"
-        android:title="View Event Memories"
-        app:showAsAction="never" />
-
+    <!-- Everyday actions sit on the bar; icons are tinted white for the gradient/hero toolbar. -->
     <item
         android:id="@+id/menu_add_calendar"
-        android:title="Add to System Calendar"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_calendar_add"
+        android:title="@string/menu_add_to_calendar"
+        app:iconTint="@color/on_header"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_reminders"
-        android:title="Set Smart Reminders"
+        android:icon="@drawable/ic_alarm"
+        android:title="@string/menu_set_reminders"
+        app:iconTint="@color/on_header"
+        app:showAsAction="ifRoom" />
+
+    <!-- Organizer-only; visibility is driven by EventDetailActivity.onPrepareOptionsMenu. -->
+    <item
+        android:id="@+id/menu_scan_tickets"
+        android:icon="@drawable/ic_qr_scan"
+        android:title="@string/scan_tickets"
+        android:visible="false"
+        app:iconTint="@color/on_header"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_memories"
+        android:title="@string/menu_view_memories"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/menu_edit"
+        android:icon="@drawable/ic_edit"
         android:title="@string/edit_event_full"
         android:visible="false"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/menu_email"
+        android:icon="@drawable/ic_email"
         android:title="@string/email_attendees"
-        android:visible="false"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_scan_tickets"
-        android:title="@string/scan_tickets"
         android:visible="false"
         app:showAsAction="never" />
 
@@ -43,6 +53,7 @@
 
     <item
         android:id="@+id/menu_delete"
+        android:icon="@drawable/ic_delete"
         android:title="@string/delete_event"
         android:visible="false"
         app:showAsAction="never" />

@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/bg_toolbar_gradient"
-        app:title="CampusConnect AI"
+        app:title="@string/ai_toolbar_title"
         app:titleTextColor="?attr/colorOnPrimary"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -19,8 +19,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="@dimen/space_s"
+        android:paddingBottom="@dimen/space_s"
         app:layout_constraintBottom_toTopOf="@id/inputLayout"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingHorizontal="24dp"
+        android:paddingHorizontal="@dimen/screen_gutter"
         app:layout_constraintBottom_toTopOf="@id/inputLayout"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintVertical_bias="0.35">
@@ -46,16 +46,16 @@
             android:id="@+id/emptyTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textAppearance="?attr/textAppearanceTitleLarge" />
+            android:layout_marginTop="@dimen/space_m"
+            android:textAppearance="@style/TextAppearance.CampusConnect.Title" />
 
         <TextView
             android:id="@+id/emptySubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/space_xs"
             android:gravity="center"
-            android:textAppearance="?attr/textAppearanceBodyMedium" />
+            android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/suggestionChips"
@@ -69,7 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="@dimen/space_m"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.textfield.TextInputLayout
@@ -93,11 +93,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/space_s"
             app:elevation="0dp"
             app:fabSize="mini"
             app:pressedTranslationZ="0dp"
-            app:srcCompat="@android:drawable/ic_menu_send" />
+            app:srcCompat="@drawable/ic_send" />
     </LinearLayout>
 
     <ProgressBar

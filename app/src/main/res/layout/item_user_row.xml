@@ -3,15 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="0dp">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-        <TextView android:id="@+id/userName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textStyle="bold" android:textSize="16sp" />
-        <TextView android:id="@+id/userMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="13sp" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal">
+    android:layout_margin="@dimen/space_s"
+    app:cardCornerRadius="@dimen/radius_card">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/space_l">
+        <TextView android:id="@+id/userName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle" />
+        <TextView android:id="@+id/userMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_xs" android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/space_m" android:orientation="horizontal">
             <Button android:id="@+id/warnButton" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:minHeight="48dp" android:text="@string/warn" />
-            <Button android:id="@+id/suspendButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:minHeight="48dp" android:text="@string/suspend" />
+            <Button android:id="@+id/suspendButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/space_s" android:layout_weight="1" android:minHeight="48dp" android:text="@string/suspend" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

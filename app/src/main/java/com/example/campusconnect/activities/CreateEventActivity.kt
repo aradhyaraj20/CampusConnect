@@ -2,10 +2,9 @@ package com.example.campusconnect.activities
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -13,6 +12,7 @@ import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.appContainer
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
+import com.example.campusconnect.core.common.showMessage
 import com.example.campusconnect.core.security.RoleGuard
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
@@ -24,6 +24,7 @@ import com.example.campusconnect.domain.usecase.SaveEventError
 import com.example.campusconnect.domain.usecase.SaveEventResult
 import com.example.campusconnect.domain.usecase.SaveEventUseCase
 import com.example.campusconnect.models.Event
+import com.example.campusconnect.utils.ImageStore
 import com.example.campusconnect.utils.ReminderManager
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,15 +41,22 @@ class CreateEventActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreateEventBinding
     private var selectedCalendar = Calendar.getInstance()
     private var editingEvent: Event? = null
-    private var selectedImageUri: Uri? = null
+    private var selectedImageUri: String? = null
 
-    private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let {
-            try {
-                contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            } catch (_: SecurityException) { /* provider may not support persistable grants */ }
-            selectedImageUri = it
-            binding.eventImagePreview.load(it)
+    // The picked image is copied into app storage right away: a picker URI stops being readable
+    // after a restart, which used to make event covers disappear.
+    private val pickImage = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        uri ?: return@registerForActivityResult
+        lifecycleScope.launch {
+            val stored = ImageStore.import(this@CreateEventActivity, uri, ImageStore.EVENT_COVERS)
+            if (stored == null) {
+                showMessage(R.string.image_import_failed)
+                return@launch
+            }
+            // Picking twice before saving: drop the copy that is being replaced.
+            ImageStore.delete(this@CreateEventActivity, selectedImageUri)
+            selectedImageUri = stored
+            binding.eventImagePreview.load(stored)
         }
     }
 
@@ -69,7 +77,9 @@ class CreateEventActivity : AppCompatActivity() {
             return
         }
 
-        binding.pickEventImageButton.setOnClickListener { pickImage.launch("image/*") }
+        binding.pickEventImageButton.setOnClickListener {
+            pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
 
         val editEventId = intent.getIntExtra(EXTRA_EVENT_ID, -1)
         if (editEventId != -1) {
@@ -88,13 +98,6 @@ class CreateEventActivity : AppCompatActivity() {
             saveEvent()
         }
 
-        binding.scrollUpFab.setOnClickListener {
-            binding.nestedScrollView.fullScroll(android.view.View.FOCUS_UP)
-        }
-
-        binding.scrollDownFab.setOnClickListener {
-            binding.nestedScrollView.fullScroll(android.view.View.FOCUS_DOWN)
-        }
     }
 
     private fun loadEventForEdit(eventId: Int) {
@@ -189,8 +192,9 @@ class CreateEventActivity : AppCompatActivity() {
             type = if (binding.radioEvent.isChecked) "event" else "study_group",
             isFlash = binding.flashSessionSwitch.isChecked,
             dateTimestamp = selectedCalendar.timeInMillis,
-            imageUri = selectedImageUri?.toString()
+            imageUri = selectedImageUri
         )
+        clearFieldErrors()
         // Disabled while saving so a double tap can't create the event twice.
         binding.createButton.isEnabled = false
         lifecycleScope.launch {
@@ -199,9 +203,12 @@ class CreateEventActivity : AppCompatActivity() {
             val userId = SessionManager.getInstance(this@CreateEventActivity).getCurrentUserId()
             when (val result = useCase.save(userId, editingEvent?.id, form)) {
                 is SaveEventResult.Saved -> {
-                    // Replace any reminders scheduled for the old time, then schedule for the new one.
-                    ReminderManager.cancelReminders(this@CreateEventActivity, result.event.id)
-                    ReminderManager.scheduleReminders(this@CreateEventActivity, result.event)
+                    val previousImage = editingEvent?.image_uri
+                    if (selectedImageUri != null && previousImage != result.event.image_uri) {
+                        ImageStore.delete(this@CreateEventActivity, previousImage)
+                    }
+                    // Anyone on this device who set reminders gets them moved to the new time.
+                    if (!result.isNew) ReminderManager.rescheduleForEvent(this@CreateEventActivity, result.event)
                     Toast.makeText(
                         this@CreateEventActivity,
                         if (result.isNew) R.string.event_created_success else R.string.event_updated_success,
@@ -211,9 +218,40 @@ class CreateEventActivity : AppCompatActivity() {
                 }
                 is SaveEventResult.Invalid -> {
                     binding.createButton.isEnabled = true
-                    Toast.makeText(this@CreateEventActivity, errorMessage(result.error), Toast.LENGTH_SHORT).show()
+                    showValidationError(result.error, form)
                 }
             }
+        }
+    }
+
+    private fun clearFieldErrors() {
+        listOf(
+            binding.titleLayout, binding.descriptionLayout, binding.locationLayout,
+            binding.maxAttendeesLayout, binding.dateLayout
+        ).forEach { it.error = null }
+    }
+
+    /** Puts the problem on the field it belongs to; anything not tied to one field goes in a Snackbar. */
+    private fun showValidationError(error: SaveEventError, form: EventForm) {
+        val message = getString(errorMessage(error))
+        when (error) {
+            SaveEventError.REQUIRED_FIELDS -> {
+                val required = getString(R.string.error_field_required)
+                val missing = listOfNotNull(
+                    binding.titleLayout.takeIf { form.title.isBlank() },
+                    binding.descriptionLayout.takeIf { form.description.isBlank() },
+                    binding.locationLayout.takeIf { form.location.isBlank() }
+                )
+                if (missing.isEmpty()) showMessage(message)
+                missing.forEach { it.error = required }
+                missing.firstOrNull()?.requestFocus()
+            }
+            SaveEventError.INVALID_CAPACITY, SaveEventError.CAPACITY_BELOW_ATTENDEES -> {
+                binding.maxAttendeesLayout.error = message
+                binding.maxAttendeesLayout.requestFocus()
+            }
+            SaveEventError.PAST_DATE -> binding.dateLayout.error = message
+            else -> showMessage(message)
         }
     }
 

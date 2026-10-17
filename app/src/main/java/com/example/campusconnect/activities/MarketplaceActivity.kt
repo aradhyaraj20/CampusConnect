@@ -1,5 +1,6 @@
 package com.example.campusconnect.activities
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -48,17 +49,6 @@ class MarketplaceActivity : AppCompatActivity() {
         // item was to insert it directly into the database.
         binding.addItemFab.setOnClickListener { showAddItemDialog() }
 
-        binding.scrollUpFab.setOnClickListener {
-            binding.marketplaceRecyclerView.smoothScrollToPosition(0)
-        }
-
-        binding.scrollDownFab.setOnClickListener {
-            val count = adapter.itemCount
-            if (count > 0) {
-                binding.marketplaceRecyclerView.smoothScrollToPosition(count - 1)
-            }
-        }
-
         lifecycleScope.launch {
             AppDatabase.getDatabase(this@MarketplaceActivity).marketplaceDao().getAllItems()
                 .collectLatest { items ->
@@ -66,7 +56,6 @@ class MarketplaceActivity : AppCompatActivity() {
                     val empty = items.isEmpty()
                     binding.emptyState.visibility = if (empty) View.VISIBLE else View.GONE
                     binding.marketplaceRecyclerView.visibility = if (empty) View.GONE else View.VISIBLE
-                    binding.scrollButtons.visibility = if (items.size > 4) View.VISIBLE else View.GONE
                 }
         }
     }
@@ -77,7 +66,7 @@ class MarketplaceActivity : AppCompatActivity() {
         } else {
             getString(R.string.mk_price_format, item.price)
         }
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(item.title)
             .setMessage("${item.description}\n\n${item.category}\n$price\n\n${item.posted_at}")
             .setPositiveButton(android.R.string.ok, null)
@@ -99,7 +88,7 @@ class MarketplaceActivity : AppCompatActivity() {
             d.exchangeLayout.visibility = if (isSwap) View.VISIBLE else View.GONE
         }
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.mk_add)
             .setView(d.root)
             .setNegativeButton(android.R.string.cancel, null)

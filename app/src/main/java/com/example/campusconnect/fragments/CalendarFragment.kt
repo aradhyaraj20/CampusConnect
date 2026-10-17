@@ -95,7 +95,7 @@ class CalendarFragment : Fragment() {
             .sortedBy { it.date_timestamp }
         
         binding.calendarFeedTitle.setText(R.string.upcoming_events)
-        showEvents(upcoming)
+        showEvents(upcoming, getString(R.string.no_upcoming_events), getString(R.string.calendar_no_upcoming_hint))
     }
 
     private fun filterEventsForDate(calendar: Calendar) {
@@ -111,12 +111,18 @@ class CalendarFragment : Fragment() {
             eventCal.get(Calendar.MONTH) == month &&
             eventCal.get(Calendar.YEAR) == year
         }
-        showEvents(filtered)
+        val label = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(calendar.time)
+        showEvents(filtered, getString(R.string.calendar_no_events_on, label), getString(R.string.calendar_no_events_hint))
     }
 
-    private fun showEvents(events: List<Event>) {
+    /** Shows the list, or a message card just below the title when there is nothing to list. */
+    private fun showEvents(events: List<Event>, emptyTitle: String, emptySubtitle: String) {
         pager.submit(events)
-        binding.calendarEmptyText.visibility = if (events.isEmpty()) View.VISIBLE else View.GONE
+        val empty = events.isEmpty()
+        binding.calendarEmptyTitle.text = emptyTitle
+        binding.calendarEmptySubtitle.text = emptySubtitle
+        binding.calendarEmptyState.visibility = if (empty) View.VISIBLE else View.GONE
+        binding.calendarEventsRecyclerView.visibility = if (empty) View.GONE else View.VISIBLE
     }
 
     override fun onDestroyView() {

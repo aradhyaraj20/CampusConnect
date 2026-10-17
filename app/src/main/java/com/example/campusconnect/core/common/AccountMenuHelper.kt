@@ -1,7 +1,7 @@
 package com.example.campusconnect.core.common
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Intent
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.campusconnect.R
 import com.example.campusconnect.activities.LoginActivity
@@ -31,7 +31,7 @@ object AccountMenuHelper {
     }
 
     fun confirmLogout(activity: AppCompatActivity) {
-        AlertDialog.Builder(activity)
+        MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.logout)
             .setMessage(R.string.logout_confirm)
             .setNegativeButton(android.R.string.cancel, null)

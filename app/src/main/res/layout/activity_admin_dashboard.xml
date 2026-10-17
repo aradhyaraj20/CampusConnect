@@ -21,14 +21,23 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="end"
-            android:layout_marginEnd="8dp"
-            android:padding="12dp"
+            android:layout_marginEnd="@dimen/space_s"
+            android:padding="@dimen/space_m"
             android:scaleType="fitCenter"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_qa_bell"
             app:tint="?attr/colorOnPrimary"
             android:contentDescription="@string/cd_notifications" />
     </com.google.android.material.appbar.MaterialToolbar>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/loadingProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:indicatorColor="?attr/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <androidx.core.widget.NestedScrollView
         android:clipToPadding="false"
@@ -41,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="@dimen/screen_gutter"
             android:paddingBottom="96dp">
 
             <TextView
@@ -49,23 +58,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/welcome_format"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Title" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="@string/system_overview"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Section" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 android:orientation="horizontal">
 
                 <include
@@ -74,7 +79,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_margin="4dp" />
+                    android:layout_margin="@dimen/space_xs" />
 
                 <include
                     android:id="@+id/statEvents"
@@ -82,7 +87,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_margin="4dp" />
+                    android:layout_margin="@dimen/space_xs" />
             </LinearLayout>
 
             <LinearLayout
@@ -96,7 +101,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_margin="4dp" />
+                    android:layout_margin="@dimen/space_xs" />
 
                 <include
                     android:id="@+id/statAttendancePercent"
@@ -104,60 +109,56 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_margin="4dp" />
+                    android:layout_margin="@dimen/space_xs" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="@dimen/space_xl"
                 android:text="@string/popular_categories"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Section" />
 
             <LinearLayout
                 android:id="@+id/categoriesContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 android:orientation="vertical" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="@dimen/space_xl"
                 app:cardBackgroundColor="@color/qa_pink_bg"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp">
+                app:cardCornerRadius="@dimen/radius_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/space_l">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/moderation"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle" />
 
                     <TextView
                         android:id="@+id/pendingReportsText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="@dimen/space_xs"
                         android:text="@string/reports_format"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/reviewReportsButton"
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="@dimen/space_m"
                         android:text="@string/review_reports" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -166,40 +167,37 @@
                 android:id="@+id/aiConfigCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardBackgroundColor="@color/qa_teal_bg"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp">
+                app:cardCornerRadius="@dimen/radius_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/space_l">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/ai_configuration"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle" />
 
                     <TextView
                         android:id="@+id/aiConfigStatusText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="13sp" />
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/manageAiKeyButton"
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="@dimen/space_m"
                         android:text="@string/ai_manage_key" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -219,7 +217,7 @@
         android:id="@+id/aiAssistantFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/space_l"
         android:contentDescription="@string/cd_ask_ai"
         android:src="@drawable/ic_ai_sparkle"
         app:layout_constraintBottom_toTopOf="@id/bottomNav"

@@ -52,6 +52,21 @@
     <color name="event_card_text">#FFFFFF</color>
     <color name="event_card_text_secondary">#E1E7F7</color>
     <color name="event_card_accent">#8FD3FF</color>
+    <!-- Bottom navigation -->
+    <color name="nav_bar_bg">#211F26</color>
     <color name="nav_indicator">#4A4458</color>
+    <color name="nav_item_active">#E8DEFF</color>
+    <color name="nav_item_inactive">#A9ADBC</color>
     <color name="tile_bg">#2B2930</color>
+    <color name="qa_purple">#B9A8FF</color>
+    <color name="link_accent">#C9BBFF</color>
+    <color name="card_surface">#1E1D24</color>
+    <color name="card_stroke">#34323C</color>
+    <color name="on_header">#FFFFFF</color>
+    <color name="on_header_secondary">#D9D2F5</color>
+    <color name="calendar_day">#E4E2E6</color>
+    <color name="calendar_day_other_month">#5D5F6B</color>
+    <color name="info_container">#2E2552</color>
+    <color name="on_info_container">#E3DBFF</color>
+    <color name="image_placeholder">#2B2A33</color>
 </resources>

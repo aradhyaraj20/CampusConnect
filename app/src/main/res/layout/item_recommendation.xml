@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Horizontal carousel card ("Recommended for you"); same family as item_event. -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="280dp"
+    android:layout_width="260dp"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="@dimen/space_s"
+    android:clickable="true"
+    android:focusable="true"
     app:cardBackgroundColor="@color/event_card_navy"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
+    app:cardCornerRadius="@dimen/radius_card"
+    app:cardElevation="0dp"
     app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,24 +19,25 @@
 
         <ImageView
             android:id="@+id/recommendationImage"
-            android:contentDescription="@null"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="110dp"
+            android:background="@drawable/bg_image_placeholder"
+            android:contentDescription="@null"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_campus_logo"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/recommendationTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp"
+            android:layout_marginStart="@dimen/space_m"
+            android:layout_marginTop="@dimen/space_m"
+            android:layout_marginEnd="@dimen/space_m"
             android:ellipsize="end"
             android:maxLines="1"
-            tools:text="Recommended Event"
+            android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle"
             android:textColor="@color/event_card_text"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            tools:text="Recommended Event"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/recommendationImage" />
@@ -42,15 +46,17 @@
             android:id="@+id/recommendationCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_pill_search"
+            android:layout_marginStart="@dimen/space_m"
+            android:layout_marginTop="@dimen/space_s"
+            android:layout_marginBottom="@dimen/space_m"
+            android:background="@drawable/bg_image_chip"
             android:backgroundTint="@color/event_card_accent"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="2dp"
-            tools:text="Category"
+            android:paddingHorizontal="@dimen/space_s"
+            android:paddingVertical="3dp"
             android:textColor="@color/event_card_navy"
             android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="Category"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/recommendationTitle" />

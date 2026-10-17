@@ -3,17 +3,17 @@
     <item
         android:id="@+id/homeFragment"
         android:icon="@drawable/ic_nav_home"
-        android:title="Home" />
+        android:title="@string/nav_home" />
     <item
         android:id="@+id/studyGroupsFragment"
         android:icon="@drawable/ic_nav_groups"
-        android:title="Groups" />
+        android:title="@string/nav_groups" />
     <item
         android:id="@+id/calendarFragment"
         android:icon="@drawable/ic_nav_calendar"
-        android:title="My Events" />
+        android:title="@string/nav_my_events" />
     <item
         android:id="@+id/profileFragment"
         android:icon="@drawable/ic_nav_profile"
-        android:title="Profile" />
+        android:title="@string/nav_profile" />
 </menu>

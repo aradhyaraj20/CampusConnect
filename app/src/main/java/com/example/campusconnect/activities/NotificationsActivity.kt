@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.NotificationAdapter
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
@@ -51,7 +51,7 @@ class NotificationsActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.notificationsRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.notificationsRecyclerView.layoutManager = GridLayoutManager(this, resources.getInteger(R.integer.list_columns))
         binding.notificationsRecyclerView.adapter = adapter
         pager = com.example.campusconnect.core.common.Pager(binding.notificationsRecyclerView) { adapter.updateNotifications(it) }
 

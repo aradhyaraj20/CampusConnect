@@ -69,7 +69,7 @@ class EventDetailViewModel(
     private val notificationDao: NotificationDao,
     private val eventId: Int,
     private val currentUserId: Int,
-    transactions: TransactionRunner = TransactionRunner.None,
+    private val transactions: TransactionRunner = TransactionRunner.None,
     private val aiRepository: AIRepository = AIRepository(eventDao = eventDao, userDao = userDao, rsvpDao = rsvpDao)
 ) : ViewModel() {
 
@@ -223,35 +223,35 @@ class EventDetailViewModel(
                 return@launch
             }
 
-            val existing = userDao.getKarmaTransaction(currentUserId, toUserId, eventId)
-            if (existing != null) {
+            // Check and write in one transaction so a double tap can't vouch twice.
+            val vouched = transactions.run {
+                if (userDao.getKarmaTransaction(currentUserId, toUserId, eventId) != null) return@run false
+                userDao.insertKarmaTransaction(
+                    KarmaTransaction(
+                        from_user_id = currentUserId,
+                        to_user_id = toUserId,
+                        event_id = eventId,
+                        points = 1,
+                        given_at = DateFormats.storedDay()
+                    )
+                )
+                userDao.addKarma(toUserId, 1)
+                notificationDao.insertNotification(
+                    Notification(
+                        user_id = toUserId,
+                        title = "You earned Karma! ✨",
+                        message = "Someone vouched for you in '${event.title}'",
+                        timestamp = System.currentTimeMillis(),
+                        type = "karma",
+                        event_id = eventId
+                    )
+                )
+                true
+            }
+            if (!vouched) {
                 _uiEvent.emit(EventDetailUiEvent.ShowToastRes(R.string.already_vouched))
                 return@launch
             }
-
-            // Perform karma transaction
-            userDao.insertKarmaTransaction(
-                KarmaTransaction(
-                    from_user_id = currentUserId,
-                    to_user_id = toUserId,
-                    event_id = eventId,
-                    points = 1,
-                    given_at = DateFormats.storedDay()
-                )
-            )
-            userDao.addKarma(toUserId, 1)
-
-            // Notify host
-            notificationDao.insertNotification(
-                Notification(
-                    user_id = toUserId,
-                    title = "You earned Karma! ✨",
-                    message = "Someone vouched for you in '${event.title}'",
-                    timestamp = System.currentTimeMillis(),
-                    type = "karma",
-                    event_id = eventId
-                )
-            )
 
             _uiEvent.emit(EventDetailUiEvent.ShowToastRes(R.string.karma_shared))
         }
@@ -292,12 +292,19 @@ class EventDetailViewModel(
 
     fun updateEventDescription(newDescription: String) {
         viewModelScope.launch {
-            val currentEvent = _uiState.value.event ?: return@launch
-            if (!_uiState.value.isEditVisible) return@launch
-            val updatedEvent = currentEvent.copy(description = newDescription)
-
-            eventDao.insertEvent(updatedEvent)
-            _uiState.value = _uiState.value.copy(event = updatedEvent)
+            // Re-read the event and the user: the copy on screen may be stale (cancelled or
+            // edited elsewhere) and a hidden menu item is not a permission check.
+            val latest = eventDao.getEventById(eventId) ?: return@launch
+            val user = userDao.getUserById(currentUserId)
+            val allowed = user != null && !user.account_status.equals("SUSPENDED", ignoreCase = true) &&
+                (AccessPolicy.canAccessAdmin(user.role) || (latest.creator_id == currentUserId && AccessPolicy.canCreateEvents(user.role)))
+            if (!allowed) {
+                _uiEvent.emit(EventDetailUiEvent.ShowToastRes(R.string.not_allowed))
+                return@launch
+            }
+            // Only the description column changes, so status and other fields can't be rolled back.
+            eventDao.updateDescription(eventId, newDescription)
+            _uiState.value = _uiState.value.copy(event = latest.copy(description = newDescription))
             _uiEvent.emit(EventDetailUiEvent.ShowToastRes(R.string.description_updated))
         }
     }

@@ -21,7 +21,11 @@ data class EventForm(
     val type: String,
     val isFlash: Boolean,
     val dateTimestamp: Long,
-    val imageUri: String?
+    val imageUri: String?,
+    // Extra details the AI assistant can fill in; ignored when editing an existing event.
+    val category: String? = null,
+    val tags: String? = null,
+    val eligibility: String? = null
 )
 
 enum class SaveEventError {
@@ -80,7 +84,8 @@ class SaveEventUseCase(
             title = title,
             description = description,
             type = type,
-            category = existing?.category ?: (if (type == "event") "Social" else "Academic"),
+            category = existing?.category ?: form.category?.trim()?.takeIf { it.isNotEmpty() }
+                ?: (if (type == "event") "Social" else "Academic"),
             image_uri = form.imageUri ?: existing?.image_uri,
             date = DateFormats.eventDay(date),
             time = DateFormats.eventTime(date),
@@ -94,8 +99,8 @@ class SaveEventUseCase(
             expiry_time = if (form.isFlash) form.dateTimestamp + FLASH_DURATION_MS else null,
             date_timestamp = form.dateTimestamp,
             visibility = existing?.visibility ?: "public",
-            eligibility = existing?.eligibility,
-            tags = existing?.tags,
+            eligibility = existing?.eligibility ?: form.eligibility,
+            tags = existing?.tags ?: form.tags,
             organizer_name = existing?.organizer_name,
             registration_deadline = existing?.registration_deadline,
             status = existing?.status ?: "active"

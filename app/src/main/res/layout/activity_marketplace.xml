@@ -25,8 +25,8 @@
         android:contentDescription="@string/mk_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add"
+        android:layout_margin="@dimen/space_l"
+        android:src="@drawable/ic_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -47,8 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/mk_empty_title"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -56,42 +55,8 @@
             android:layout_marginTop="6dp"
             android:gravity="center"
             android:text="@string/mk_empty_sub"
-            android:textColor="?android:attr/textColorSecondary" />
+            android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/scrollButtons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:alpha="0.6"
-        android:background="@drawable/bg_scroll_strip"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollUpFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_up_float"
-            android:contentDescription="@string/cd_scroll_up" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollDownFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="@string/cd_scroll_down" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

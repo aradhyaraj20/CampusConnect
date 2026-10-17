@@ -30,11 +30,15 @@ import androidx.core.view.updatePadding
  * strip (white status icons stay readable), rather than leaving a band of page
  * background above it.
  *
+ * Pass [hasBottomNav] = true on screens with a BottomNavigationView pinned to the bottom: the
+ * bar pads itself for the gesture/navigation area so its background reaches the screen edge,
+ * and the root then only makes room for the keyboard.
+ *
  * Call once, after `setContentView`, on the ROOT view of the screen, and don't
  * add a hard-coded `layout_marginTop="24dp"` to the toolbar - the real inset
  * replaces it.
  */
-fun View.applyImeAndSystemBarInsets(toolbar: View? = null) {
+fun View.applyImeAndSystemBarInsets(toolbar: View? = null, hasBottomNav: Boolean = false) {
     (context as? Activity)?.let { activity ->
         WindowCompat.setDecorFitsSystemWindows(activity.window, false)
         if (toolbar != null) {
@@ -50,14 +54,15 @@ fun View.applyImeAndSystemBarInsets(toolbar: View? = null) {
             WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
         )
         val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+        val bottom = if (hasBottomNav) imeBottom else maxOf(imeBottom, bars.bottom)
         if (toolbar != null) {
             toolbar.updatePadding(top = toolbarTop0 + bars.top)
             if (toolbarHeight0 > 0) toolbar.updateLayoutParams { height = toolbarHeight0 + bars.top }
-            v.updatePadding(bottom = bottom0 + maxOf(imeBottom, bars.bottom))
+            v.updatePadding(bottom = bottom0 + bottom)
         } else {
             v.updatePadding(
                 top = top0 + bars.top,
-                bottom = bottom0 + maxOf(imeBottom, bars.bottom)
+                bottom = bottom0 + bottom
             )
         }
         insets

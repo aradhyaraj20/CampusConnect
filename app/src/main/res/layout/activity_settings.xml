@@ -37,8 +37,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="72dp"
                     android:layout_height="72dp"
-                    app:cardCornerRadius="36dp"
-                    app:cardElevation="0dp">
+                    app:cardCornerRadius="36dp">
 
                     <ImageView
                         android:id="@+id/profileAvatar"
@@ -60,8 +59,7 @@
                         android:id="@+id/profileName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.Section"
                         android:maxLines="1"
                         android:ellipsize="end" />
 
@@ -69,8 +67,7 @@
                         android:id="@+id/profileEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="13sp"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary"
                         android:maxLines="1"
                         android:ellipsize="end" />
 
@@ -83,7 +80,7 @@
                         android:paddingHorizontal="10dp"
                         android:paddingVertical="3dp"
                         android:textColor="?attr/colorPrimary"
-                        android:textSize="12sp"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.Caption"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>

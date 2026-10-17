@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Design tokens: use these instead of one-off values. -->
+    <dimen name="screen_gutter">16dp</dimen>
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_s">8dp</dimen>
+    <dimen name="space_m">12dp</dimen>
+    <dimen name="space_l">16dp</dimen>
+    <dimen name="space_xl">24dp</dimen>
+    <dimen name="radius_card">16dp</dimen>
+    <dimen name="radius_hero">24dp</dimen>
+    <dimen name="event_card_image_height">140dp</dimen>
+    <dimen name="touch_target">48dp</dimen>
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="poll_selected_stroke">2dp</dimen>
+    <dimen name="poll_option_gap">8dp</dimen>
+    <!-- Bottom navigation bar height, excluding the gesture/navigation area below it
+         (Material's default is 80dp). -->
+    <dimen name="bottom_nav_height">64dp</dimen>
+    <dimen name="m3_bottom_nav_min_height">64dp</dimen>
+</resources>

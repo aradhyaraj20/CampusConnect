@@ -8,9 +8,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Room exports each schema version to app/schemas. Schemas 11-15 were never exported,
- * so only the current version can be validated today. When you bump the version, keep
- * the previous N.json, add a migration, and add a test like the template below.
+ * Room exports each schema version to app/schemas. Schemas 11-15 were never exported, so
+ * migrations are tested from v16 (the oldest exported schema) up to the current version.
+ * When you bump the version, keep the previous N.json, add a migration, add a test for it
+ * and append it to [ALL_FROM_16].
  */
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
@@ -20,10 +21,11 @@ class MigrationTest {
         AppDatabase::class.java
     )
 
+    /** Upgrading the oldest exported schema through every migration must end at the current schema. */
     @Test
-    fun currentSchemaCreatesAndValidates() {
-        helper.createDatabase("test-db", 18).close()
-        helper.runMigrationsAndValidate("test-db", 18, true).close()
+    fun migrateFrom16ToLatest_validatesAgainstCurrentSchema() {
+        helper.createDatabase("test-db-chain", 16).close()
+        helper.runMigrationsAndValidate("test-db-chain", LATEST, true, *ALL_FROM_16).close()
     }
 
     @Test
@@ -42,12 +44,6 @@ class MigrationTest {
         }
         db.close()
     }
-
-    // Template for the next migration:
-    // @Test fun migrate16To17() {
-    //     helper.createDatabase("test-db", 16).apply { /* insert v16 rows */ close() }
-    //     helper.runMigrationsAndValidate("test-db", 17, true, AppDatabase.MIGRATION_16_17)
-    // }
 
     @Test
     fun migrate17To18_removesDuplicatesAndFixesVoteTotals() {
@@ -75,5 +71,36 @@ class MigrationTest {
             it.moveToFirst(); org.junit.Assert.assertEquals(8, it.getInt(0))
         }
         db.close()
+    }
+
+    @Test
+    fun migrate18To19_addsPollDeadlineAndPasswordFlag_dropsUnusedTables() {
+        helper.createDatabase("test-db-18", 18).apply {
+            execSQL("INSERT INTO polls (id, event_id, question, ends_at) VALUES (1, 3, 'Q?', '20:00')")
+            execSQL(
+                "INSERT INTO users (id, name, email, password_hash, created_at, karma_points, role, account_status, last_login_at) " +
+                    "VALUES (7, 'N', 'n@x.com', 'h', 't', 0, 'ADMIN', 'ACTIVE', 0)"
+            )
+            close()
+        }
+        val db = helper.runMigrationsAndValidate("test-db-18", 19, true, AppDatabase.MIGRATION_18_19)
+        db.query("SELECT closes_at FROM polls WHERE id = 1").use {
+            it.moveToFirst(); org.junit.Assert.assertEquals(0L, it.getLong(0))
+        }
+        db.query("SELECT must_change_password FROM users WHERE id = 7").use {
+            it.moveToFirst(); org.junit.Assert.assertEquals(0, it.getInt(0))
+        }
+        db.query(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name IN " +
+                "('friendships', 'study_group_members', 'settings', 'badges', 'user_badges', 'skill_listings')"
+        ).use {
+            it.moveToFirst(); org.junit.Assert.assertEquals(0, it.getInt(0))
+        }
+        db.close()
+    }
+
+    private companion object {
+        const val LATEST = 19
+        val ALL_FROM_16 = arrayOf(AppDatabase.MIGRATION_16_17, AppDatabase.MIGRATION_17_18, AppDatabase.MIGRATION_18_19)
     }
 }

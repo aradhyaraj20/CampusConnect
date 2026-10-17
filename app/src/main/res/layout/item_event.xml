@@ -1,72 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Compact event card: the shared design for every vertical event list (Home, Groups, Calendar, Profile). -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginHorizontal="@dimen/screen_gutter"
+    android:layout_marginVertical="@dimen/space_s"
     android:clickable="true"
     android:focusable="true"
-    android:minHeight="48dp"
+    android:minHeight="@dimen/touch_target"
     android:contentDescription="@string/cd_open_event"
     app:cardBackgroundColor="@color/event_card_navy"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="@dimen/radius_card"
+    app:cardElevation="0dp"
+    app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Placeholder lives in the background so it is never scaled by centerCrop. -->
         <ImageView
             android:id="@+id/eventImage"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="@dimen/event_card_image_height"
+            android:background="@drawable/bg_image_placeholder"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_campus_logo"
             android:contentDescription="@string/cd_event_image"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/eventCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/space_m"
+            android:background="@drawable/bg_image_chip"
+            android:ellipsize="end"
+            android:maxWidth="200dp"
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/space_s"
+            android:paddingVertical="3dp"
+            android:textColor="@color/event_card_text"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="Tech"
+            tools:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/eventTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            tools:text="Event Title"
+            android:layout_marginStart="@dimen/space_l"
+            android:layout_marginTop="@dimen/space_m"
+            android:layout_marginEnd="@dimen/space_l"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle"
             android:textColor="@color/event_card_text"
-            android:textSize="20sp"
-            android:textStyle="bold"
+            tools:text="Event Title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/eventImage" />
 
-        <TextView
-            android:id="@+id/eventDetails"
+        <LinearLayout
+            android:id="@+id/eventMeta"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
-            tools:text="Date · Location"
-            android:textColor="@color/event_card_text_secondary"
+            android:layout_marginStart="@dimen/space_l"
+            android:layout_marginTop="@dimen/space_xs"
+            android:layout_marginEnd="@dimen/space_l"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/eventTitle" />
+            app:layout_constraintTop_toBottomOf="@id/eventTitle">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_event"
+                app:tint="@color/event_card_text_secondary" />
+
+            <!-- Date text (kept as eventDetails for compatibility). -->
+            <TextView
+                android:id="@+id/eventDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_xs"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/event_card_text_secondary"
+                android:textSize="13sp"
+                tools:text="Oct 24, 2026" />
+
+            <ImageView
+                android:id="@+id/eventLocationIcon"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginStart="@dimen/space_m"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_location"
+                app:tint="@color/event_card_text_secondary" />
+
+            <TextView
+                android:id="@+id/eventLocation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_xs"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/event_card_text_secondary"
+                android:textSize="13sp"
+                tools:text="Main Auditorium" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/goingCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="16dp"
-            tools:text="24 going"
+            android:layout_marginStart="@dimen/space_l"
+            android:layout_marginTop="@dimen/space_s"
+            android:layout_marginBottom="@dimen/space_m"
+            android:textAppearance="@style/TextAppearance.CampusConnect.Label"
             android:textColor="@color/event_card_accent"
-            android:textStyle="bold"
+            tools:text="Joined ✓"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/eventDetails" />
+            app:layout_constraintTop_toBottomOf="@id/eventMeta" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

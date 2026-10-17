@@ -7,6 +7,6 @@
         android:endColor="@color/gradient_end"
         android:type="linear" />
     <corners
-        android:bottomLeftRadius="28dp"
-        android:bottomRightRadius="28dp" />
+        android:bottomLeftRadius="@dimen/radius_hero"
+        android:bottomRightRadius="@dimen/radius_hero" />
 </shape>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Inline form errors -->
+    <string name="error_email_required">Enter your email</string>
+    <string name="error_password_required">Enter your password</string>
+    <string name="error_field_required">This field is required</string>
+
+    <!-- Empty states -->
+    <string name="empty_categories_title">No categories yet</string>
+    <string name="empty_categories_subtitle">Popular categories show up here once events are created.</string>
+    <string name="empty_analytics_title">No analytics yet</string>
+    <string name="empty_analytics_subtitle">Stats appear once students start creating and joining events.</string>
+
+    <!-- Toolbar titles -->
+    <string name="ai_toolbar_title">CampusConnect AI</string>
+    <string name="search_toolbar_title">Smart Search</string>
+</resources>

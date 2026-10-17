@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Grid columns; landscape and tablets (sw600dp) override these. -->
+    <integer name="recap_columns">2</integer>
+    <!-- Card lists show side by side on wide screens. -->
+    <integer name="list_columns">1</integer>
+</resources>

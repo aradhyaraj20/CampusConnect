@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings for polls, event memories and the location screen. -->
+<resources>
+    <!-- Polls -->
+    <string name="poll_empty_sub">The organizer hasn\'t opened a poll for this event yet.</string>
+    <string name="poll_empty_sub_organizer">Ask your attendees something. Tap New poll to get started.</string>
+    <string name="poll_create">New poll</string>
+    <string name="poll_publish">Publish</string>
+    <string name="poll_question">Question</string>
+    <string name="poll_option_hint">Option %1$d</string>
+    <string name="poll_add_option">Add option</string>
+    <string name="poll_duration">Voting closes</string>
+    <string name="poll_duration_1d">In 1 day</string>
+    <string name="poll_duration_3d">In 3 days</string>
+    <string name="poll_duration_1w">In 1 week</string>
+    <string name="poll_duration_none">No deadline</string>
+    <string name="poll_created">Poll published. Attendees have been notified.</string>
+    <string name="poll_err_question">Enter a question</string>
+    <string name="poll_err_options">Add between 2 and 6 options</string>
+    <string name="poll_err_duplicate">Options must be different from each other</string>
+    <string name="poll_err_too_long">Keep options under 80 characters</string>
+    <plurals name="poll_vote_count">
+        <item quantity="one">%1$d vote</item>
+        <item quantity="other">%1$d votes</item>
+    </plurals>
+    <string name="poll_stats_format">%1$s · %2$s</string>
+    <string name="poll_ends">Ends %1$s</string>
+    <string name="poll_no_deadline">No deadline</string>
+    <string name="poll_closed">Closed</string>
+    <string name="poll_closed_toast">Voting on this poll has closed</string>
+    <string name="poll_not_found">This poll is no longer available</string>
+    <string name="poll_option_mine">%1$s ✓</string>
+    <string name="percent_format">%1$d%%</string>
+    <string name="cd_poll_option">%1$s, %2$d percent</string>
+
+    <!-- Event memories -->
+    <string name="recap_empty_title">No memories yet</string>
+    <string name="recap_empty_sub">Add photos from the event with the camera button.</string>
+    <string name="recap_empty_sub_locked">Photos shared by attendees will appear here.</string>
+    <string name="recap_not_started">You can add photos once the event has started</string>
+    <string name="recap_photo_added">Photo added</string>
+    <string name="recap_delete_title">Delete this photo?</string>
+    <string name="image_import_failed">Couldn\'t use that image. Try a different one (max 15 MB).</string>
+
+    <!-- Location -->
+    <string name="map_hint">Open the location in your maps app for a live map and walking directions.</string>
+    <string name="map_open">Open in Maps</string>
+    <string name="map_directions">Get directions</string>
+    <string name="map_copy">Copy location</string>
+    <string name="map_copied">Location copied</string>
+    <string name="map_clip_label">Event location</string>
+    <string name="map_no_location">No location set for this event</string>
+    <string name="map_no_app">No maps app or browser available</string>
+</resources>

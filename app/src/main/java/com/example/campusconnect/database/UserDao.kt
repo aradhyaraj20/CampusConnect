@@ -90,25 +90,20 @@ interface UserDao {
     @Delete
     suspend fun deleteUser(user: User)
 
-    // Friendships
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addFriend(friendship: Friendship)
-
-    @Query("SELECT users.* FROM users INNER JOIN friendships ON users.id = friendships.friend_id WHERE friendships.user_id = :userId")
-    fun getFriends(userId: Int): Flow<List<User>>
-
-    // Settings
-    @Query("SELECT * FROM settings WHERE user_id = :userId")
-    suspend fun getSettings(userId: Int): Setting?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateSettings(setting: Setting)
+    /** Only the profile text, so a stale copy of the user can't overwrite role, status or karma. */
+    @Query("UPDATE users SET bio = :bio, interests = :interests WHERE id = :userId")
+    suspend fun updateProfile(userId: Int, bio: String?, interests: String?): Int
 
     @Query("UPDATE users SET avatar_uri = :avatarUri WHERE id = :userId")
     suspend fun updateAvatar(userId: Int, avatarUri: String): Int
 
-    @Query("UPDATE users SET password_hash = :passwordHash WHERE id = :userId")
+    /** A password the user chose; also lifts any forced-change requirement. */
+    @Query("UPDATE users SET password_hash = :passwordHash, must_change_password = 0 WHERE id = :userId")
     suspend fun updatePassword(userId: Int, passwordHash: String): Int
+
+    /** Same password, stronger hash (legacy upgrade at login); leaves must_change_password alone. */
+    @Query("UPDATE users SET password_hash = :passwordHash WHERE id = :userId")
+    suspend fun rehashPassword(userId: Int, passwordHash: String): Int
 
     // Karma
     @Query("UPDATE users SET karma_points = karma_points + :points WHERE id = :userId")

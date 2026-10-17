@@ -7,6 +7,7 @@ import androidx.work.ListenableWorker.Result
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.example.campusconnect.R
 import com.example.campusconnect.database.AppDatabase
 import java.util.concurrent.TimeUnit
 
@@ -31,7 +32,10 @@ class AccountCleanupWorker(context: Context, params: WorkerParameters) :
 
             val stale = db.userDao().getStaleAccounts(now, inactivityCutoff)
             stale.forEach { user ->
-                db.eraseUser(user.id)
+                db.eraseUser(user.id) { title ->
+                    applicationContext.getString(R.string.event_deleted_notice_title) to
+                        applicationContext.getString(R.string.event_deleted_notice_message, title)
+                }
             }
             Result.success()
         } catch (e: Exception) {

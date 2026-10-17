@@ -17,7 +17,7 @@
         android:id="@+id/avatarRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="8dp"
+        android:padding="@dimen/space_s"
         app:layout_constraintBottom_toTopOf="@id/confirmButton"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
@@ -25,7 +25,7 @@
         android:id="@+id/confirmButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/screen_gutter"
         android:text="@string/confirm_selection"
         app:layout_constraintBottom_toBottomOf="parent" />
 

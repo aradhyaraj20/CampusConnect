@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:paddingTop="@dimen/space_s"
+    android:paddingBottom="@dimen/space_s">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,16 +19,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="@color/text_primary"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.CampusConnect.Label"
             tools:text="Workshop" />
 
         <TextView
             android:id="@+id/categoryCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
+            android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary"
             tools:text="4 events · 40%" />
     </LinearLayout>
 

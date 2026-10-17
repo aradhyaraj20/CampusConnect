@@ -20,7 +20,7 @@ class LegendAdapter(private var legends: List<User>) : RecyclerView.Adapter<Lege
     override fun onBindViewHolder(holder: LegendViewHolder, position: Int) {
         val user = legends[position]
         holder.binding.legendName.text = user.name
-        holder.binding.legendKarma.text = "${user.karma_points} pts"
+        holder.binding.legendKarma.text = holder.itemView.context.getString(R.string.points_format, user.karma_points)
         holder.binding.rankBadge.text = (position + 1).toString()
 
         if (user.avatar_uri != null) {

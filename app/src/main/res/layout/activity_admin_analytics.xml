@@ -14,6 +14,15 @@
         app:titleTextColor="?attr/colorOnPrimary"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/loadingProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:indicatorColor="?attr/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -25,21 +34,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="@dimen/screen_gutter"
             android:paddingBottom="96dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/analytics_platform_summary"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Section" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 android:orientation="horizontal">
 
                 <include
@@ -47,7 +54,7 @@
                     layout="@layout/item_stat_card"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/space_xs"
                     android:layout_weight="1" />
 
                 <include
@@ -55,7 +62,7 @@
                     layout="@layout/item_stat_card"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/space_xs"
                     android:layout_weight="1" />
             </LinearLayout>
 
@@ -69,7 +76,7 @@
                     layout="@layout/item_stat_card"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/space_xs"
                     android:layout_weight="1" />
 
                 <include
@@ -77,7 +84,7 @@
                     layout="@layout/item_stat_card"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/space_xs"
                     android:layout_weight="1" />
             </LinearLayout>
 
@@ -91,7 +98,7 @@
                     layout="@layout/item_stat_card"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/space_xs"
                     android:layout_weight="1" />
 
                 <include
@@ -99,7 +106,7 @@
                     layout="@layout/item_stat_card"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/space_xs"
                     android:layout_weight="1" />
             </LinearLayout>
 
@@ -108,23 +115,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="@string/popular_categories"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Section" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp">
+                android:layout_marginTop="@dimen/space_s"
+                app:cardCornerRadius="@dimen/radius_card">
 
                 <LinearLayout
                     android:id="@+id/categoriesContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp" />
+                    android:padding="@dimen/space_l" />
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -133,7 +137,7 @@
         android:id="@+id/aiAssistantFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/space_l"
         android:contentDescription="@string/cd_ask_ai"
         android:src="@drawable/ic_ai_sparkle"
         app:layout_constraintBottom_toBottomOf="parent"

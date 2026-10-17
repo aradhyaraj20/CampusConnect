@@ -23,9 +23,10 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:padding="@dimen/screen_gutter">
 
             <com.google.android.material.imageview.ShapeableImageView
+                android:contentDescription="@string/cd_profile_photo"
                 android:id="@+id/profileImage"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -42,12 +43,17 @@
 
             <ImageView
                 android:id="@+id/editAvatarIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_edit"
+                android:layout_width="@dimen/touch_target"
+                android:layout_height="@dimen/touch_target"
+                android:translationX="12dp"
+                android:translationY="12dp"
+                android:src="@drawable/ic_edit"
                 app:tint="?attr/colorPrimary"
-                android:background="@drawable/bg_pill_search"
-                android:padding="4dp"
+                android:background="@drawable/bg_avatar_edit_badge"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="15dp"
                 app:layout_constraintBottom_toBottomOf="@id/profileImage"
                 app:layout_constraintEnd_toEndOf="@id/profileImage"
                 android:contentDescription="@string/cd_edit_avatar" />
@@ -56,12 +62,12 @@
                 android:id="@+id/roleBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/space_l"
                 android:background="@drawable/bg_role_chip"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="2dp"
                 tools:text="ORGANIZER"
-                android:textSize="12sp"
+                android:textAppearance="@style/TextAppearance.CampusConnect.Caption"
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@id/profileImage"
                 app:layout_constraintTop_toTopOf="@id/profileImage" />
@@ -70,11 +76,10 @@
                 android:id="@+id/userName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginStart="@dimen/space_l"
+                android:layout_marginTop="@dimen/space_xs"
                 tools:text="Name"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.CampusConnect.Title"
                 app:layout_constraintStart_toEndOf="@id/profileImage"
                 app:layout_constraintTop_toBottomOf="@id/roleBadge" />
 
@@ -82,7 +87,7 @@
                 android:id="@+id/userEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/space_l"
                 tools:text="email@example.com"
                 app:layout_constraintStart_toEndOf="@id/profileImage"
                 app:layout_constraintTop_toBottomOf="@id/userName" />
@@ -92,7 +97,7 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/space_l"
                 android:text="@string/edit_bio"
                 app:layout_constraintStart_toEndOf="@id/profileImage"
                 app:layout_constraintTop_toBottomOf="@id/userEmail" />
@@ -101,7 +106,7 @@
                 android:id="@+id/userBio"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 tools:text="No bio yet. Tap edit to add one!"
                 android:fontStyle="italic"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -112,7 +117,7 @@
                 android:id="@+id/interestsChipGroup"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/userBio" />
@@ -121,16 +126,15 @@
                 android:id="@+id/statsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp"
+                android:layout_marginTop="@dimen/space_l"
+                app:cardCornerRadius="@dimen/radius_card"
                 app:layout_constraintTop_toBottomOf="@id/interestsChipGroup">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="16dp"
+                    android:padding="@dimen/space_l"
                     android:weightSum="2">
 
                     <LinearLayout
@@ -145,8 +149,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             tools:text="0"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
+                            android:textAppearance="@style/TextAppearance.CampusConnect.Title"
                             android:textColor="?attr/colorPrimary" />
 
                         <TextView
@@ -154,7 +157,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/events_created"
-                            android:textSize="12sp" />
+                            android:textAppearance="@style/TextAppearance.CampusConnect.Caption" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -169,8 +172,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             tools:text="0"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
+                            android:textAppearance="@style/TextAppearance.CampusConnect.Title"
                             android:textColor="?attr/colorPrimary" />
 
                         <TextView
@@ -178,7 +180,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/registrations"
-                            android:textSize="12sp" />
+                            android:textAppearance="@style/TextAppearance.CampusConnect.Caption" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -188,7 +190,7 @@
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/space_m"
                 android:text="@string/manage_ads"
                 android:visibility="gone"
                 app:icon="@drawable/ic_nav_campaign"
@@ -199,7 +201,7 @@
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/space_m"
                 android:text="@string/qa_settings"
                 app:layout_constraintTop_toBottomOf="@id/manageAdsShortcut" />
 
@@ -208,7 +210,7 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/space_xs"
                 android:text="@string/log_out"
                 android:textColor="?attr/colorError"
                 app:layout_constraintTop_toBottomOf="@id/settingsButton" />

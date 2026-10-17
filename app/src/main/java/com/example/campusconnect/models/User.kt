@@ -1,5 +1,6 @@
 package com.example.campusconnect.models
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -33,5 +34,8 @@ data class User(
     val course_end_at: Long? = null,
     // Updated on every successful login. Used by AccountCleanupWorker to purge
     // accounts that go quiet for 2+ months after their course has ended.
-    val last_login_at: Long = System.currentTimeMillis()
+    val last_login_at: Long = System.currentTimeMillis(),
+    // Set on accounts whose first password came from the build (the seeded release admin);
+    // login sends them to a password change before anything else.
+    @ColumnInfo(defaultValue = "0") val must_change_password: Boolean = false
 )

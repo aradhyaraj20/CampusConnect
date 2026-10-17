@@ -2,10 +2,11 @@ package com.example.campusconnect.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.R
+import com.example.campusconnect.core.common.ChangePasswordDialog
 import com.example.campusconnect.core.common.Result
 import com.example.campusconnect.core.common.RoleRouter
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
@@ -31,28 +32,51 @@ class LoginActivity : AppCompatActivity() {
 
         binding.loginButton.setOnClickListener {
             val email = binding.emailEditText.text.toString().trim()
-            val password = binding.passwordEditText.text.toString().trim()
+            // Taken exactly as typed: trimming would silently change a password with spaces.
+            val password = binding.passwordEditText.text.toString()
+
+            binding.emailLayout.error = if (email.isEmpty()) getString(R.string.error_email_required) else null
+            binding.passwordLayout.error = if (password.isEmpty()) getString(R.string.error_password_required) else null
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
+                setLoading(true)
                 lifecycleScope.launch {
-                    when (val result = authRepository.login(email, password)) {
+                    val result = authRepository.login(email, password)
+                    setLoading(false)
+                    when (result) {
                         is Result.Success -> {
-                            RoleRouter.routeToDashboard(this@LoginActivity, result.data.role)
-                            finish()
+                            val user = result.data
+                            if (user.must_change_password) {
+                                // The first password came from the build; it must be replaced before going in.
+                                ChangePasswordDialog.show(this@LoginActivity, knownCurrent = password, userId = user.id) {
+                                    authRepository.startSession(user)
+                                    RoleRouter.routeToDashboard(this@LoginActivity, user.role)
+                                    finish()
+                                }
+                            } else {
+                                RoleRouter.routeToDashboard(this@LoginActivity, user.role)
+                                finish()
+                            }
                         }
                         is Result.Error -> {
-                            Toast.makeText(this@LoginActivity, result.message ?: getString(R.string.login_failed), Toast.LENGTH_SHORT).show()
+                            binding.passwordLayout.error = result.message ?: getString(R.string.login_failed)
                         }
                         else -> {}
                     }
                 }
-            } else {
-                Toast.makeText(this, R.string.please_fill_all_fields, Toast.LENGTH_SHORT).show()
             }
         }
+
+        binding.emailEditText.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) binding.emailLayout.error = null }
+        binding.passwordEditText.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) binding.passwordLayout.error = null }
 
         binding.registerTextView.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+    }
+
+    private fun setLoading(loading: Boolean) {
+        binding.loginButton.isEnabled = !loading
+        binding.loginProgress.visibility = if (loading) View.VISIBLE else View.INVISIBLE
     }
 }

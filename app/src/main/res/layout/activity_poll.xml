@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,75 +11,57 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/bg_toolbar_gradient"
         app:titleTextColor="?attr/colorOnPrimary"
+        app:subtitleTextColor="?attr/colorOnPrimary"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/pollQuestion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        tools:text="Which workshop track should we run first?"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
-    <TextView
-        android:id="@+id/pollStats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        tools:text="128 votes · Ends in 2h"
-        android:textColor="?android:attr/textColorSecondary"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pollQuestion" />
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/optionsRecyclerView"
+        android:id="@+id/pollsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
+        android:clipToPadding="false"
+        android:paddingTop="6dp"
+        android:paddingBottom="88dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pollStats" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <LinearLayout
-        android:id="@+id/scrollButtons"
-        android:layout_width="wrap_content"
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:alpha="0.6"
-        android:background="@drawable/bg_scroll_strip"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="4dp"
+        android:padding="32dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollUpFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_up_float"
-            android:contentDescription="@string/cd_scroll_up" />
+            android:text="@string/no_polls_yet"
+            android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollDownFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
+        <TextView
+            android:id="@+id/emptySubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="@string/cd_scroll_down" />
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:text="@string/poll_empty_sub"
+            android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/createPollFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/space_l"
+        android:text="@string/poll_create"
+        android:visibility="gone"
+        app:icon="@drawable/ic_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

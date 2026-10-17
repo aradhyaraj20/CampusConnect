@@ -25,21 +25,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="@dimen/screen_gutter">
 
             <TextView
                 android:id="@+id/screenTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Create New Event"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.CampusConnect.Headline" />
 
             <ImageView
                 android:id="@+id/eventImagePreview"
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:background="@drawable/bg_skeleton"
                 android:scaleType="centerCrop"
                 android:contentDescription="@string/add_event_photo" />
@@ -49,13 +48,14 @@
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 android:text="@string/add_event_photo" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/titleLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="@dimen/space_xl"
                 android:hint="@string/event_title">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -65,9 +65,10 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/descriptionLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:hint="@string/mk_description">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -82,7 +83,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:text="@string/event_type" />
 
             <RadioGroup
@@ -102,7 +103,7 @@
                     android:id="@+id/radioStudyGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="@dimen/space_l"
                     android:text="@string/study_group" />
             </RadioGroup>
 
@@ -110,7 +111,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="@dimen/space_l">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/dateLayout"
@@ -119,7 +120,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/date"
-                    app:startIconDrawable="@android:drawable/ic_menu_today">
+                    app:startIconDrawable="@drawable/ic_event">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/dateEditText"
@@ -136,9 +137,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/space_s"
                     android:hint="@string/time"
-                    app:startIconDrawable="@android:drawable/ic_menu_recent_history">
+                    app:startIconDrawable="@drawable/ic_schedule">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/timeEditText"
@@ -151,9 +152,10 @@
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/locationLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:hint="@string/location_e_g_block_c">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -163,9 +165,10 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/maxAttendeesLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:hint="@string/max_attendees_optional">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -179,11 +182,12 @@
                 android:id="@+id/flashSessionSwitch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/space_l"
                 android:text="@string/flash_session_expires_in_1_hour" />
 
             <Button
                 android:id="@+id/createButton"
+                style="@style/Widget.CampusConnect.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
@@ -192,39 +196,5 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
-        android:id="@+id/scrollButtons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:alpha="0.6"
-        android:background="@drawable/bg_scroll_strip"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollUpFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_up_float"
-            android:contentDescription="@string/cd_scroll_up" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/scrollDownFab"
-            style="@style/Widget.Material3.FloatingActionButton.Tertiary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="@string/cd_scroll_down" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

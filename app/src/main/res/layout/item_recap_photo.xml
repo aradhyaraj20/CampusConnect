@@ -3,9 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="0dp"
+    android:layout_margin="@dimen/space_xs"
+    app:cardCornerRadius="@dimen/radius_card"
     app:strokeWidth="0dp">
 
     <ImageView

@@ -45,8 +45,10 @@ class QrScanActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             // Role comes from the database, not the cached session value.
-            val role = AppDatabase.getDatabase(this@QrScanActivity).userDao().getUserById(scannerUserId)?.role
-            if (!AccessPolicy.canScanAttendance(role)) {
+            val scanner = AppDatabase.getDatabase(this@QrScanActivity).userDao().getUserById(scannerUserId)
+            if (scanner == null || scanner.account_status.equals("SUSPENDED", ignoreCase = true) ||
+                !AccessPolicy.canScanAttendance(scanner.role)
+            ) {
                 finishWith(R.string.scan_requires_organizer)
                 return@launch
             }
@@ -80,7 +82,13 @@ class QrScanActivity : AppCompatActivity() {
             if (event == null || !event.status.equals("active", ignoreCase = true)) {
                 finishWith(R.string.scan_event_inactive); return@launch
             }
-            val scannerRole = db.userDao().getUserById(scannerUserId)?.role
+            val scanner = db.userDao().getUserById(scannerUserId)
+            if (scanner == null || scanner.account_status.equals("SUSPENDED", ignoreCase = true) ||
+                !AccessPolicy.canScanAttendance(scanner.role)
+            ) {
+                finishWith(R.string.not_allowed); return@launch
+            }
+            val scannerRole = scanner.role
             if (event.creator_id != scannerUserId && !AccessPolicy.canAccessAdmin(scannerRole)) {
                 finishWith(R.string.scan_not_your_event); return@launch
             }

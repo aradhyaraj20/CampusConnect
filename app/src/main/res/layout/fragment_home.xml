@@ -1,148 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_bg">
 
-    <!-- ===================== Gradient header ===================== -->
-    <LinearLayout
-        android:id="@+id/homeHeader"
+    <!-- ===================== Collapsing gradient header ===================== -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/homeAppBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_home_header"
-        android:orientation="vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="40dp"
-        android:paddingBottom="22dp"
-        app:layout_constraintTop_toTopOf="parent">
+        android:background="@android:color/transparent"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:liftOnScroll="false">
 
-        <LinearLayout
+        <!-- Top padding (status-bar inset) and collapsed min height are set in HomeFragment. -->
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/homeHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:background="@drawable/bg_home_header"
+            android:minHeight="80dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:titleEnabled="false">
 
-            <TextView
-                android:id="@+id/portalTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/student_portal"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp">
-
-                <ImageButton
-                    android:id="@+id/notificationBell"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:padding="12dp"
-                    android:scaleType="fitCenter"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/cd_notifications"
-                    android:src="@drawable/ic_qa_bell"
-                    app:tint="@color/white" />
-
-                <TextView
-                    android:id="@+id/notifBadge"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_gravity="top|end"
-                    android:layout_marginTop="2dp"
-                    android:background="@drawable/bg_notif_badge"
-                    android:gravity="center"
-                    android:textColor="@color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:visibility="gone"
-                    tools:text="3" />
-            </FrameLayout>
-
-            <ImageButton
-                android:id="@+id/homeOverflowButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/cd_more_options"
-                android:src="@drawable/ic_more_vert"
-                app:tint="@color/white" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/greetingText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/home_greeting_generic"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/greetingSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:alpha="0.9"
-            android:text="@string/home_greeting_subtitle"
-            android:textColor="@color/white"
-            android:textSize="13sp" />
-
-        <LinearLayout
-            android:id="@+id/searchBar"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/bg_home_search"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_qa_search"
-                app:tint="@color/qa_purple" />
-
-            <TextView
+            <!-- Expanded-only content: greeting + search. Scrolls away / fades on collapse. -->
+            <LinearLayout
+                android:id="@+id/homeHeaderContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="@string/home_search_hint"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-        </LinearLayout>
-    </LinearLayout>
+                android:layout_marginTop="56dp"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/screen_gutter"
+                android:paddingEnd="@dimen/screen_gutter"
+                android:paddingBottom="@dimen/space_xl"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.5">
 
-    <!-- PLACEHOLDER_SCROLL -->
+                <TextView
+                    android:id="@+id/greetingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:text="@string/home_greeting_generic"
+                    android:textAppearance="@style/TextAppearance.CampusConnect.Title"
+                    android:textColor="@color/on_header" />
+
+                <TextView
+                    android:id="@+id/greetingSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/home_greeting_subtitle"
+                    android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary"
+                    android:textColor="@color/on_header_secondary" />
+
+                <LinearLayout
+                    android:id="@+id/searchBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:background="@drawable/bg_home_search"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/space_l"
+                    android:paddingEnd="@dimen/space_l">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_qa_search"
+                        app:tint="@color/qa_purple" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_m"
+                        android:text="@string/home_search_hint"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Slim bar that stays pinned when the header collapses. -->
+            <LinearLayout
+                android:id="@+id/homePinnedBar"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_gravity="top"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/screen_gutter"
+                android:paddingEnd="@dimen/space_xs"
+                app:layout_collapseMode="pin">
+
+                <TextView
+                    android:id="@+id/portalTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:accessibilityHeading="true"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/student_portal"
+                    android:textAppearance="@style/TextAppearance.CampusConnect.Title"
+                    android:textColor="@color/on_header" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/notificationBell"
+                        android:layout_width="@dimen/touch_target"
+                        android:layout_height="@dimen/touch_target"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/cd_notifications"
+                        android:padding="12dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_qa_bell"
+                        app:tint="@color/on_header" />
+
+                    <TextView
+                        android:id="@+id/notifBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="2dp"
+                        android:background="@drawable/bg_notif_badge"
+                        android:gravity="center"
+                        android:importantForAccessibility="no"
+                        android:minWidth="20dp"
+                        android:paddingStart="3dp"
+                        android:paddingEnd="3dp"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        tools:text="3" />
+                </FrameLayout>
+
+                <ImageButton
+                    android:id="@+id/homeOverflowButton"
+                    android:layout_width="@dimen/touch_target"
+                    android:layout_height="@dimen/touch_target"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/cd_more_options"
+                    android:padding="12dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_more_vert"
+                    app:tint="@color/on_header" />
+            </LinearLayout>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/homeScroll"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/homeHeader">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <!-- Bottom padding keeps the last card clear of the AI assistant FAB. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="24dp">
+            android:paddingBottom="88dp">
 
             <include
                 android:id="@+id/offlineBannerInclude"
@@ -150,44 +178,109 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Quick Access header -->
+            <!-- My Events: upcoming events the student has joined -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginStart="@dimen/screen_gutter"
+                android:layout_marginTop="@dimen/space_l"
+                android:layout_marginEnd="@dimen/space_xs"
                 android:gravity="center_vertical"
+                android:minHeight="@dimen/touch_target"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/quick_access"
-                    android:textColor="@color/text_primary"
-                    android:textSize="19sp"
-                    android:textStyle="bold" />
+                    android:accessibilityHeading="true"
+                    android:text="@string/home_my_events"
+                    android:textAppearance="@style/TextAppearance.CampusConnect.Section" />
+
+                <TextView
+                    android:id="@+id/myEventsSeeAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:minWidth="@dimen/touch_target"
+                    android:minHeight="@dimen/touch_target"
+                    android:paddingStart="@dimen/space_m"
+                    android:paddingEnd="@dimen/space_m"
+                    android:text="@string/home_my_events_see_all"
+                    android:textColor="@color/link_accent"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
             </LinearLayout>
 
-            <!-- Quick Access grid (rows built programmatically) -->
-            <LinearLayout
-                android:id="@+id/quickAccessContainer"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/myEventsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp" />
+                android:layout_marginTop="@dimen/space_xs"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone" />
+
+            <!-- Shown when the student hasn't joined any upcoming event -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/myEventsEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/screen_gutter"
+                android:layout_marginEnd="@dimen/screen_gutter"
+                android:layout_marginTop="@dimen/space_s"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/card_surface"
+                app:cardCornerRadius="@dimen/radius_card"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/card_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_xl">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/home_my_events_empty_title"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.CardTitle"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_xs"
+                        android:gravity="center"
+                        android:text="@string/home_my_events_empty_sub"
+                        android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/myEventsBrowseButton"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_m"
+                        android:text="@string/home_my_events_browse" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Ad banner (admin-authored) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/adBannerCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_marginStart="@dimen/screen_gutter"
+                android:layout_marginEnd="@dimen/screen_gutter"
+                android:layout_marginTop="@dimen/space_l"
                 android:visibility="gone"
-                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="@color/card_surface"
+                app:cardCornerRadius="@dimen/radius_card"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/tertiary"
                 app:strokeWidth="1dp">
@@ -208,8 +301,12 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:paddingStart="@dimen/space_l"
+                        android:paddingTop="@dimen/space_s"
+                        android:paddingEnd="@dimen/space_xs"
+                        android:paddingBottom="@dimen/space_s">
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -221,7 +318,7 @@
                                 android:id="@+id/adBannerTitle"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="15sp"
+                                android:textAppearance="@style/TextAppearance.CampusConnect.Body"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -229,18 +326,19 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:textSize="13sp" />
+                                android:textAppearance="@style/TextAppearance.CampusConnect.BodySecondary" />
                         </LinearLayout>
 
                         <ImageButton
                             android:id="@+id/adBannerDismiss"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:padding="12dp"
-                            android:scaleType="fitCenter"
+                            android:layout_width="@dimen/touch_target"
+                            android:layout_height="@dimen/touch_target"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="@string/cancel"
-                            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+                            android:padding="14dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_close"
+                            app:tint="@color/text_secondary" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -251,32 +349,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <include
-                android:id="@+id/homeEmptyInclude"
-                layout="@layout/view_home_empty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
             <TextView
                 android:id="@+id/recommendationsHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginStart="@dimen/screen_gutter"
+                android:layout_marginTop="@dimen/space_xl"
+                android:layout_marginEnd="@dimen/screen_gutter"
+                android:accessibilityHeading="true"
                 android:text="@string/home_for_you"
-                android:textColor="@color/text_primary"
-                android:textSize="17sp"
-                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.CampusConnect.Section"
                 android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recommendationsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 android:clipToPadding="false"
                 android:orientation="horizontal"
-                android:paddingHorizontal="12dp"
+                android:paddingStart="@dimen/space_m"
+                android:paddingEnd="@dimen/space_m"
                 android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
@@ -284,22 +377,23 @@
                 android:id="@+id/liveNowHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginStart="@dimen/screen_gutter"
+                android:layout_marginTop="@dimen/space_xl"
+                android:layout_marginEnd="@dimen/screen_gutter"
+                android:accessibilityHeading="true"
                 android:text="@string/home_live_now"
-                android:textColor="@color/text_primary"
-                android:textSize="17sp"
-                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.CampusConnect.Section"
                 android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/flashRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_s"
                 android:clipToPadding="false"
                 android:orientation="horizontal"
-                android:paddingHorizontal="12dp"
+                android:paddingStart="@dimen/space_m"
+                android:paddingEnd="@dimen/space_m"
                 android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
@@ -307,41 +401,51 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginStart="@dimen/screen_gutter"
+                android:layout_marginTop="@dimen/space_l"
+                android:layout_marginEnd="@dimen/space_xs"
                 android:gravity="center_vertical"
+                android:minHeight="@dimen/touch_target"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:accessibilityHeading="true"
                     android:text="@string/upcoming_events"
-                    android:textColor="@color/text_primary"
-                    android:textSize="19sp"
-                    android:textStyle="bold" />
+                    android:textAppearance="@style/TextAppearance.CampusConnect.Section" />
 
                 <TextView
                     android:id="@+id/viewCalendarButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="4dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:minWidth="@dimen/touch_target"
+                    android:minHeight="@dimen/touch_target"
+                    android:paddingStart="@dimen/space_m"
+                    android:paddingEnd="@dimen/space_m"
                     android:text="@string/view_calendar"
-                    android:textColor="@color/qa_purple"
-                    android:textSize="13sp"
+                    android:textColor="@color/link_accent"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
+
+            <include
+                android:id="@+id/homeEmptyInclude"
+                layout="@layout/view_home_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/eventsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_xs"
                 android:nestedScrollingEnabled="false" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

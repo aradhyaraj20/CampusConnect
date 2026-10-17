@@ -3,7 +3,7 @@ package com.example.campusconnect.activities.admin
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.TextView
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -17,6 +17,7 @@ import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityAdminAnalyticsBinding
 import com.example.campusconnect.databinding.ItemCategoryBarBinding
+import com.example.campusconnect.databinding.ViewEmptyStateInlineBinding
 import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.viewmodel.admin.AdminDashboardUiState
 import com.example.campusconnect.viewmodel.admin.AdminDashboardViewModel
@@ -57,6 +58,8 @@ class AdminAnalyticsActivity : AppCompatActivity() {
     }
 
     private fun render(state: AdminDashboardUiState) {
+        binding.loadingProgress.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+        if (state.isLoading) return
         StatCardStyle.apply(this, binding.statUsers, state.userCount.toString(), getString(R.string.users), R.color.qa_purple, R.color.qa_purple_bg)
         StatCardStyle.apply(this, binding.statEvents, state.eventCount.toString(), getString(R.string.events), R.color.qa_orange, R.color.qa_orange_bg)
         StatCardStyle.apply(this, binding.statRsvps, state.rsvpCount.toString(), getString(R.string.rsvps), R.color.qa_blue, R.color.qa_blue_bg)
@@ -68,10 +71,11 @@ class AdminAnalyticsActivity : AppCompatActivity() {
         val container = binding.categoriesContainer
         container.removeAllViews()
         if (state.popularCategories.isEmpty()) {
-            container.addView(TextView(this).apply {
-                text = getString(R.string.no_events_yet)
-                setTextColor(getColor(R.color.text_secondary))
-            })
+            val empty = ViewEmptyStateInlineBinding.inflate(layoutInflater, container, false)
+            val noData = state.eventCount == 0 && state.rsvpCount == 0
+            empty.emptyTitle.setText(if (noData) R.string.empty_analytics_title else R.string.empty_categories_title)
+            empty.emptySubtitle.setText(if (noData) R.string.empty_analytics_subtitle else R.string.empty_categories_subtitle)
+            container.addView(empty.root)
             return
         }
         val total = state.popularCategories.sumOf { it.count }.coerceAtLeast(1)

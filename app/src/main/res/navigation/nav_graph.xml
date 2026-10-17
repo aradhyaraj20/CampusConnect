@@ -8,25 +8,25 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.campusconnect.fragments.HomeFragment"
-        android:label="Home"
+        android:label="@string/nav_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/studyGroupsFragment"
         android:name="com.example.campusconnect.fragments.StudyGroupsFragment"
-        android:label="Groups"
+        android:label="@string/nav_groups"
         tools:layout="@layout/fragment_study_groups" />
 
     <fragment
         android:id="@+id/calendarFragment"
         android:name="com.example.campusconnect.fragments.CalendarFragment"
-        android:label="Calendar"
+        android:label="@string/nav_my_events"
         tools:layout="@layout/fragment_calendar" />
 
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.campusconnect.fragments.ProfileFragment"
-        android:label="Profile"
+        android:label="@string/nav_profile"
         tools:layout="@layout/fragment_profile" />
 
 </navigation>

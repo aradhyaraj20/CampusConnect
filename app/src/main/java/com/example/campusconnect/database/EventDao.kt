@@ -2,7 +2,6 @@ package com.example.campusconnect.database
 
 import androidx.room.*
 import com.example.campusconnect.models.Event
-import com.example.campusconnect.models.StudyGroupMember
 import com.example.campusconnect.models.RecapPhoto
 import kotlinx.coroutines.flow.Flow
 
@@ -17,6 +16,14 @@ interface EventDao {
             "WHERE rsvps.user_id = :userId AND rsvps.status IN ('going', 'waitlisted') ORDER BY events.date_timestamp ASC"
     )
     fun getJoinedEvents(userId: Int): Flow<List<Event>>
+
+    /** Events the user has a confirmed ("going") seat for that start at or after [fromMillis], soonest first. */
+    @Query(
+        "SELECT events.* FROM events INNER JOIN rsvps ON rsvps.event_id = events.id " +
+            "WHERE rsvps.user_id = :userId AND rsvps.status = 'going' AND events.date_timestamp >= :fromMillis " +
+            "ORDER BY events.date_timestamp ASC"
+    )
+    fun getUpcomingGoingEvents(userId: Int, fromMillis: Long): Flow<List<Event>>
 
     @Query("SELECT * FROM events WHERE id = :id")
     suspend fun getEventById(id: Int): Event?
@@ -44,19 +51,19 @@ interface EventDao {
     @Delete
     suspend fun deleteEvent(event: Event)
 
-    // Study Groups
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addStudyGroupMember(member: StudyGroupMember)
-
-    @Query("SELECT * FROM study_group_members WHERE group_id = :groupId")
-    fun getStudyGroupMembers(groupId: Int): Flow<List<StudyGroupMember>>
-
     // Recap Photos
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addRecapPhoto(photo: RecapPhoto)
 
-    @Query("SELECT * FROM recap_photos WHERE event_id = :eventId")
+    @Query("SELECT * FROM recap_photos WHERE event_id = :eventId ORDER BY id DESC")
     fun getRecapPhotos(eventId: Int): Flow<List<RecapPhoto>>
+
+    @Query("DELETE FROM recap_photos WHERE id = :photoId")
+    suspend fun deleteRecapPhoto(photoId: Int)
+
+    /** Changes only the description, so a stale in-memory copy can't overwrite status or other fields. */
+    @Query("UPDATE events SET description = :description WHERE id = :eventId")
+    suspend fun updateDescription(eventId: Int, description: String): Int
 }
 
 data class CategoryCount(

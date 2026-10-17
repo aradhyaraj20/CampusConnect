@@ -2,6 +2,7 @@ package com.example.campusconnect.activities
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.view.View
@@ -9,6 +10,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -18,11 +24,11 @@ import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.adapters.AttendeeAdapter
 import com.example.campusconnect.core.common.NotificationPermission
-import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityEventDetailBinding
 import com.example.campusconnect.domain.security.AccessPolicy
+import com.example.campusconnect.models.Event
 import com.example.campusconnect.models.Notification
 import com.example.campusconnect.utils.AttendeeCsv
 import com.example.campusconnect.utils.ReminderManager
@@ -32,6 +38,7 @@ import com.example.campusconnect.viewmodel.EventDetailViewModel
 import com.example.campusconnect.viewmodel.EventDetailViewModelFactory
 import com.example.campusconnect.viewmodel.ONE_HOUR_MILLIS
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -52,11 +59,13 @@ class EventDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityEventDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
+        applyWindowInsets()
+        setupHero()
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.event_details_title)
+        // The collapsing toolbar owns the title; it switches to the event's title once loaded.
+        binding.collapsingToolbar.title = getString(R.string.event_details_title)
 
         currentUserId = SessionManager.getInstance(this).getCurrentUserId()
 
@@ -83,6 +92,60 @@ class EventDetailActivity : AppCompatActivity() {
         setupListeners()
         observeViewModel()
     }
+
+    /**
+     * Edge-to-edge with a collapsing hero: the status-bar inset goes to the pinned toolbar only
+     * (the photo runs behind the status bar), the bottom inset goes to the sticky action bar so
+     * its surface reaches the screen edge, and the scrolling content is padded by the bar's height.
+     */
+    private fun applyWindowInsets() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowCompat.getInsetsController(window, binding.root).isAppearanceLightStatusBars = false
+        val toolbarTop0 = binding.toolbar.paddingTop
+        val toolbarHeight0 = binding.toolbar.layoutParams.height
+        val barBottom0 = binding.bottomBar.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            binding.toolbar.updatePadding(top = toolbarTop0 + bars.top)
+            if (toolbarHeight0 > 0) binding.toolbar.updateLayoutParams { height = toolbarHeight0 + bars.top }
+            binding.bottomBar.updatePadding(bottom = barBottom0 + bars.bottom)
+            v.updatePadding(left = bars.left, right = bars.right)
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.root)
+
+        // Nothing in the scrolling content may hide behind the sticky bottom bar.
+        val contentBottom0 = binding.contentContainer.paddingBottom
+        binding.bottomBar.addOnLayoutChangeListener { bar, _, top, _, bottom, _, oldTop, _, oldBottom ->
+            if (bottom - top != oldBottom - oldTop) {
+                binding.contentContainer.updatePadding(bottom = contentBottom0 + bar.height)
+            }
+        }
+    }
+
+    /** Gradient scrims over the hero photo: top for the white toolbar icons, bottom to fade it out. */
+    private fun setupHero() {
+        val shade = 0x66000000
+        binding.heroTopScrim.background = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(shade, 0x00000000)
+        )
+        binding.heroBottomScrim.background = GradientDrawable(
+            GradientDrawable.Orientation.BOTTOM_TOP, intArrayOf(shade, 0x00000000)
+        )
+        ViewCompat.setAccessibilityHeading(binding.aboutHeader, true)
+    }
+
+    /** Short message shown above the sticky Join/Leave bar. */
+    private fun showMessage(message: CharSequence, duration: Int = Snackbar.LENGTH_SHORT) {
+        Snackbar.make(binding.root, message, duration)
+            .setAnchorView(binding.bottomBar)
+            .show()
+    }
+
+    private fun showMessage(messageRes: Int, duration: Int = Snackbar.LENGTH_SHORT) =
+        showMessage(getString(messageRes), duration)
 
     private var hasResumedOnce = false
 
@@ -114,7 +177,11 @@ class EventDetailActivity : AppCompatActivity() {
                 MaterialAlertDialogBuilder(this)
                     .setTitle(if (state.isGoing) R.string.leave_event_title else R.string.leave_waitlist_title)
                     .apply { if (state.isGoing) setMessage(R.string.leave_event_message) }
-                    .setPositiveButton(R.string.leave_action) { _, _ -> viewModel.cancelRsvp() }
+                    .setPositiveButton(R.string.leave_action) { _, _ ->
+                        viewModel.cancelRsvp()
+                        // No more reminders for an event this user has left.
+                        ReminderManager.cancelReminders(this, eventId, currentUserId)
+                    }
                     .setNegativeButton(R.string.cancel, null)
                     .show()
             } else {
@@ -208,6 +275,7 @@ class EventDetailActivity : AppCompatActivity() {
 
                         state.event?.let { event ->
                             binding.titleTextView.text = event.title
+                            binding.collapsingToolbar.title = event.title
                             binding.descriptionTextView.text = event.description
                             binding.dateTimeTextView.text = getString(R.string.date_time_format, event.date, event.time)
                             binding.locationTextView.text = event.location
@@ -229,7 +297,7 @@ class EventDetailActivity : AppCompatActivity() {
                         // Access Control State
                         binding.groupChatButton.isEnabled = state.hasAccess
                         binding.pollsButton.isEnabled = state.hasAccess
-                        binding.restrictedMessage.visibility = if (state.hasAccess) View.GONE else View.VISIBLE
+                        binding.restrictedCard.visibility = if (state.hasAccess) View.GONE else View.VISIBLE
 
                         // Attendees list & count info
                         pager.submit(state.attendees)
@@ -250,7 +318,7 @@ class EventDetailActivity : AppCompatActivity() {
                                 } else {
                                     getString(event.messageRes)
                                 }
-                                Toast.makeText(this@EventDetailActivity, message, Toast.LENGTH_SHORT).show()
+                                showMessage(message)
                             }
 
                             is EventDetailUiEvent.ShowAiDialog -> {
@@ -292,30 +360,37 @@ class EventDetailActivity : AppCompatActivity() {
      * Re-checks permission against the database (the hidden menu item is not enough),
      * tells attendees, cancels their reminders and removes every row tied to the event.
      */
+    /**
+     * Organizer-only actions re-check against the database every time (the hidden menu item is not
+     * enough): an active admin, or the event's creator who still holds an organizer role.
+     * Returns the event when allowed, otherwise shows a message and returns null.
+     */
+    private suspend fun eventIfManager(): Event? {
+        val db = AppDatabase.getDatabase(this)
+        val event = db.eventDao().getEventById(eventId) ?: return null
+        val user = db.userDao().getUserById(currentUserId)
+        val active = user != null && !user.account_status.equals("SUSPENDED", ignoreCase = true)
+        val allowed = active && (AccessPolicy.canAccessAdmin(user?.role) ||
+            (event.creator_id == currentUserId && AccessPolicy.canCreateEvents(user?.role)))
+        if (!allowed) {
+            showMessage(R.string.not_allowed)
+            return null
+        }
+        return event
+    }
+
     private fun deleteEvent() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(this@EventDetailActivity)
-            val event = db.eventDao().getEventById(eventId) ?: return@launch finish()
-            val role = db.userDao().getUserById(currentUserId)?.role
-            if (event.creator_id != currentUserId && !AccessPolicy.canAccessAdmin(role)) {
-                Toast.makeText(this@EventDetailActivity, R.string.not_allowed, Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-            val attendees = db.rsvpDao().getAttendeesForEvent(eventId).first()
-            ReminderManager.cancelReminders(this@EventDetailActivity, eventId)
-            db.deleteEventCascade(eventId)
-            val now = System.currentTimeMillis()
-            attendees.filter { it.id != currentUserId }.forEach { user ->
-                db.notificationDao().insertNotification(
-                    Notification(
-                        user_id = user.id,
-                        title = getString(R.string.event_deleted_notice_title),
-                        message = getString(R.string.event_deleted_notice_message, event.title),
-                        timestamp = now,
-                        type = "event_update"
-                    )
-                )
-            }
+            val event = eventIfManager() ?: return@launch
+            ReminderManager.cancelAllReminders(this@EventDetailActivity, eventId)
+            // Attendees and waitlisted users are told inside the same transaction as the delete.
+            db.deleteEventCascade(
+                eventId,
+                noticeTitle = getString(R.string.event_deleted_notice_title),
+                noticeMessage = getString(R.string.event_deleted_notice_message, event.title),
+                actorId = currentUserId
+            )
             Toast.makeText(this@EventDetailActivity, R.string.event_deleted, Toast.LENGTH_SHORT).show()
             finish()
         }
@@ -328,26 +403,26 @@ class EventDetailActivity : AppCompatActivity() {
      */
     private fun emailAttendees() {
         lifecycleScope.launch {
-            val event = viewModel.uiState.value.event ?: return@launch
+            val event = eventIfManager() ?: return@launch
             val attendees = AppDatabase.getDatabase(this@EventDetailActivity)
                 .rsvpDao().getAttendeesForEvent(eventId).first()
             val emails = attendees.map { it.email }.filter { it.isNotBlank() }.toTypedArray()
 
             if (emails.isEmpty()) {
-                Toast.makeText(this@EventDetailActivity, R.string.no_attendees_to_email_yet, Toast.LENGTH_SHORT).show()
+                showMessage(R.string.no_attendees_to_email_yet)
                 return@launch
             }
 
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = android.net.Uri.parse("mailto:")
                 putExtra(Intent.EXTRA_BCC, emails)
-                putExtra(Intent.EXTRA_SUBJECT, "Update: ${event.title}")
-                putExtra(Intent.EXTRA_TEXT, "Hi everyone,\n\nThis is an update about \"${event.title}\" on ${event.date} at ${event.time}.\n\n")
+                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject, event.title))
+                putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body, event.title, event.date, event.time))
             }
             try {
-                startActivity(Intent.createChooser(intent, "Email attendees"))
+                startActivity(Intent.createChooser(intent, getString(R.string.email_chooser)))
             } catch (_: Exception) {
-                Toast.makeText(this@EventDetailActivity, R.string.no_email_app_available, Toast.LENGTH_SHORT).show()
+                showMessage(R.string.no_email_app_available)
             }
         }
     }
@@ -355,11 +430,11 @@ class EventDetailActivity : AppCompatActivity() {
     /** Roadmap Phase 5: writes the "going" list to a CSV in cache and hands it to the share sheet. */
     private fun exportAttendeesCsv() {
         lifecycleScope.launch {
-            val event = viewModel.uiState.value.event ?: return@launch
+            val event = eventIfManager() ?: return@launch
             val attendees = AppDatabase.getDatabase(this@EventDetailActivity)
                 .rsvpDao().getAttendeesForEvent(eventId).first()
             if (attendees.isEmpty()) {
-                Toast.makeText(this@EventDetailActivity, R.string.no_attendees_to_export_yet, Toast.LENGTH_SHORT).show()
+                showMessage(R.string.no_attendees_to_export_yet)
                 return@launch
             }
             try {
@@ -372,12 +447,12 @@ class EventDetailActivity : AppCompatActivity() {
                 val share = Intent(Intent.ACTION_SEND).apply {
                     type = "text/csv"
                     putExtra(Intent.EXTRA_STREAM, uri)
-                    putExtra(Intent.EXTRA_SUBJECT, "Attendees: ${event.title}")
+                    putExtra(Intent.EXTRA_SUBJECT, getString(R.string.export_subject, event.title))
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                startActivity(Intent.createChooser(share, "Export attendees"))
+                startActivity(Intent.createChooser(share, getString(R.string.export_chooser)))
             } catch (_: Exception) {
-                Toast.makeText(this@EventDetailActivity, R.string.could_not_export_attendees, Toast.LENGTH_SHORT).show()
+                showMessage(R.string.could_not_export_attendees)
             }
         }
     }
@@ -385,8 +460,8 @@ class EventDetailActivity : AppCompatActivity() {
     private fun scheduleSmartReminders() {
         val currentEvent = viewModel.uiState.value.event ?: return
         notificationPermission.request()
-        ReminderManager.scheduleReminders(this, currentEvent)
-        Toast.makeText(this, getString(R.string.reminders_set), Toast.LENGTH_LONG).show()
+        ReminderManager.scheduleReminders(this, currentEvent, currentUserId)
+        showMessage(R.string.reminders_set, Snackbar.LENGTH_LONG)
     }
 
     private fun addToSystemCalendar() {

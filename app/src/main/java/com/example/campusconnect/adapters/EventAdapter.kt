@@ -1,9 +1,12 @@
 package com.example.campusconnect.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.lifecycleScope
+import coil.dispose
 import coil.load
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -29,18 +32,17 @@ class EventAdapter(
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event = events[position]
         holder.binding.eventTitle.text = event.title
-        holder.binding.eventDetails.text = "${event.date} · ${event.location}"
-        
-        // Load event image using Coil
-        if (event.image_uri != null) {
-            holder.binding.eventImage.load(event.image_uri) {
-                crossfade(true)
-                placeholder(R.drawable.ic_campus_logo)
-                error(R.drawable.ic_campus_logo)
-            }
-        } else {
-            holder.binding.eventImage.setImageResource(R.drawable.ic_launcher_background)
-        }
+        holder.binding.eventDetails.text = event.date
+        holder.binding.eventLocation.text = event.location
+        val hasLocation = event.location.isNotBlank()
+        holder.binding.eventLocation.visibility = if (hasLocation) View.VISIBLE else View.GONE
+        holder.binding.eventLocationIcon.visibility = if (hasLocation) View.VISIBLE else View.GONE
+
+        holder.binding.eventCategory.text = event.category
+        holder.binding.eventCategory.visibility =
+            if (event.category.isNotBlank()) View.VISIBLE else View.GONE
+
+        holder.binding.eventImage.loadEventImage(event.image_uri)
 
         val ctx = holder.itemView.context
         holder.binding.goingCount.text = when (rsvpStatuses[event.id]) {
@@ -66,6 +68,25 @@ class EventAdapter(
     fun updateEvents(newEvents: List<Event>) {
         events = newEvents
         notifyDataSetChanged()
+    }
+}
+
+/**
+ * Loads an event/ad image. The neutral placeholder (bg_image_placeholder) is the ImageView's
+ * background, so while loading, on error, or with no image the view is left empty and the
+ * placeholder shows through unscaled (a drawable passed to placeholder()/error() would be
+ * blown up by centerCrop).
+ */
+internal fun ImageView.loadEventImage(uri: String?) {
+    if (uri.isNullOrBlank()) {
+        dispose()
+        setImageDrawable(null)
+        return
+    }
+    load(uri) {
+        crossfade(true)
+        placeholder(null as android.graphics.drawable.Drawable?)
+        error(null as android.graphics.drawable.Drawable?)
     }
 }
 

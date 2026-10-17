@@ -4,15 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="4dp"
-    app:cardCornerRadius="8dp"
+    android:layout_marginVertical="@dimen/space_xs"
+    app:cardCornerRadius="@dimen/radius_card"
     app:strokeWidth="1dp"
     app:strokeColor="?attr/colorOutline">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="@dimen/space_m">
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/voteProgress"
@@ -29,8 +29,9 @@
             android:id="@+id/optionText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="@dimen/space_m"
             tools:text="Option Text"
+            android:textAppearance="@style/TextAppearance.CampusConnect.Body"
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/votePercentage"
@@ -41,9 +42,9 @@
             android:id="@+id/votePercentage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
+            android:layout_marginEnd="@dimen/space_m"
             tools:text="30%"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.CampusConnect.Label"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

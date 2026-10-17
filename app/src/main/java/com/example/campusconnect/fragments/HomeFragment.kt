@@ -1,15 +1,10 @@
 package com.example.campusconnect.fragments
 
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -19,16 +14,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
+import com.google.android.material.appbar.AppBarLayout
 import com.example.campusconnect.R
-import com.example.campusconnect.activities.AIAssistantActivity
-import com.example.campusconnect.activities.BadgesActivity
-import com.example.campusconnect.activities.CreateEventActivity
 import com.example.campusconnect.activities.EventDetailActivity
-import com.example.campusconnect.activities.MyProfileActivity
 import com.example.campusconnect.activities.NotificationsActivity
-import com.example.campusconnect.activities.QrScanActivity
 import com.example.campusconnect.activities.SearchActivity
-import com.example.campusconnect.activities.SettingsActivity
 import com.example.campusconnect.adapters.EventAdapter
 import com.example.campusconnect.adapters.FlashEventAdapter
 import com.example.campusconnect.adapters.RecommendationAdapter
@@ -36,11 +26,10 @@ import com.example.campusconnect.core.network.AppConnectivity
 import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.FragmentHomeBinding
-import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.models.Event
 import com.example.campusconnect.presentation.home.HomeFeedState
-import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -48,22 +37,13 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: EventAdapter
+    private lateinit var myEventsAdapter: EventAdapter
     private lateinit var pager: com.example.campusconnect.core.common.Pager<com.example.campusconnect.models.Event>
     private lateinit var flashAdapter: FlashEventAdapter
     private lateinit var recommendationAdapter: RecommendationAdapter
     private var allEvents: List<Event> = emptyList()
     private var userInterests: String? = null
-
-    /** A single Quick Access tile, mapped to a feature that already exists. */
-    private data class QuickAction(
-        val titleRes: Int,
-        val subtitleRes: Int,
-        val iconRes: Int,
-        val iconColorRes: Int,
-        val bgColorRes: Int,
-        val isNew: Boolean = false,
-        val onClick: () -> Unit
-    )
+    private var joinedEventIds: Set<Int> = emptySet()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,24 +57,34 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // The header sits under the transparent status bar; pad it by the real inset
-        // (24-50dp depending on device/cutout) instead of a fixed 40dp.
-        val headerBaseTop = (16 * resources.displayMetrics.density).toInt()
+        // The collapsing header sits under the transparent status bar: pad it by the real inset
+        // (24-50dp depending on device/cutout) and keep the pinned bar + inset visible when collapsed.
+        val barExtraTop = (4 * resources.displayMetrics.density).toInt()
+        val collapsedBottom = (12 * resources.displayMetrics.density).toInt()
         ViewCompat.setOnApplyWindowInsetsListener(binding.homeHeader) { header, insets ->
             val top = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()).top
-            header.updatePadding(top = headerBaseTop + top)
+            header.updatePadding(top = top + barExtraTop)
+            header.minimumHeight = top + barExtraTop + binding.homePinnedBar.layoutParams.height + collapsedBottom
             insets
         }
         ViewCompat.requestApplyInsets(binding.homeHeader)
 
+        // Fade the greeting + search out as the header collapses so it never shows through the pinned bar.
+        binding.homeAppBar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBar, verticalOffset ->
+            val range = appBar.totalScrollRange
+            val fraction = if (range > 0) -verticalOffset.toFloat() / range else 0f
+            val alpha = (1f - fraction * 1.8f).coerceIn(0f, 1f)
+            binding.homeHeaderContent.alpha = alpha
+            binding.homeHeaderContent.visibility = if (alpha <= 0.01f) View.INVISIBLE else View.VISIBLE
+        })
+
         val session = SessionManager.getInstance(requireContext())
         val currentUserId = session.getCurrentUserId()
-        val role = session.getCurrentUserRole()
 
         loadAdBanner()
         setupEventLists()
         setupHeader(currentUserId)
-        buildQuickAccess(role)
+        setupMyEvents(currentUserId)
 
         if (AppConnectivity.isOffline(requireContext())) {
             binding.offlineBannerInclude.offlineBanner.visibility = View.VISIBLE
@@ -114,8 +104,18 @@ class HomeFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            AppDatabase.getDatabase(requireContext()).eventDao().getAllEvents().collectLatest { events ->
+            val db = AppDatabase.getDatabase(requireContext())
+            // Re-emits on event or RSVP changes so joining an event moves it from
+            // "Upcoming Events" up into "My Events" immediately.
+            combine(
+                db.eventDao().getAllEvents(),
+                db.rsvpDao().getRsvpsForUser(currentUserId)
+            ) { events, rsvps ->
+                events to rsvps.filter { it.status == "going" }.mapTo(HashSet()) { it.event_id }
+            }.collectLatest { (events, goingIds) ->
+                if (_binding == null) return@collectLatest
                 allEvents = events
+                joinedEventIds = goingIds
                 binding.homeSkeletonInclude.homeSkeleton.visibility = View.GONE
 
                 val currentTime = System.currentTimeMillis()
@@ -138,11 +138,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupEventLists() {
-        val openDetail: (Event) -> Unit = { event ->
-            startActivity(Intent(requireContext(), EventDetailActivity::class.java).apply {
-                putExtra("EVENT_ID", event.id)
-            })
-        }
+        val openDetail: (Event) -> Unit = ::openEventDetail
         adapter = EventAdapter(emptyList(), openDetail)
         adapter.trackRsvps(requireContext(), viewLifecycleOwner)
         flashAdapter = FlashEventAdapter(emptyList(), openDetail)
@@ -201,126 +197,43 @@ class HomeFragment : Fragment() {
         runCatching { findNavController().navigate(destinationId) }
     }
 
-    // PLACEHOLDER_QUICKACCESS
-
     /**
-     * Builds the "Quick Access" grid. Per product decision every tile maps to a
-     * feature that ALREADY exists in the app - there are no placeholder sections
-     * (no real GradeSheet/Fees/Library backends). Organizer/Admin accounts get
-     * two extra tiles for the tools available to them.
+     * "My Events": upcoming events this student has a confirmed seat for. Waitlisted and past
+     * events are left to the My Events tab ("See all").
      */
-    private fun buildQuickAccess(role: String) {
-        val actions = mutableListOf(
-            QuickAction(
-                R.string.qa_profile, R.string.qa_profile_sub,
-                R.drawable.ic_nav_profile, R.color.qa_purple, R.color.qa_purple_bg
-            ) {
-                // Students have their own Profile tab; MyProfileActivity shows organizer/admin stats.
-                if (AccessPolicy.canCreateEvents(role)) {
-                    startActivity(Intent(requireContext(), MyProfileActivity::class.java))
-                } else {
-                    safeNavigate(R.id.profileFragment)
-                }
-            },
-            QuickAction(
-                R.string.qa_events, R.string.qa_events_sub,
-                R.drawable.ic_nav_events_list, R.color.qa_orange, R.color.qa_orange_bg
-            ) { startActivity(Intent(requireContext(), SearchActivity::class.java)) },
-            QuickAction(
-                R.string.qa_my_events, R.string.qa_my_events_sub,
-                R.drawable.ic_nav_calendar, R.color.qa_blue, R.color.qa_blue_bg
-            ) { safeNavigate(R.id.calendarFragment) },
-            QuickAction(
-                R.string.qa_groups, R.string.qa_groups_sub,
-                R.drawable.ic_nav_groups, R.color.qa_green, R.color.qa_green_bg
-            ) { safeNavigate(R.id.studyGroupsFragment) }
-        )
+    private fun setupMyEvents(currentUserId: Int) {
+        myEventsAdapter = EventAdapter(emptyList(), ::openEventDetail)
+        myEventsAdapter.trackRsvps(requireContext(), viewLifecycleOwner)
+        binding.myEventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.myEventsRecyclerView.adapter = myEventsAdapter
 
-        if (AccessPolicy.canCreateEvents(role)) {
-            actions.add(
-                QuickAction(
-                    R.string.qa_create_event, R.string.qa_create_event_sub,
-                    R.drawable.ic_nav_add_event, R.color.qa_orange, R.color.qa_orange_bg
-                ) { startActivity(Intent(requireContext(), CreateEventActivity::class.java)) }
-            )
-            actions.add(
-                QuickAction(
-                    R.string.qa_scan, R.string.qa_scan_sub,
-                    R.drawable.ic_qa_qr, R.color.qa_green, R.color.qa_green_bg
-                ) { startActivity(Intent(requireContext(), QrScanActivity::class.java)) }
-            )
+        binding.myEventsSeeAll.setOnClickListener { safeNavigate(R.id.calendarFragment) }
+        binding.myEventsBrowseButton.setOnClickListener {
+            startActivity(Intent(requireContext(), SearchActivity::class.java))
         }
 
-        renderQuickAccessGrid(actions)
-    }
+        val startOfToday = startOfTodayMillis()
 
-    private fun renderQuickAccessGrid(actions: List<QuickAction>) {
-        val container = binding.quickAccessContainer
-        container.removeAllViews()
-        val inflater = LayoutInflater.from(requireContext())
-        val columns = 2
-        val gap = dp(6)
-
-        var row: LinearLayout? = null
-        actions.forEachIndexed { index, action ->
-            if (index % columns == 0) {
-                row = LinearLayout(requireContext()).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
-                    orientation = LinearLayout.HORIZONTAL
+        viewLifecycleOwner.lifecycleScope.launch {
+            AppDatabase.getDatabase(requireContext()).eventDao()
+                .getUpcomingGoingEvents(currentUserId, startOfToday)
+                .collectLatest { joined ->
+                    if (_binding == null) return@collectLatest
+                    val shown = joined.take(MY_EVENTS_LIMIT)
+                    myEventsAdapter.updateEvents(shown)
+                    val empty = joined.isEmpty()
+                    binding.myEventsRecyclerView.visibility = if (empty) View.GONE else View.VISIBLE
+                    binding.myEventsEmpty.visibility = if (empty) View.VISIBLE else View.GONE
+                    binding.myEventsSeeAll.visibility = if (joined.size > MY_EVENTS_LIMIT) View.VISIBLE else View.GONE
                 }
-                container.addView(row)
-            }
-
-            val tile = inflater.inflate(R.layout.item_quick_access, row, false) as MaterialCardView
-            bindTile(tile, action)
-            val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                setMargins(gap, gap, gap, gap)
-            }
-            tile.layoutParams = lp
-            row?.addView(tile)
-        }
-
-        // Pad the final row so a lone/paired tile keeps the same column width.
-        val remainder = actions.size % columns
-        if (remainder != 0) {
-            repeat(columns - remainder) {
-                val filler = View(requireContext())
-                filler.layoutParams = LinearLayout.LayoutParams(0, 1, 1f).apply {
-                    setMargins(gap, gap, gap, gap)
-                }
-                row?.addView(filler)
-            }
         }
     }
 
-    private fun bindTile(tile: MaterialCardView, action: QuickAction) {
-        val iconColor = ContextCompat.getColor(requireContext(), action.iconColorRes)
-        tile.setCardBackgroundColor(ContextCompat.getColor(requireContext(), action.bgColorRes))
-
-        val chip = tile.findViewById<View>(R.id.qaIconChip)
-        chip.backgroundTintList = ColorStateList.valueOf(iconColor)
-
-        val icon = tile.findViewById<ImageView>(R.id.qaIcon)
-        icon.setImageResource(action.iconRes)
-
-        val title = tile.findViewById<TextView>(R.id.qaTitle)
-        title.setText(action.titleRes)
-
-        val subtitle = tile.findViewById<TextView>(R.id.qaSubtitle)
-        subtitle.setText(action.subtitleRes)
-
-        tile.findViewById<TextView>(R.id.qaNewBadge).visibility =
-            if (action.isNew) View.VISIBLE else View.GONE
-
-        tile.contentDescription = getString(action.titleRes)
-        tile.setOnClickListener { action.onClick() }
+    private fun openEventDetail(event: Event) {
+        startActivity(Intent(requireContext(), EventDetailActivity::class.java).apply {
+            putExtra("EVENT_ID", event.id)
+        })
     }
-
-    private fun dp(value: Int): Int =
-        (value * resources.displayMetrics.density).toInt()
 
     private var dismissedAdId: Int? = null
 
@@ -364,17 +277,16 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateRecommendations() {
-        val interests = userInterests?.split(",")?.map { it.trim().lowercase() }?.toMutableList() ?: mutableListOf()
-
         viewLifecycleOwner.lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
             val currentUserId = SessionManager.getInstance(requireContext()).getCurrentUserId()
-
-            db.userDao().getRecentSearch(currentUserId).first().forEach {
-                interests.add(it.query.lowercase())
-            }
+            val searches = db.userDao().getRecentSearch(currentUserId).first().map { it.query.lowercase() }
 
             if (_binding == null) return@launch
+            // Read the interests only now, after the suspension: this runs from both the user and the
+            // events flows, and whichever finishes last must see the latest of both.
+            val interests = (userInterests?.split(",")?.map { it.trim().lowercase() }?.filter { it.isNotEmpty() }
+                ?: emptyList()) + searches
 
             if (interests.isEmpty() || allEvents.isEmpty()) {
                 binding.recommendationsHeader.visibility = View.GONE
@@ -401,11 +313,26 @@ class HomeFragment : Fragment() {
         }
     }
 
+    /**
+     * "Upcoming Events": everything from today onward, soonest first, minus events the student
+     * already has a confirmed seat for (those are listed under "My Events" above). Flash sessions
+     * stay until they expire, as before. Events with no date (timestamp 0) go last.
+     */
     private fun showEvents() {
         val currentTime = System.currentTimeMillis()
-        val filtered = allEvents.filter { event ->
-            !event.is_flash || (event.expiry_time ?: Long.MAX_VALUE) > currentTime
-        }
+        val startOfToday = startOfTodayMillis()
+        val filtered = allEvents
+            .asSequence()
+            .filter { it.id !in joinedEventIds }
+            .filter { event ->
+                if (event.is_flash) {
+                    (event.expiry_time ?: Long.MAX_VALUE) > currentTime
+                } else {
+                    event.date_timestamp == 0L || event.date_timestamp >= startOfToday
+                }
+            }
+            .sortedBy { if (it.date_timestamp == 0L) Long.MAX_VALUE else it.date_timestamp }
+            .toList()
         pager.submit(filtered)
         val vis = HomeFeedState.visibility(
             hasLoaded = binding.homeSkeletonInclude.homeSkeleton.visibility != View.VISIBLE,
@@ -413,6 +340,17 @@ class HomeFragment : Fragment() {
         )
         binding.homeEmptyInclude.homeEmptyState.visibility = if (vis.empty) View.VISIBLE else View.GONE
         binding.eventsRecyclerView.visibility = if (vis.list) View.VISIBLE else View.GONE
+    }
+
+    private fun startOfTodayMillis(): Long = java.util.Calendar.getInstance().apply {
+        set(java.util.Calendar.HOUR_OF_DAY, 0)
+        set(java.util.Calendar.MINUTE, 0)
+        set(java.util.Calendar.SECOND, 0)
+        set(java.util.Calendar.MILLISECOND, 0)
+    }.timeInMillis
+
+    private companion object {
+        const val MY_EVENTS_LIMIT = 3
     }
 
     override fun onDestroyView() {

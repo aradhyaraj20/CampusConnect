@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.withTransaction
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.campusconnect.domain.usecase.RSVPUseCases
 import com.example.campusconnect.models.*
 
 @Database(
@@ -14,28 +15,22 @@ import com.example.campusconnect.models.*
         User::class,
         Event::class,
         RSVP::class,
-        StudyGroupMember::class,
-        Friendship::class,
         Message::class,
         Poll::class,
         PollOption::class,
         PollVote::class,
         RecapPhoto::class,
-        Badge::class,
-        UserBadge::class,
         MarketplaceItem::class,
-        Setting::class,
         KarmaTransaction::class,
         Notification::class,
         UserInterest::class,
         SearchHistory::class,
         AIInteraction::class,
         Attendance::class,
-        SkillListing::class,
         Report::class,
         Ad::class
     ],
-    version = 18,
+    version = 19,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -45,39 +40,80 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun rsvpDao(): RsvpDao
     abstract fun messageDao(): MessageDao
     abstract fun pollDao(): PollDao
-    abstract fun badgeDao(): BadgeDao
     abstract fun marketplaceDao(): MarketplaceDao
     abstract fun notificationDao(): NotificationDao
     abstract fun aiInteractionDao(): AIInteractionDao
     abstract fun attendanceDao(): AttendanceDao
-    abstract fun skillDao(): SkillDao
     abstract fun reportDao(): ReportDao
     abstract fun adDao(): AdDao
     abstract fun userDataDao(): UserDataDao
 
-    /** Removes a user and every row that references them, atomically. */
-    suspend fun eraseUser(userId: Int) = withTransaction {
+    /**
+     * Removes a user and every row that references them, atomically. Seats they held are handed to
+     * the waitlist, their poll votes leave the totals, and anyone booked on an event they organised
+     * gets [cancelNotice] (title, message) built from that event's title.
+     */
+    suspend fun eraseUser(userId: Int, cancelNotice: ((eventTitle: String) -> Pair<String, String>)? = null) = withTransaction {
         val d = userDataDao()
+        val audience = d.getAudienceOfOwnedEvents(userId)
+
+        d.releasePollVotes(userId); d.deletePollVotes(userId)
+        val rsvps = RSVPUseCases(rsvpDao(), eventDao(), notificationDao())
+        rsvpDao().getGoingEventIdsForUser(userId).forEach { rsvps.cancelRsvpAndPromoteWaitlist(userId, it) }
+
         d.deleteVotesOnOwnedEvents(userId); d.deleteOptionsOnOwnedEvents(userId)
         d.deletePollsOnOwnedEvents(userId); d.deleteRsvpsOnOwnedEvents(userId)
         d.deleteMessagesOnOwnedEvents(userId); d.deleteRecapsOnOwnedEvents(userId)
-        d.deleteAttendanceOnOwnedEvents(userId); d.deleteOwnedEvents(userId)
-        d.deleteRsvps(userId); d.deleteGroupMemberships(userId); d.deleteFriendships(userId)
-        d.deleteMessages(userId); d.deletePollVotes(userId); d.deleteRecapPhotos(userId)
-        d.deleteUserBadges(userId); d.deleteMarketplaceItems(userId); d.deleteSettings(userId)
+        d.deleteAttendanceOnOwnedEvents(userId); d.deleteNotificationsOnOwnedEvents(userId)
+        d.deleteReportsOnOwnedEvents(userId); d.deleteKarmaOnOwnedEvents(userId)
+        d.deleteOwnedEvents(userId)
+
+        d.deleteRsvps(userId); d.deleteMessages(userId); d.deleteRecapPhotos(userId)
+        d.deleteMarketplaceItems(userId); d.deleteAds(userId)
         d.deleteKarmaTransactions(userId); d.deleteNotifications(userId); d.deleteInterests(userId)
         d.deleteSearchHistory(userId); d.deleteAiInteractions(userId); d.deleteAttendance(userId)
-        d.deleteSkillListings(userId); d.deleteReports(userId)
+        d.deleteReports(userId)
         userDao().deleteUserById(userId)
+
+        if (cancelNotice != null) {
+            val now = System.currentTimeMillis()
+            audience.forEach { a ->
+                val (title, message) = cancelNotice(a.title)
+                notificationDao().insertNotification(
+                    Notification(user_id = a.user_id, title = title, message = message, timestamp = now, type = "event_update")
+                )
+            }
+        }
     }
 
-    /** Deletes an event and everything hanging off it (no foreign keys, so done by hand). */
-    suspend fun deleteEventCascade(eventId: Int) = withTransaction {
+    /**
+     * Deletes an event and everything hanging off it (no foreign keys, so done by hand). Everyone
+     * holding a seat or a waitlist spot, except [actorId], is sent [noticeTitle]/[noticeMessage]
+     * in the same transaction.
+     */
+    suspend fun deleteEventCascade(
+        eventId: Int,
+        noticeTitle: String? = null,
+        noticeMessage: String? = null,
+        actorId: Int = 0
+    ) = withTransaction {
+        val recipients = if (noticeTitle != null && noticeMessage != null) {
+            rsvpDao().getActiveRsvpsForEvent(eventId).map { it.user_id }.filter { it != actorId }.distinct()
+        } else emptyList()
+
         val d = userDataDao()
         d.deleteVotesForEvent(eventId); d.deleteOptionsForEvent(eventId); d.deletePollsForEvent(eventId)
         d.deleteRsvpsForEvent(eventId); d.deleteMessagesForEvent(eventId); d.deleteRecapsForEvent(eventId)
         d.deleteAttendanceForEvent(eventId); d.deleteNotificationsForEvent(eventId)
+        d.deleteReportsForEvent(eventId); d.deleteKarmaForEvent(eventId)
         d.deleteEventById(eventId)
+
+        val now = System.currentTimeMillis()
+        recipients.forEach { userId ->
+            notificationDao().insertNotification(
+                Notification(user_id = userId, title = noticeTitle!!, message = noticeMessage!!, timestamp = now, type = "event_update")
+            )
+        }
     }
 
     companion object {
@@ -225,6 +261,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Adds poll deadlines and the forced password change flag, and drops tables for features
+         * that were removed or never used: friendships, study_group_members, settings, badges,
+         * user_badges and skill_listings.
+         */
+        val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `polls` ADD COLUMN `closes_at` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `users` ADD COLUMN `must_change_password` INTEGER NOT NULL DEFAULT 0")
+                listOf("friendships", "study_group_members", "settings", "badges", "user_badges", "skill_listings")
+                    .forEach { db.execSQL("DROP TABLE IF EXISTS `$it`") }
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -234,7 +284,8 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                     .addMigrations(
                         MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14,
-                        MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18
+                        MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18,
+                        MIGRATION_18_19
                     )
                     .fallbackToDestructiveMigrationOnDowngrade()
                     .build()

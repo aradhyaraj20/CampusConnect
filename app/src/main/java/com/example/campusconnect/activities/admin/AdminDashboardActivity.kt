@@ -2,6 +2,7 @@ package com.example.campusconnect.activities.admin
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,7 @@ import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.database.AppDatabase
 import com.example.campusconnect.databinding.ActivityAdminDashboardBinding
 import com.example.campusconnect.databinding.ItemStatCardBinding
+import com.example.campusconnect.databinding.ViewEmptyStateInlineBinding
 import com.example.campusconnect.domain.security.AccessPolicy
 import com.example.campusconnect.viewmodel.admin.AdminDashboardViewModel
 import com.example.campusconnect.viewmodel.admin.AdminDashboardViewModelFactory
@@ -31,7 +33,7 @@ class AdminDashboardActivity : AppCompatActivity() {
         RoleGuard.enforce(this, AccessPolicy::canAccessAdmin)
         binding = ActivityAdminDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.root.applyImeAndSystemBarInsets(binding.toolbar)
+        binding.root.applyImeAndSystemBarInsets(binding.toolbar, hasBottomNav = true)
         setSupportActionBar(binding.toolbar)
         binding.toolbar.overflowIcon?.setTint(
             com.google.android.material.color.MaterialColors.getColor(binding.toolbar, com.google.android.material.R.attr.colorOnPrimary)
@@ -84,6 +86,7 @@ class AdminDashboardActivity : AppCompatActivity() {
     private fun observeState() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
+                binding.loadingProgress.visibility = if (state.isLoading) View.VISIBLE else View.GONE
                 StatCardStyle.apply(this@AdminDashboardActivity, binding.statUsers, state.userCount.toString(), getString(R.string.users), R.color.qa_purple, R.color.qa_purple_bg)
                 StatCardStyle.apply(this@AdminDashboardActivity, binding.statEvents, state.eventCount.toString(), getString(R.string.events), R.color.qa_orange, R.color.qa_orange_bg)
                 StatCardStyle.apply(this@AdminDashboardActivity, binding.statRsvps, state.rsvpCount.toString(), getString(R.string.rsvps), R.color.qa_blue, R.color.qa_blue_bg)
@@ -91,7 +94,7 @@ class AdminDashboardActivity : AppCompatActivity() {
 
                 binding.pendingReportsText.text = getString(R.string.reports_format, state.pendingReports)
 
-                renderCategories(state.popularCategories)
+                if (!state.isLoading) renderCategories(state.popularCategories)
             }
         }
     }
@@ -99,10 +102,10 @@ class AdminDashboardActivity : AppCompatActivity() {
     private fun renderCategories(categories: List<CategoryStat>) {
         binding.categoriesContainer.removeAllViews()
         if (categories.isEmpty()) {
-            val empty = TextView(this)
-            empty.text = getString(R.string.no_events_yet)
-            empty.setTextColor(getColor(android.R.color.darker_gray))
-            binding.categoriesContainer.addView(empty)
+            val empty = ViewEmptyStateInlineBinding.inflate(layoutInflater, binding.categoriesContainer, false)
+            empty.emptyTitle.setText(R.string.empty_categories_title)
+            empty.emptySubtitle.setText(R.string.empty_categories_subtitle)
+            binding.categoriesContainer.addView(empty.root)
             return
         }
         for (stat in categories) {

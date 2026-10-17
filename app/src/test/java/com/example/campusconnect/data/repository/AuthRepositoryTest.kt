@@ -18,7 +18,7 @@ import org.junit.Test
 
 class AuthRepositoryTest {
 
-    private class Fixture(invite: String = "", seed: List<User> = emptyList()) {
+    private class Fixture(seed: List<User> = emptyList()) {
         val users = seed.toMutableList()
         val session = SessionManager(FakeContext())
         private var nextId = 100
@@ -29,7 +29,7 @@ class AuthRepositoryTest {
                 "insertUser" to { a -> users += (a[0] as User).copy(id = nextId++); 1L }
             )
         )
-        val repo = AuthRepository(dao, session, invite)
+        val repo = AuthRepository(dao, session)
     }
 
     private fun user(email: String, password: String, role: String = "STUDENT", status: String = "ACTIVE") = User(
@@ -72,22 +72,13 @@ class AuthRepositoryTest {
     }
 
     @Test
-    fun register_organizerBlockedWhenInviteDisabled() = runBlocking {
-        val f = Fixture(invite = "")
-        val r = f.repo.register("O", "o@x.com", "password1", role = "ORGANIZER", inviteCode = "")
-        assertEquals("Invalid organizer invite code", r.errorMessage())
-        assertFalse(f.repo.organizerSignupEnabled)
-    }
-
-    @Test
-    fun register_organizerNeedsCorrectInviteCode() = runBlocking {
-        val f = Fixture(invite = "SECRET")
-        val bad = f.repo.register("O", "o@x.com", "password1", "ORGANIZER", inviteCode = "wrong")
-        assertEquals("Invalid organizer invite code", bad.errorMessage())
-
-        val ok = f.repo.register("O", "o@x.com", "password1", "ORGANIZER", inviteCode = " SECRET ")
-        assertEquals("ORGANIZER", (ok as Result.Success).data.role)
-        assertNull(ok.data.course_end_at)
+    fun register_organizerCanSelfRegister_withoutCourse() = runBlocking {
+        val f = Fixture()
+        val r = f.repo.register("O", "o@x.com", "password1", role = "ORGANIZER", course = "BCA", courseDurationMonths = 36)
+        val created = (r as Result.Success).data
+        assertEquals("ORGANIZER", created.role)
+        assertNull(created.course)
+        assertNull(created.course_end_at)
     }
 
     @Test

@@ -1,8 +1,8 @@
 package com.example.campusconnect.activities
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.load
@@ -48,11 +48,11 @@ class MyProfileActivity : AppCompatActivity() {
             if (currentRole == "ADMIN") android.view.View.VISIBLE else android.view.View.GONE
 
         if (currentRole == "ADMIN") {
-            binding.statOneLabel.text = "Total Users"
-            binding.statTwoLabel.text = "Total Events"
+            binding.statOneLabel.setText(R.string.stat_total_users)
+            binding.statTwoLabel.setText(R.string.stat_total_events)
         } else {
-            binding.statOneLabel.text = "Events Created"
-            binding.statTwoLabel.text = "Registrations"
+            binding.statOneLabel.setText(R.string.stat_events_created)
+            binding.statTwoLabel.setText(R.string.stat_registrations)
         }
 
         loadProfile()
@@ -74,7 +74,7 @@ class MyProfileActivity : AppCompatActivity() {
             startActivity(Intent(this, AdminAdsActivity::class.java))
         }
         binding.logoutButton.setOnClickListener {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.logout)
                 .setMessage(R.string.logout_confirm)
                 .setNegativeButton(android.R.string.cancel, null)

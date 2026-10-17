@@ -1,16 +1,18 @@
 package com.example.campusconnect.activities
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.campusconnect.R
+import com.example.campusconnect.domain.usecase.SaveEventUseCase
+import com.example.campusconnect.appContainer
 import com.example.campusconnect.adapters.AIInteractionAdapter
 import com.example.campusconnect.core.common.applyImeAndSystemBarInsets
 import com.example.campusconnect.core.security.RoleGuard
@@ -79,7 +81,8 @@ class AIAssistantActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return AIViewModel(aiRepo, eventRepo, db.aiInteractionDao(), currentUserId, mode) as T
+                val saveEvent = SaveEventUseCase(db.eventDao(), db.userDao(), db.rsvpDao(), db.notificationDao(), appContainer.transactions)
+                return AIViewModel(aiRepo, eventRepo, db.aiInteractionDao(), currentUserId, mode, saveEvent) as T
             }
         })[AIViewModel::class.java]
 
@@ -148,14 +151,12 @@ class AIAssistantActivity : AppCompatActivity() {
                         binding.progressBar.visibility = View.GONE
                         Toast.makeText(this@AIAssistantActivity, state.message, Toast.LENGTH_LONG).show()
                         lifecycleScope.launch {
+                            // Reminders are opt-in from the event screen, like for manually created events.
                             val db = AppDatabase.getDatabase(this@AIAssistantActivity)
-                            db.eventDao().getEventById(state.eventId)?.let {
-                                ReminderManager.scheduleReminders(this@AIAssistantActivity, it)
-                            }
                             db.notificationDao().insertNotification(
                                 com.example.campusconnect.models.Notification(
                                     user_id = currentUserId,
-                                    title = "Event created",
+                                    title = getString(R.string.ai_event_created_title),
                                     message = state.message,
                                     timestamp = System.currentTimeMillis(),
                                     type = "event_created",
@@ -182,11 +183,11 @@ class AIAssistantActivity : AppCompatActivity() {
         sheetBinding.previewTitle.text = event.title.ifBlank { "Untitled event" }
         sheetBinding.previewDateTime.text = "${event.date} · ${event.time}"
         sheetBinding.previewLocation.text = event.location
-        sheetBinding.previewCapacity.text = "Capacity: ${event.max_attendees ?: "Open"}"
-        sheetBinding.previewEligibility.text = "Eligibility: ${event.eligibility ?: "Open to all"}"
-        sheetBinding.previewTags.text = "Tags: ${event.tags ?: "—"}"
+        sheetBinding.previewCapacity.text = getString(R.string.ai_preview_capacity, event.max_attendees?.toString() ?: getString(R.string.ai_preview_open))
+        sheetBinding.previewEligibility.text = getString(R.string.ai_preview_eligibility, event.eligibility ?: getString(R.string.ai_preview_open_to_all))
+        sheetBinding.previewTags.text = getString(R.string.ai_preview_tags, event.tags ?: getString(R.string.ai_preview_none))
         if (conflict != null) {
-            sheetBinding.previewLocation.setTextColor(getColor(android.R.color.holo_red_dark))
+            sheetBinding.previewLocation.setTextColor(com.google.android.material.color.MaterialColors.getColor(sheetBinding.previewLocation, androidx.appcompat.R.attr.colorError))
             Toast.makeText(this, conflict, Toast.LENGTH_LONG).show()
         }
         sheetBinding.confirmButton.setOnClickListener {
@@ -201,18 +202,18 @@ class AIAssistantActivity : AppCompatActivity() {
     }
 
     private fun showConflictDialog(message: String) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.schedule_conflict)
-            .setMessage("$message\n\nChange the time, change the location in chat, or continue anyway.")
+            .setMessage(getString(R.string.ai_conflict_message, message))
             .setPositiveButton(R.string.continue_anyway) { _, _ -> viewModel.clearConflictAndContinue() }
             .setNeutralButton(R.string.change_time) { _, _ ->
                 viewModel.resetState()
-                binding.promptEditText.setText("Change the time to ")
+                binding.promptEditText.setText(R.string.ai_prompt_change_time)
                 binding.promptEditText.requestFocus()
             }
             .setNegativeButton(R.string.change_location) { _, _ ->
                 viewModel.resetState()
-                binding.promptEditText.setText("Change the location to ")
+                binding.promptEditText.setText(R.string.ai_prompt_change_location)
                 binding.promptEditText.requestFocus()
             }
             .show()

@@ -3,7 +3,6 @@ package com.example.campusconnect.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
 import com.example.campusconnect.R
 import com.example.campusconnect.databinding.ItemFlashEventBinding
 import com.example.campusconnect.models.Event
@@ -14,7 +13,11 @@ class FlashEventAdapter(
     private val onEventClick: (Event) -> Unit
 ) : RecyclerView.Adapter<FlashEventAdapter.FlashViewHolder>() {
 
-    class FlashViewHolder(val binding: ItemFlashEventBinding) : RecyclerView.ViewHolder(binding.root)
+    class FlashViewHolder(val binding: ItemFlashEventBinding) : RecyclerView.ViewHolder(binding.root) {
+        /** Fixed card width from item_flash_event.xml, used whenever there is more than one item. */
+        val carouselWidth: Int = binding.root.layoutParams?.width
+            ?: (200 * binding.root.resources.displayMetrics.density).toInt()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FlashViewHolder {
         val binding = ItemFlashEventBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -27,17 +30,16 @@ class FlashEventAdapter(
         
         val remainingMs = (event.expiry_time ?: 0) - System.currentTimeMillis()
         val minutes = TimeUnit.MILLISECONDS.toMinutes(remainingMs)
-        holder.binding.flashExpiry.text = "Ends in ${minutes}m"
+        holder.binding.flashExpiry.text = holder.itemView.context.getString(R.string.flash_ends_in, minutes.coerceAtLeast(0))
         
-        // Load flash event image using Coil
-        if (event.image_uri != null) {
-            holder.binding.flashImage.load(event.image_uri) {
-                crossfade(true)
-                placeholder(R.drawable.ic_campus_logo)
-                error(R.drawable.ic_campus_logo)
-            }
-        } else {
-            holder.binding.flashImage.setImageResource(R.drawable.ic_launcher_background)
+        holder.binding.flashImage.loadEventImage(event.image_uri)
+
+        // A single live session fills the row instead of leaving the right half empty.
+        val params = holder.itemView.layoutParams
+        val targetWidth = if (itemCount == 1) ViewGroup.LayoutParams.MATCH_PARENT else holder.carouselWidth
+        if (params != null && params.width != targetWidth) {
+            params.width = targetWidth
+            holder.itemView.layoutParams = params
         }
         
         holder.itemView.setOnClickListener { onEventClick(event) }

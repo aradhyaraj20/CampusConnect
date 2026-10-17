@@ -34,9 +34,6 @@ android {
             "TICKET_HMAC_SECRET",
             "\"${localProperties.getProperty("TICKET_HMAC_SECRET", "CampusConnect_Secure_HMAC_Secret_Key_2026")}\""
         )
-        // Organizer self-signup requires this invite code. Blank = organizer
-        // self-signup disabled (admins promote accounts instead).
-        buildConfigField("String", "ORGANIZER_INVITE_CODE", "\"${localProperties.getProperty("ORGANIZER_INVITE_CODE", "")}\"")
         // Password for the seeded admin account in RELEASE builds. Blank = no
         // admin is seeded. Demo accounts are only ever created in debug builds.
         buildConfigField("String", "ADMIN_INITIAL_PASSWORD", "\"${localProperties.getProperty("ADMIN_INITIAL_PASSWORD", "")}\"")

@@ -1,9 +1,9 @@
 package com.example.campusconnect.activities.admin
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.campusconnect.R
@@ -157,7 +157,7 @@ class AdminAiConfigActivity : AppCompatActivity() {
     }
 
     private fun confirmClear() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.ai_clear_key)
             .setMessage(R.string.ai_clear_confirm)
             .setNegativeButton(android.R.string.cancel, null)

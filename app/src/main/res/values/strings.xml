@@ -7,35 +7,20 @@
     <string name="home_greeting_generic">Hello 👋</string>
     <string name="home_greeting_subtitle">Have a great day ahead!</string>
     <string name="home_search_hint">Search anything…</string>
-    <string name="quick_access">Quick Access</string>
     <string name="view_all">View All</string>
     <string name="upcoming_events">Upcoming Events</string>
     <string name="view_calendar">View Calendar</string>
-    <string name="qa_new">NEW</string>
 
     <!-- Quick Access tile labels -->
-    <string name="qa_profile">Profile</string>
-    <string name="qa_profile_sub">View &amp; edit profile</string>
-    <string name="qa_events">Events</string>
-    <string name="qa_events_sub">Browse &amp; search</string>
-    <string name="qa_my_events">My Events</string>
-    <string name="qa_my_events_sub">Your schedule</string>
-    <string name="qa_groups">Study Groups</string>
-    <string name="qa_groups_sub">Find your peers</string>
     <string name="qa_assistant">AI Assistant</string>
     <string name="qa_assistant_sub">Ask &amp; support</string>
     <string name="qa_notices">Notices</string>
     <string name="qa_notices_sub">Latest updates</string>
     <string name="qa_marketplace">Marketplace</string>
     <string name="qa_marketplace_sub">Buy &amp; sell</string>
-    <string name="qa_badges">Achievements</string>
-    <string name="qa_badges_sub">Badges &amp; karma</string>
     <string name="qa_settings">Settings</string>
     <string name="qa_settings_sub">App &amp; account</string>
     <string name="qa_create_event">Create Event</string>
-    <string name="qa_create_event_sub">Post a new event</string>
-    <string name="qa_scan">Scan Attendance</string>
-    <string name="qa_scan_sub">Check-in via QR</string>
     <string name="home_for_you">For You</string>
     <string name="home_live_now">Live Now</string>
 
@@ -176,7 +161,6 @@
     <string name="ai_config_status_ok">Active \u2014 AI features are available</string>
     <string name="ai_config_status_missing">No key set \u2014 AI features are unavailable</string>
     <string name="logout_confirm">You\'ll need to sign in again to access your events and tickets.</string>
-    <string name="cd_campus_map">Campus map</string>
     <string name="cd_send_message">Send message</string>
     <string name="cd_qr_ticket">Your QR entry ticket</string>
     <!-- Settings -->
@@ -235,7 +219,7 @@
     <string name="pwd_updated">Password updated. Use it the next time you sign in.</string>
 
     <!-- About / help / privacy -->
-    <string name="about_body">CampusConnect %1$s\n\nA university campus platform for discovering events, joining study groups, exchanging skills and tracking attendance.\n\nBuilt as an academic project.</string>
+    <string name="about_body">CampusConnect %1$s\n\nA university campus platform for discovering events, joining study groups and tracking attendance.\n\nBuilt as an academic project.</string>
     <string name="help_body">Getting started:\n\n\u2022 Students \u2014 search naturally, e.g. \"I like football\" or \"AI events this weekend\". RSVP to an event to get your QR ticket.\n\n\u2022 Organizers \u2014 use Create Event with AI, then scan attendee QR codes at the door to record attendance.\n\n\u2022 Admins \u2014 review reports under Moderation and check platform statistics on the dashboard.\n\nIf AI features are unavailable, regular search and manual event creation continue to work.</string>
     <string name="privacy_body">Your data stays on this device.\n\n\u2022 Account details, events, RSVPs and messages are stored in a local database on your phone.\n\u2022 Passwords are stored as salted hashes, never as plain text.\n\u2022 If AI features are enabled, only the text of your question and the relevant campus statistics are sent to Google Gemini to phrase a reply. Your password is never sent.\n\u2022 Clearing app data removes everything permanently.</string>
     <!-- Marketplace -->
@@ -274,7 +258,6 @@
     <string name="ai_chip_admin_users">How many users do we have?</string>
     <string name="ai_chip_admin_top">Which events have the most RSVPs?</string>
     <string name="ai_chip_admin_reports">Any pending reports?</string>
-    <string name="map_preview_label">Campus map preview</string>
     <string name="leave_waitlist">Leave Waitlist</string>
     <string name="rsvp_blocked_cancelled">Event cancelled</string>
     <string name="rsvp_blocked_ended">Event has ended</string>
@@ -309,10 +292,6 @@
     <string name="chat_empty">No messages yet. Say hello!</string>
     <string name="polls_title">Polls</string>
     <string name="no_polls_yet">No polls for this event yet</string>
-    <plurals name="poll_votes">
-        <item quantity="one">%1$d vote · Ends %2$s</item>
-        <item quantity="other">%1$d votes · Ends %2$s</item>
-    </plurals>
     <string name="vote_recorded">Vote recorded</string>
     <string name="vote_already_cast">You have already voted in this poll</string>
     <string name="event_space_locked">Join the event to open its chat and polls</string>
@@ -326,7 +305,6 @@
     <!-- Moved out of layouts -->
     <string name="type_your_request">Type your request...</string>
     <string name="confirm_selection">Confirm Selection</string>
-    <string name="cd_scroll_up">Scroll Up</string>
     <string name="cd_scroll_down">Scroll Down</string>
     <string name="type_a_message">Type a message...</string>
     <string name="event_title">Event Title</string>
@@ -350,7 +328,6 @@
     <string name="log_out">Log Out</string>
     <string name="no_notifications_yet_nreminders">No notifications yet.\nReminders, waitlist updates and chat will appear here.</string>
     <string name="show_this_at_the_entrance_norgan">Show this at the entrance.\nOrganizer scan confirms your attendance.</string>
-    <string name="organizer_invite_code">Organizer invite code</string>
     <string name="try_i_like_football_or_ai_this_w">Try \'I like football\' or \'AI this weekend\'...</string>
     <string name="recent_searches">Recent Searches</string>
     <string name="no_matches_found">No matches found</string>
@@ -359,7 +336,6 @@
     <string name="edit">Edit</string>
     <string name="campus_marketplace">Campus Marketplace</string>
     <string name="my_joined_events">My Joined Events</string>
-    <string name="my_badges">My Badges</string>
     <string name="campus_legends_top_helpful">Campus Legends (Top Helpful)</string>
     <string name="cd_avatar_option">Avatar Option</string>
     <string name="user">User</string>
@@ -394,7 +370,6 @@
     <string name="no_email_app_available">No email app available</string>
     <string name="no_attendees_to_export_yet">No attendees to export yet</string>
     <string name="could_not_export_attendees">Could not export attendees</string>
-    <string name="upload_feature_coming_soon">Upload feature coming soon!</string>
     <string name="event_memories">Event Memories</string>
     <string name="please_fill_all_fields">Please fill all fields</string>
     <string name="campus_navigation">Campus Navigation</string>
@@ -415,6 +390,10 @@
     <string name="change_role">Change role</string>
     <string name="confirm">Confirm</string>
     <string name="calendar_no_events">No events on this day.</string>
+    <string name="study_groups_all_joined">You\'ve joined every study group. Find them under My Events.</string>
+    <string name="calendar_no_events_on">No events on %1$s</string>
+    <string name="calendar_no_events_hint">Dates with an event are marked on the calendar. Pick one of those to see what\'s on.</string>
+    <string name="calendar_no_upcoming_hint">New events will appear here as soon as they are posted.</string>
     <string name="events_on_date">Events on %1$s</string>
     <string name="study_groups_empty">No study groups yet. Organizers can create one from Create Event.</string>
     <string name="cd_more_options">More options</string>

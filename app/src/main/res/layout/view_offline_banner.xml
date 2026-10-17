@@ -4,11 +4,10 @@
     android:id="@+id/offlineBanner"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="12dp"
+    android:layout_margin="@dimen/space_m"
     android:visibility="gone"
     app:cardBackgroundColor="@color/warning_container"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="0dp">
+    app:cardCornerRadius="@dimen/radius_card">
 
     <TextView
         android:id="@+id/offlineBannerText"
@@ -16,7 +15,7 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:gravity="center_vertical"
-        android:padding="12dp"
+        android:padding="@dimen/space_m"
         android:text="@string/offline_saved"
         android:textColor="@color/on_warning_container" />
 </com.google.android.material.card.MaterialCardView>

@@ -17,6 +17,7 @@ class SessionManager(context: Context) {
         private const val KEY_OFFLINE_MODE = "offline_mode"
         private const val MAX_LOGIN_ATTEMPTS = 5
         private const val LOCKOUT_MS = 5 * 60_000L
+        private const val MAX_LOCKOUT_MS = 24 * 60 * 60_000L
 
         @Volatile
         private var INSTANCE: SessionManager? = null
@@ -68,13 +69,21 @@ class SessionManager(context: Context) {
     fun lockoutRemainingMs(email: String, now: Long = System.currentTimeMillis()): Long =
         (prefs.getLong("lock_until_${email.lowercase()}", 0L) - now).coerceAtLeast(0L)
 
+    /**
+     * Every [MAX_LOGIN_ATTEMPTS] failures lock the email, and each further lockout doubles
+     * (5 min, 10, 20 ... capped at 24 h) until a successful login, so guessing cannot simply
+     * resume at full speed every five minutes.
+     */
     fun recordFailedLogin(email: String, now: Long = System.currentTimeMillis()) {
         val key = email.lowercase()
         val fails = prefs.getInt("login_fails_$key", 0) + 1
         prefs.edit().apply {
             if (fails >= MAX_LOGIN_ATTEMPTS) {
+                val strikes = prefs.getInt("lock_strikes_$key", 0)
+                val duration = (LOCKOUT_MS shl strikes.coerceAtMost(10)).coerceAtMost(MAX_LOCKOUT_MS)
                 putInt("login_fails_$key", 0)
-                putLong("lock_until_$key", now + LOCKOUT_MS)
+                putInt("lock_strikes_$key", strikes + 1)
+                putLong("lock_until_$key", now + duration)
             } else {
                 putInt("login_fails_$key", fails)
             }
@@ -84,7 +93,7 @@ class SessionManager(context: Context) {
 
     fun clearFailedLogins(email: String) {
         val key = email.lowercase()
-        prefs.edit().remove("login_fails_$key").remove("lock_until_$key").apply()
+        prefs.edit().remove("login_fails_$key").remove("lock_until_$key").remove("lock_strikes_$key").apply()
     }
 
     fun clearSession() {

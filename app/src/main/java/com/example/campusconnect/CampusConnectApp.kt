@@ -1,9 +1,8 @@
 package com.example.campusconnect
 
 import android.app.Application
-import androidx.appcompat.app.AppCompatDelegate
+import com.example.campusconnect.core.common.ThemeMode
 import com.example.campusconnect.core.ai.AIConfig
-import com.example.campusconnect.core.security.SessionManager
 import com.example.campusconnect.worker.AccountCleanupWorker
 
 /**
@@ -25,11 +24,8 @@ class CampusConnectApp : Application() {
         // Must run before any AI call so the admin-entered runtime key is visible.
         AIConfig.init(this)
 
-        val session = SessionManager.getInstance(this)
-        AppCompatDelegate.setDefaultNightMode(
-            if (session.isDarkModeEnabled()) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
+        // Follows the phone's light/dark setting unless Settings overrides it.
+        ThemeMode.apply(this)
 
         // Daily sweep: removes STUDENT accounts whose course ended 2+ months ago
         // and who haven't logged back in since (see AccountCleanupWorker).

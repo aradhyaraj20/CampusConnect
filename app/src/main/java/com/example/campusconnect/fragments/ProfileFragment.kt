@@ -1,5 +1,6 @@
 package com.example.campusconnect.fragments
 
+import com.example.campusconnect.R
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import coil.decode.SvgDecoder
 import coil.load
 import com.example.campusconnect.activities.AvatarPickerActivity
-import com.example.campusconnect.activities.BadgesActivity
 import com.example.campusconnect.activities.EditProfileActivity
 import com.example.campusconnect.activities.QrTicketActivity
 import com.example.campusconnect.activities.SettingsActivity
@@ -53,7 +53,7 @@ class ProfileFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             AppDatabase.getDatabase(requireContext()).userDao().getUserByIdFlow(currentUserId).collectLatest { user ->
                 user?.let {
-                    binding.userKarma.text = "Karma: ${it.karma_points}"
+                    binding.userKarma.text = getString(R.string.karma_format, it.karma_points)
                     binding.userBio.text = it.bio ?: "No bio yet. Tap edit to add one!"
                     
                     binding.interestsChipGroup.removeAllViews()
@@ -95,21 +95,6 @@ class ProfileFragment : Fragment() {
         binding.myEventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.myEventsRecyclerView.adapter = adapter
         pager = com.example.campusconnect.core.common.Pager(binding.myEventsRecyclerView) { adapter.updateEvents(it) }
-
-        binding.scrollUpFab.setOnClickListener {
-            binding.myEventsRecyclerView.smoothScrollToPosition(0)
-        }
-
-        binding.scrollDownFab.setOnClickListener {
-            val count = adapter.itemCount
-            if (count > 0) {
-                binding.myEventsRecyclerView.smoothScrollToPosition(count - 1)
-            }
-        }
-
-        binding.myBadgesButton.setOnClickListener {
-            startActivity(Intent(requireContext(), BadgesActivity::class.java))
-        }
 
         binding.settingsButton.setOnClickListener {
             startActivity(Intent(requireContext(), SettingsActivity::class.java))
