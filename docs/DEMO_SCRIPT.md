@@ -5,9 +5,9 @@ Test once with Wi-Fi off and no `GEMINI_API_KEY`: search and Ask AI fall back to
 
 | Role | Email | Password |
 |---|---|---|
-| Student | aradhya@email.com | password |
-| Organizer | cs@campus.edu | password |
-| Admin | admin@campus.edu | password |
+| Student | aradhya@email.com | campus123 |
+| Organizer | cs@campus.edu | campus123 |
+| Admin | admin@campus.edu | campus123 |
 
 ## 1. Student (2 min)
 1. Log in as the student. *"Offline-first: everything is stored on-device in Room."*

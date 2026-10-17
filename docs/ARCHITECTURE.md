@@ -3,20 +3,22 @@
 ```
 UI (Activities / Fragments, ViewBinding)
   -> ViewModel (EventDetail, Search, AI, AdminDashboard, OrganizerDashboard)
-    -> UseCase (RSVP, Moderation, Karma, Cancellation, AdminAnalytics, AISummary)
-      -> Repository (Auth, Event, Search, AI, Notification, Skill)
-        -> Room (AppDatabase v16, DAOs)  |  Gemini API (optional, with local fallback)
+    -> UseCase (RSVP, SaveEvent, Poll, ModerateReport)
+      -> Repository (Auth, Event, Search, AI)
+        -> Room (AppDatabase v19, DAOs)  |  Gemini API (optional, with local fallback)
 ```
 
 Pure logic lives in `domain/` (`RsvpPolicy`, `AccessPolicy`, `TicketCrypto`) and `search/` so it can be unit-tested without Android.
-The Room schema is exported to `app/schemas/.../18.json`; open it for the ER diagram. Unique indices enforce one RSVP per user per event, one vote per user per poll and one check-in per attendee.
+The Room schema is exported to `app/schemas/.../19.json`; open it for the ER diagram. Unique indices enforce one RSVP per user per event, one vote per user per poll and one check-in per attendee.
 
 ## RBAC
 
 | Capability | Student | Organizer | Admin |
 |---|---|---|---|
-| Browse, search, RSVP, chat, polls, marketplace | yes | yes | yes |
+| Browse, search, RSVP, chat, polls | yes | yes | yes |
+| Add event memory photos (with a seat, after start) | yes | yes | yes |
 | Create / edit own events | no | yes | yes |
+| Open polls on an event | no | own events | yes |
 | Edit / delete any event | no | no | yes |
 | Scan QR attendance | no | yes | yes |
 | Export / email attendees | no | own events | yes |
@@ -25,7 +27,7 @@ The Room schema is exported to `app/schemas/.../18.json`; open it for the ER dia
 Enforced by `AccessPolicy` (not only by hiding buttons). Admin and organizer screens call `RoleGuard`, which re-reads the role and account status from the database, so a demoted or suspended account is sent back out even if the cached session says otherwise. Event chat and polls check enrollment themselves.
 
 ## Security (built)
-PBKDF2-SHA256 password hashing, login lockout (5 min), invite-code organizer signup, demo accounts only in debug builds,
+PBKDF2-SHA256 password hashing, escalating login lockout (5 min doubling up to 24 h), forced password change for the build-seeded admin, no self-registered admins, demo accounts only in debug builds,
 HMAC-signed QR tickets checked against the database at the door (scanner must own the event or be admin, event active, RSVP still "going", ticket matches; no replay), tickets only for the holder's own confirmed seat, role re-check before privileged operations, cascade delete of user and event data, https-only ad links, shared login/password-change lockout.
 
 ## Limitations (be upfront in the viva)

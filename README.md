@@ -1,7 +1,7 @@
 # CampusConnect
 
 An offline-first Android app that brings campus life into one place: discover events, RSVP with a waitlist, check in
-with QR tickets, chat, run polls, trade in a marketplace, swap skills and compete on a course leaderboard. Three roles
+with QR tickets, chat, vote in polls, share event photos and compete on a course leaderboard. Three roles
 (student, organizer, admin) each get their own experience, and an optional Gemini-powered assistant helps with event
 search and event creation, with a local fallback when it is unavailable.
 
@@ -24,15 +24,24 @@ reason about.
 ## Features
 
 ### Students
+- **Home:** "My Events" shows the upcoming events you have joined, then personalised "For You" picks, live flash
+  sessions and every other upcoming event (joined ones are not repeated)
+- **Groups:** study groups you have not joined yet, plus a course-scoped karma leaderboard
+- **My Events tab:** a calendar of events; tapping an empty day says so instead of showing a blank list. The tab badge
+  counts your upcoming events
 - Natural-language event search with explanations of why each result matched
 - RSVP with automatic waitlist promotion when a seat opens
-- QR tickets, event reminders and add-to-calendar
-- Event chat, polls, marketplace, and skill exchange with karma
-- Course-scoped leaderboard and badges
+- QR tickets, per-user event reminders and add-to-calendar
+- Event chat and polls (one vote each, with optional deadlines)
+- Event memories: attendees add photos once the event has started
+- Location screen that opens the venue in the maps app
+- Notifications with unread markers and timestamps
 
 ### Organizers
-- Create events manually or by describing them to the AI assistant
-- Event photos, edit and delete with attendee notifications on date or location changes
+- Sign up directly by choosing **Organizer** on the Register screen
+- Create events manually or by describing them to the AI assistant (both go through the same validation)
+- Event cover photos, edit and delete with attendee notifications on date or location changes
+- Open polls for attendees, with an optional voting deadline
 - QR attendance scanner for check-in
 - Email attendees and export the attendee list as CSV
 
@@ -43,8 +52,11 @@ reason about.
 - Cleanup of inactive accounts after a course ends
 
 ### Everywhere
-- Offline banner, loading and empty states, dark mode
-- Local parser and database Q&A when Gemini is not configured or is down
+- Material 3 design: collapsing headers, one compact event-card style, consistent icons, type scale and spacing
+- Light and dark mode that follow the phone's setting by default (can be forced in Settings)
+- Inline form errors and Snackbars, loading indicators and empty states on every list
+- Landscape and tablet layouts for lists and the QR ticket
+- Offline banner, and a local parser plus database Q&A when Gemini is not configured or is down
 
 ## Tech stack
 
@@ -52,7 +64,7 @@ reason about.
 |---|---|
 | Language / UI | Kotlin, XML views, Material 3 |
 | Architecture | MVVM with use cases and repositories |
-| Storage | Room (SQLite) with migrations |
+| Storage | Room (SQLite), schema v19, with tested migrations |
 | Background work | WorkManager |
 | QR | ZXing Android Embedded |
 | Images | Coil |
@@ -95,8 +107,7 @@ RELEASE_STORE_FILE=C\:\path\to\key.jks       # required for release
 RELEASE_STORE_PASSWORD=...
 RELEASE_KEY_ALIAS=...
 RELEASE_KEY_PASSWORD=...
-ADMIN_INITIAL_PASSWORD=<8+ chars>            # seeds admin@campus.edu in release
-ORGANIZER_INVITE_CODE=<code>                 # blank = organizer self-signup disabled
+ADMIN_INITIAL_PASSWORD=<8+ chars>            # seeds admin@campus.edu in release; must be changed at first login
 ```
 
 ## Demo accounts
@@ -105,15 +116,19 @@ Seeded in **debug builds only**. Release builds never create these.
 
 | Role | Email | Password |
 |---|---|---|
-| Student | aradhya@email.com | password |
-| Organizer | cs@campus.edu | password |
-| Admin | admin@campus.edu | password |
+| Student | aradhya@email.com | campus123 |
+| Organizer | cs@campus.edu | campus123 |
+| Admin | admin@campus.edu | campus123 |
+
+New users pick **Student** or **Organizer** on the Register screen. Admin accounts can't be self-registered.
+If an app update ever fails to open with an old local database, clear the app's data (debug builds reseed the demo
+content on next launch).
 
 ## Build, test and release
 
 ```
 ./gradlew assembleDebug testDebugUnitTest     # build and unit tests
-./gradlew connectedDebugAndroidTest           # Room migration test (needs emulator or device)
+./gradlew connectedDebugAndroidTest           # Room migration tests, v16 -> v19 (needs emulator or device)
 ./gradlew :app:assembleRelease                # release build (see Configuration)
 ```
 
@@ -125,7 +140,7 @@ Source lives under `app/src/main/java/com/example/campusconnect`:
 |---|---|
 | `activities`, `fragments`, `adapters` | Screens and list rendering |
 | `viewmodel`, `presentation` | UI state |
-| `domain` | Use cases (RSVP, event save, moderation) |
+| `domain` | Use cases (RSVP, event save, polls, moderation) |
 | `repository`, `data`, `database` | Room entities, DAOs, migrations and repositories |
 | `search` | Natural-language search and Gemini integration |
 | `worker` | WorkManager jobs (reminders, account cleanup) |
@@ -138,16 +153,24 @@ control, security design and limitations.
 
 - **Atomic RSVP and check-in:** join, leave with waitlist promotion, QR check-in and moderation removal each run in a
   single database transaction, so seat counts stay consistent.
-- **Validated event editing:** create and edit are checked and authorised (trimmed fields, positive capacity, no past
-  dates, capacity not below the going count).
-- **Safer moderation:** admins cannot be warned, suspended or re-roled, and screens show the real outcome.
-- **Authentication:** PBKDF2-SHA256 password hashing, login lockout and lockout-aware password changes.
-- **Access control:** organizer sign-up requires an invite code; demo accounts exist only in debug builds.
+- **Validated event editing:** create, edit and AI-created events are checked and authorised (trimmed fields,
+  positive capacity, no past dates, capacity not below the going count).
+- **Clean deletes:** removing a user or an event also removes or fixes everything tied to it (poll totals, waitlist
+  promotion, reports, karma) and notifies affected attendees in the same transaction.
+- **Per-user reminders:** reminders only fire for the signed-in user who asked for them and are cancelled when they
+  leave an event.
+- **Safer moderation:** every admin action re-checks that the actor is an active admin; admins cannot be warned,
+  suspended or re-roled, and screens show the real outcome.
+- **Authentication:** PBKDF2-SHA256 password hashing (off the main thread), escalating login lockout, lockout-aware
+  password changes, untrimmed passwords, and a forced password change for the build-seeded admin.
+- **Access control:** anyone can sign up as a student or organizer (admins can demote or suspend accounts); admin
+  accounts are never self-registered, and demo accounts exist only in debug builds.
 - **Gemini hardening:** calls run off the main thread with short timeouts, and untrusted text is delimited in prompts.
 
 ## Known limitations
 
 - Single-device, offline-first design: there is no server, sync or push notification service.
+- Anyone can register as an organizer; admins manage roles afterwards from user management.
 - The QR ticket signing secret is shared across installs, and the Gemini key is embedded in the APK. A production
   version would move both behind a backend.
 

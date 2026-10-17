@@ -4,9 +4,9 @@
 
 | Role | Email | Password |
 |---|---|---|
-| Student | aradhya@email.com | password |
-| Organizer | cs@campus.edu | password |
-| Admin | admin@campus.edu | password |
+| Student | aradhya@email.com | campus123 |
+| Organizer | cs@campus.edu | campus123 |
+| Admin | admin@campus.edu | campus123 |
 
 ## Local setup
 
@@ -58,7 +58,6 @@ Never put `GEMINI_API_KEY` or keystore passwords in Kotlin, XML, or git.
 - [ ] RSVP + waitlist promotion
 - [ ] QR ticket + scanner (organizer)
 - [ ] Notifications, chat, polls
-- [ ] Skill Exchange + Karma
 - [ ] Admin moderation
 - [ ] Dark mode
 - [ ] Home skeleton / empty / offline
