@@ -3,13 +3,14 @@
 An offline-first Android app that brings campus life into one place: discover events, RSVP with a waitlist, check in
 with QR tickets, chat, vote in polls, share event photos and compete on a course leaderboard. Three roles
 (student, organizer, admin) each get their own experience, and an optional Gemini-powered assistant helps with event
-search and event creation, with a local fallback when it is unavailable.
+  search and event creation, with a local fallback when it is unavailable.
 
 There is no backend server. All data lives on the device in Room/SQLite, which keeps the app easy to demo and easy to
 reason about.
 
 ## Contents
 
+- [Screenshots](#screenshots)
 - [Features](#features)
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
@@ -20,6 +21,18 @@ reason about.
 - [Reliability and security](#reliability-and-security)
 - [Known limitations](#known-limitations)
 - [Documentation](#documentation)
+
+## Screenshots
+
+Student experience (demo data).
+
+| Home | Events | Groups |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/home.png" width="220" alt="Home"> | <img src="docs/screenshots/events.png" width="220" alt="Upcoming events"> | <img src="docs/screenshots/groups.png" width="220" alt="Study groups and leaderboard"> |
+
+| My Events | AI assistant | Profile |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/my-events.png" width="220" alt="My Events calendar"> | <img src="docs/screenshots/ai-assistant.png" width="220" alt="AI assistant"> | <img src="docs/screenshots/profile.png" width="220" alt="Profile"> |
 
 ## Features
 
