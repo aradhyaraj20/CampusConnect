@@ -190,9 +190,9 @@ control, security design and limitations.
 
 ## Review papers (CA3)
 
-The Mobile Application Development CA3 review dossier (Reviews 1 to 5) is included in the repository.
+The Mobile Application Development CA3 review papers are included in the repository.
 
-**Navigation path:** repository root > [CampusConnect_CA3_Reviews_1_to_5.docx](CampusConnect_CA3_Reviews_1_to_5.docx)
+**Navigation path:** repository root > [Review_Activity_1.pdf](Review_Activity_1.pdf), [Review_Activity_2.pdf](Review_Activity_2.pdf)
 
 ## Documentation
 
