@@ -190,17 +190,9 @@ control, security design and limitations.
 
 ## Review papers (CA3)
 
-The Mobile Application Development CA3 review dossier (Reviews 1 to 5) for this project is included in the repository.
+The Mobile Application Development CA3 review dossier (Reviews 1 to 5) is included in the repository.
 
-**Navigation path:** repository root > `docs/` > `CampusConnect_CA3_Reviews_1_to_5.*`
-
-| Format | Path |
-| :--- | :--- |
-| Word | [docs/CampusConnect_CA3_Reviews_1_to_5.docx](docs/CampusConnect_CA3_Reviews_1_to_5.docx) |
-| Markdown | [docs/CampusConnect_CA3_Reviews_1_to_5.md](docs/CampusConnect_CA3_Reviews_1_to_5.md) |
-| HTML | [docs/CampusConnect_CA3_Reviews_1_to_5.html](docs/CampusConnect_CA3_Reviews_1_to_5.html) |
-
-A copy of the Word file is also kept at the repository root: [CampusConnect_CA3_Reviews_1_to_5.docx](CampusConnect_CA3_Reviews_1_to_5.docx).
+**Navigation path:** repository root > [CampusConnect_CA3_Reviews_1_to_5.docx](CampusConnect_CA3_Reviews_1_to_5.docx)
 
 ## Documentation
 
@@ -209,4 +201,3 @@ A copy of the Word file is also kept at the repository root: [CampusConnect_CA3_
 - [Deployment notes](DEPLOYMENT.md)
 - [Roadmap](ROADMAP.md)
 - [Change history](CHANGES.md)
-- [CA3 review papers](docs/CampusConnect_CA3_Reviews_1_to_5.md)
